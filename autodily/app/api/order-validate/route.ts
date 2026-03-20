@@ -1,0 +1,17 @@
+import { NextRequest, NextResponse } from "next/server";
+import { validateOrder } from "@/lib/nextis-api";
+
+export async function POST(req: NextRequest) {
+  try {
+    const { items } = await req.json();
+    if (!items?.length) {
+      return NextResponse.json({ error: "No items" }, { status: 400 });
+    }
+
+    const result = await validateOrder(items);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("Order validation error:", error);
+    return NextResponse.json({ error: "Validation failed" }, { status: 500 });
+  }
+}
