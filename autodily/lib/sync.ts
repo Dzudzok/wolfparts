@@ -2,7 +2,9 @@ import { fetchFileFromFTP } from "./ftp";
 import { parse } from "csv-parse/sync";
 import { getTypesenseAdminClient, createCollectionIfNotExists } from "./typesense";
 
-const FTP_PRODUCTS_PATH = process.env.FTP_PRODUCTS_PATH || "/exports/produkty.csv";
+function getProductsPath() {
+  return process.env.FTP_PRODUCTS_PATH || "/exports/produkty.csv";
+}
 
 function parsePrice(val: string | number): number {
   if (!val && val !== 0) return 0;
@@ -23,7 +25,7 @@ export async function syncProductsFromCSV(limit?: number): Promise<void> {
 
   await createCollectionIfNotExists();
 
-  const csvContent = await fetchFileFromFTP(FTP_PRODUCTS_PATH);
+  const csvContent = await fetchFileFromFTP(getProductsPath());
 
   const records: Record<string, string>[] = parse(csvContent, {
     delimiter: ";",

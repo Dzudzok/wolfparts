@@ -1,3 +1,6 @@
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import { syncProductsFromCSV } from "../lib/sync";
 
 const args = process.argv.slice(2);
