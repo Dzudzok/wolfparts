@@ -14,23 +14,26 @@ export async function GET(req: Request) {
 
     return Response.json(
       {
+        id: item.ID,
+        productCode: item.ProductCode,
+        productName: item.ProductName,
+        productDescription: item.ProductDescription,
+        productBrand: item.ProductBrand,
         price: item.Price?.UnitPrice ?? 0,
         priceIncVAT: item.Price?.UnitPriceIncVAT ?? 0,
         priceRetail: item.Price?.UnitPriceRetail ?? 0,
         priceRetailIncVAT: item.Price?.UnitPriceRetailIncVAT ?? 0,
         discount: item.Price?.Discount ?? 0,
-        currency: item.Price?.Currency ?? "CZK",
+        currency: "CZK",
         qty: item.QtyAvailableMain ?? 0,
         qtySupplier: item.QtyAvailableSupplier ?? 0,
         inStock: (item.QtyAvailableMain ?? 0) > 0,
         valid: item.Price?.Valid ?? false,
-        productName: item.ProductName,
-        productCode: item.ProductCode,
+        oeCodes: item.OECodes ?? [],
+        barCodes: item.BarCodes ?? [],
       },
       {
-        headers: {
-          "Cache-Control": "public, max-age=300",
-        },
+        headers: { "Cache-Control": "public, max-age=300" },
       }
     );
   } catch (err) {

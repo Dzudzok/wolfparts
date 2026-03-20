@@ -18,7 +18,6 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
     setResult(null);
     setWarning(null);
     try {
-      // 1. Validate availability
       const valRes = await fetch("/api/order-validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,15 +33,14 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
 
       const valItem = valData.items?.[0];
       if (!valItem || valItem.status === "cancelled") {
-        setResult("Produkt není dostupný");
+        setResult("Produkt neni dostupny");
         return;
       }
 
       if (valItem.qtyToDelivery < qty) {
-        setWarning(`Skladem pouze ${valItem.qtyToDelivery} ks, zbytek na objednávku`);
+        setWarning(`Skladem pouze ${valItem.qtyToDelivery} ks, zbytek na objednavku`);
       }
 
-      // 2. Send order
       const orderRes = await fetch("/api/order-send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,17 +52,17 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
       if (orderData.error) {
         setResult(`Chyba: ${orderData.error}`);
       } else {
-        setResult(`Objednávka vytvořena: ${orderData.orders?.[0]?.No || "OK"}`);
+        setResult(`Objednavka vytvorena: ${orderData.orders?.[0]?.No || "OK"}`);
       }
     } catch {
-      setResult("Nepodařilo se odeslat objednávku");
+      setResult("Nepodarilo se odeslat objednavku");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       <div className="flex items-center border border-gray-300 rounded">
         <button
           onClick={() => setQty(Math.max(1, qty - 1))}
@@ -91,7 +89,7 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
         <span className="text-sm text-yellow-600">{warning}</span>
       )}
       {result && (
-        <span className={`text-sm ${result.includes("Chyba") || result.includes("není") ? "text-red-600" : "text-green-600"}`}>
+        <span className={`text-sm ${result.includes("Chyba") || result.includes("neni") ? "text-red-600" : "text-green-600"}`}>
           {result}
         </span>
       )}

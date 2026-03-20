@@ -1,28 +1,12 @@
 import ProductCard from "./ProductCard";
-
-interface SearchHit {
-  document: {
-    id: string;
-    name: string;
-    product_code: string;
-    brand: string;
-    category: string;
-    price_min: number;
-    price_max: number;
-    in_stock: boolean;
-    stock_qty: number;
-    is_sale: boolean;
-    image_url?: string;
-  };
-  highlight?: Record<string, { snippet?: string }>;
-}
+import type { CatalogItem } from "@/lib/nextis-api";
 
 interface ProductGridProps {
-  hits: SearchHit[];
+  items: CatalogItem[];
 }
 
-export default function ProductGrid({ hits }: ProductGridProps) {
-  if (!hits.length) {
+export default function ProductGrid({ items }: ProductGridProps) {
+  if (!items.length) {
     return (
       <div className="text-center py-16 text-gray-500">
         <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,19 +17,27 @@ export default function ProductGrid({ hits }: ProductGridProps) {
             d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <p className="text-lg">Žádné výsledky</p>
-        <p className="text-sm mt-1">Zkuste změnit hledaný výraz nebo filtry</p>
+        <p className="text-lg">Zadny vysledek</p>
+        <p className="text-sm mt-1">Zkontrolujte kod a zkuste znovu</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {hits.map((hit) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {items.map((item) => (
         <ProductCard
-          key={hit.document.id}
-          {...hit.document}
-          highlight={hit.highlight}
+          key={item.ID}
+          id={item.ID}
+          productCode={item.ProductCode}
+          productName={item.ProductName}
+          productBrand={item.ProductBrand}
+          price={item.Price?.UnitPrice ?? 0}
+          priceIncVAT={item.Price?.UnitPriceIncVAT ?? 0}
+          discount={item.Price?.Discount ?? 0}
+          qty={item.QtyAvailableMain ?? 0}
+          qtySupplier={item.QtyAvailableSupplier ?? 0}
+          inStock={(item.QtyAvailableMain ?? 0) > 0}
         />
       ))}
     </div>

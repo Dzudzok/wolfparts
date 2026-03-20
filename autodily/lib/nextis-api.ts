@@ -21,6 +21,8 @@ async function authenticate(): Promise<string> {
   return cachedToken!;
 }
 
+// --- Types ---
+
 export interface CatalogItem {
   ID: number;
   ProductCode: string;
@@ -44,6 +46,54 @@ export interface CatalogItem {
   Valid: boolean;
 }
 
+export type SearchTarget = "CodeMain" | "CodeOE" | "CodeEAN";
+
+// --- Catalog ---
+
+export async function searchByCode(
+  code: string,
+  searchTarget: SearchTarget = "CodeMain"
+): Promise<CatalogItem[]> {
+  const token = await authenticate();
+  const { data } = await axios.post(`${BASE_URL}/catalogs/items-checking`, {
+    token,
+    language: "cs",
+    getEANCodes: true,
+    getOECodes: true,
+    items: [{ code, brand: "" }],
+    searchTarget,
+    trySearchWithoutManufacturer: true,
+  });
+  return (
+    data.items
+      ?.map((i: { responseItem: CatalogItem }) => i.responseItem)
+      .filter((item: CatalogItem | null) => item && item.Valid) || []
+  );
+}
+
+export async function searchMultiTarget(code: string): Promise<CatalogItem[]> {
+  const targets: SearchTarget[] = ["CodeMain", "CodeOE", "CodeEAN"];
+  const results = await Promise.allSettled(
+    targets.map((target) => searchByCode(code, target))
+  );
+
+  const seen = new Set<number>();
+  const items: CatalogItem[] = [];
+
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      for (const item of result.value) {
+        if (!seen.has(item.ID)) {
+          seen.add(item.ID);
+          items.push(item);
+        }
+      }
+    }
+  }
+
+  return items;
+}
+
 export async function checkItemsByID(ids: number[]): Promise<CatalogItem[]> {
   const token = await authenticate();
   const { data } = await axios.post(`${BASE_URL}/catalogs/items-checking-by-id`, {
@@ -55,6 +105,8 @@ export async function checkItemsByID(ids: number[]): Promise<CatalogItem[]> {
   });
   return data.items?.map((i: { responseItem: CatalogItem }) => i.responseItem) || [];
 }
+
+// --- Orders ---
 
 export interface OrderItem {
   code: string;

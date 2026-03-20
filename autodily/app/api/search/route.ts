@@ -1,54 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
-import { typesenseSearch } from "@/lib/typesense";
+import { searchMultiTarget, type SearchTarget, searchByCode } from "@/lib/nextis-api";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const {
-      q = "*",
-      brand,
-      category,
-      assortment,
-      in_stock,
-      is_sale,
-      price_min,
-      price_max,
-      page = 1,
-      per_page = 24,
-      sort_by,
-    } = body;
+    const { code, searchTarget } = await req.json();
 
-    const filterParts: string[] = [];
-    if (brand) filterParts.push(`brand:=${brand}`);
-    if (category) filterParts.push(`category:=${category}`);
-    if (assortment) filterParts.push(`assortment:=${assortment}`);
-    if (in_stock === true) filterParts.push(`in_stock:=true`);
-    if (is_sale === true) filterParts.push(`is_sale:=true`);
-    if (price_min !== undefined) filterParts.push(`price_min:>=${price_min}`);
-    if (price_max !== undefined) filterParts.push(`price_max:<=${price_max}`);
+    if (!code || typeof code !== "string" || code.trim().length < 2) {
+      return Response.json({ error: "Code is required (min 2 chars)" }, { status: 400 });
+    }
 
-    const searchParams = {
-      q,
-      query_by: "name,product_code,ean_codes,oem_numbers,cross_numbers,brand,description",
-      query_by_weights: "5,4,4,3,2,2,1",
-      facet_by: "brand,category,assortment,in_stock,is_sale",
-      filter_by: filterParts.join(" && ") || undefined,
-      sort_by: sort_by || (q === "*" ? "stock_qty:desc" : "_text_match:desc,stock_qty:desc"),
-      page,
-      per_page,
-      num_typos: 1,
-      typo_tokens_threshold: 2,
-      highlight_full_fields: "name,product_code",
-    };
+    const items = searchTarget
+      ? await searchByCode(code.trim(), searchTarget as SearchTarget)
+      : await searchMultiTarget(code.trim());
 
-    const results = await typesenseSearch
-      .collections("products")
-      .documents()
-      .search(searchParams);
-
-    return NextResponse.json(results);
+    return Response.json({ items, found: items.length });
   } catch (error) {
     console.error("Search error:", error);
-    return NextResponse.json({ error: "Search failed" }, { status: 500 });
+    return Response.json({ error: "Search failed" }, { status: 500 });
   }
 }
