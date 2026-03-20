@@ -11,11 +11,14 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
 
   const handleOrder = async () => {
     setLoading(true);
     setResult(null);
+    setWarning(null);
     try {
+      // 1. Validate availability
       const valRes = await fetch("/api/order-validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -29,6 +32,17 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
         return;
       }
 
+      const valItem = valData.items?.[0];
+      if (!valItem || valItem.status === "cancelled") {
+        setResult("Produkt není dostupný");
+        return;
+      }
+
+      if (valItem.qtyToDelivery < qty) {
+        setWarning(`Skladem pouze ${valItem.qtyToDelivery} ks, zbytek na objednávku`);
+      }
+
+      // 2. Send order
       const orderRes = await fetch("/api/order-send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,8 +87,11 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
       >
         {loading ? "..." : "Objednat"}
       </button>
+      {warning && (
+        <span className="text-sm text-yellow-600">{warning}</span>
+      )}
       {result && (
-        <span className={`text-sm ${result.includes("Chyba") ? "text-red-600" : "text-green-600"}`}>
+        <span className={`text-sm ${result.includes("Chyba") || result.includes("není") ? "text-red-600" : "text-green-600"}`}>
           {result}
         </span>
       )}

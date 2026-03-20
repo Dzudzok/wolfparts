@@ -1,16 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
-import { syncProducts } from "@/lib/sync";
+import { syncProductsFromCSV, syncStocksFromCSV } from "@/lib/sync";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json().catch(() => ({}));
-    const limit = body.limit;
-    const dryRun = body.dryRun ?? false;
+export async function POST(req: Request) {
+  const { type, secret } = await req.json();
 
-    const result = await syncProducts({ limit, dryRun });
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error("Sync error:", error);
-    return NextResponse.json({ error: "Sync failed" }, { status: 500 });
+  if (secret !== process.env.SYNC_SECRET) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (type === "stocks") {
+    syncStocksFromCSV().catch(console.error);
+    return Response.json({ status: "stocks sync started" });
+  } else {
+    syncProductsFromCSV().catch(console.error);
+    return Response.json({ status: "full sync started" });
   }
 }

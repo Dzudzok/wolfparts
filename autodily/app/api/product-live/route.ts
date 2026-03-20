@@ -1,40 +1,40 @@
-import { NextRequest, NextResponse } from "next/server";
 import { checkItemsByID } from "@/lib/nextis-api";
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+
+  if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
+
   try {
-    const id = req.nextUrl.searchParams.get("id");
-    if (!id) {
-      return NextResponse.json({ error: "Missing id" }, { status: 400 });
-    }
-
     const items = await checkItemsByID([parseInt(id, 10)]);
-    if (!items.length) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
-
     const item = items[0];
-    return NextResponse.json(
+
+    if (!item) return Response.json({ error: "Not found" }, { status: 404 });
+
+    return Response.json(
       {
-        price: item.Price.UnitPrice,
-        priceIncVAT: item.Price.UnitPriceIncVAT,
-        priceRetail: item.Price.UnitPriceRetail,
-        priceRetailIncVAT: item.Price.UnitPriceRetailIncVAT,
-        discount: item.Price.Discount,
-        qty: item.QtyAvailableMain,
-        qtySupplier: item.QtyAvailableSupplier,
-        valid: item.Price.Valid,
+        price: item.Price?.UnitPrice ?? 0,
+        priceIncVAT: item.Price?.UnitPriceIncVAT ?? 0,
+        priceRetail: item.Price?.UnitPriceRetail ?? 0,
+        priceRetailIncVAT: item.Price?.UnitPriceRetailIncVAT ?? 0,
+        discount: item.Price?.Discount ?? 0,
+        currency: item.Price?.Currency ?? "CZK",
+        qty: item.QtyAvailableMain ?? 0,
+        qtySupplier: item.QtyAvailableSupplier ?? 0,
+        inStock: (item.QtyAvailableMain ?? 0) > 0,
+        valid: item.Price?.Valid ?? false,
         productName: item.ProductName,
         productCode: item.ProductCode,
       },
       {
         headers: {
-          "Cache-Control": "public, max-age=300, s-maxage=300",
+          "Cache-Control": "public, max-age=300",
         },
       }
     );
-  } catch (error) {
-    console.error("Product live error:", error);
-    return NextResponse.json({ error: "Failed to fetch live data" }, { status: 500 });
+  } catch (err) {
+    console.error("product-live error:", err);
+    return Response.json({ error: "API error" }, { status: 500 });
   }
 }

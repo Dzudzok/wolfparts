@@ -1,202 +1,108 @@
-import { getPool, sql } from "./db";
-import { typesenseAdmin, createCollection } from "./typesense";
+import { fetchFileFromFTP } from "./ftp";
+import { parse } from "csv-parse/sync";
+import { typesenseAdmin } from "./typesense";
 
-const BATCH_SIZE = 5000;
+const FTP_PRODUCTS_PATH = process.env.FTP_PRODUCTS_PATH || "/exports/produkty.csv";
+const FTP_STOCKS_PATH = process.env.FTP_STOCKS_PATH || "/exports/stany.csv";
 
-const EXPORT_QUERY = `
-WITH ProductsDeduped AS (
-    SELECT
-        g.ID                    AS ProductID,
-        g.ProductCode,
-        g.Name,
-        g.Description,
-        g.EshopDescription,
-        g.TecDocBrandName       AS Brand,
-        g.GroupName             AS BrandGroup,
-        g.SubGoupName           AS Category,
-        g.AssortmentName,
-        MIN(g.RetailPrice)      AS RetailPriceMin,
-        MAX(g.RetailPrice)      AS RetailPriceMax,
-        MIN(g.PurchasePrice)    AS PurchasePrice,
-        g.VATRate,
-        g.IsArchiving,
-        g.IsSale,
-        g.IsHiddenOnEshop
-    FROM API_GetProductGroups g
-    WHERE g.IsArchiving = 0
-      AND g.IsHiddenOnEshop = 0
-    GROUP BY
-        g.ID, g.ProductCode, g.Name, g.Description, g.EshopDescription,
-        g.TecDocBrandName, g.GroupName, g.SubGoupName, g.AssortmentName,
-        g.VATRate, g.IsArchiving, g.IsSale, g.IsHiddenOnEshop
-)
-SELECT
-    p.ProductID,
-    p.ProductCode,
-    p.Name,
-    p.Description,
-    p.EshopDescription,
-    p.Brand,
-    p.BrandGroup,
-    p.Category,
-    p.AssortmentName,
-    p.RetailPriceMin,
-    p.RetailPriceMax,
-    p.PurchasePrice,
-    p.IsSale,
-    p.IsHiddenOnEshop,
-    (SELECT TOP 1 ImageURL
-     FROM API_GetImage i
-     WHERE i.ProduktGroupID = p.ProductID
-     ORDER BY i.Sorting) AS ImageURL,
-    ISNULL((
-        SELECT SUM(sd.OnStockQuantity)
-        FROM API_GetProducts pr
-        JOIN API_GetStockDispositions sd ON sd.ProductID = pr.ID
-        WHERE pr.GroupID = p.ProductID AND pr.IsArchiving = 0
-    ), 0) AS TotalStock,
-    ISNULL((
-        SELECT DISTINCT oem.OEM + '|'
-        FROM API_GetProductOEM oem
-        WHERE oem.GroupID = p.ProductID
-        FOR XML PATH('')
-    ), '') AS OEMNumbers,
-    ISNULL((
-        SELECT ean.EAN + '|'
-        FROM API_GetProductEAN ean
-        WHERE ean.GroupID = p.ProductID AND ean.IsArchiving = 0
-        FOR XML PATH('')
-    ), '') AS EANCodes,
-    ISNULL((
-        SELECT DISTINCT cn.BrandName + ':' + cn.Code + '|'
-        FROM API_GetCrossNumbers cn
-        WHERE cn.GroupID = p.ProductID
-        FOR XML PATH('')
-    ), '') AS CrossNumbers
-FROM ProductsDeduped p
-ORDER BY p.ProductID
-OFFSET @offset ROWS FETCH NEXT @batchSize ROWS ONLY
-`;
-
-const COUNT_QUERY = `
-SELECT COUNT(DISTINCT ID) AS total
-FROM API_GetProductGroups
-WHERE IsArchiving = 0 AND IsHiddenOnEshop = 0
-`;
-
-interface DBRow {
-  ProductID: number;
-  ProductCode: string;
-  Name: string;
-  Description: string;
-  EshopDescription: string;
-  Brand: string;
-  BrandGroup: string;
-  Category: string;
-  AssortmentName: string;
-  RetailPriceMin: string | number;
-  RetailPriceMax: string | number;
-  PurchasePrice: string | number;
-  IsSale: string | boolean;
-  ImageURL: string | null;
-  TotalStock: string | number;
-  OEMNumbers: string;
-  EANCodes: string;
-  CrossNumbers: string;
-}
-
-function parseDecimal(val: string | number): number {
-  if (typeof val === "number") return val;
+function parsePrice(val: string): number {
+  if (!val || val === "") return 0;
   return parseFloat(String(val).replace(",", ".")) || 0;
 }
 
-function transformRow(row: DBRow) {
-  const stockQty = parseDecimal(row.TotalStock);
-  return {
-    id: String(row.ProductID),
-    product_code: row.ProductCode || "",
-    name: row.Name || "",
-    description: row.EshopDescription || row.Description || "",
-    brand: row.Brand || "",
-    brand_group: row.BrandGroup || "",
-    category: row.Category || "",
-    assortment: row.AssortmentName || "",
-    price_min: parseDecimal(row.RetailPriceMin),
-    price_max: parseDecimal(row.RetailPriceMax),
-    purchase_price: parseDecimal(row.PurchasePrice),
-    in_stock: stockQty > 0,
-    stock_qty: stockQty,
-    is_sale: row.IsSale === "1" || row.IsSale === true,
-    image_url: row.ImageURL || "",
-    oem_numbers: row.OEMNumbers ? row.OEMNumbers.split("|").filter(Boolean) : [],
-    ean_codes: row.EANCodes ? row.EANCodes.split("|").filter(Boolean) : [],
-    cross_numbers: row.CrossNumbers ? row.CrossNumbers.split("|").filter(Boolean) : [],
-    updated_at: Date.now(),
-  };
+function parsePipeList(val: string): string[] {
+  if (!val || val === "") return [];
+  return val.split("|").filter(Boolean);
 }
 
-export async function syncProducts(options?: { limit?: number; dryRun?: boolean }) {
+export async function syncProductsFromCSV(limit?: number): Promise<void> {
   const startTime = Date.now();
-  const limit = options?.limit;
-  const dryRun = options?.dryRun ?? false;
+  console.log("Pobieranie CSV z FTP...");
 
-  console.log(`Starting sync... ${limit ? `(limit: ${limit})` : "(full)"} ${dryRun ? "[DRY RUN]" : ""}`);
+  const csvContent = await fetchFileFromFTP(FTP_PRODUCTS_PATH);
 
-  await createCollection();
+  const records: Record<string, string>[] = parse(csvContent, {
+    delimiter: ";",
+    columns: true,
+    skip_empty_lines: true,
+    quote: '"',
+    trim: true,
+    bom: true,
+  });
 
-  const pool = await getPool();
+  console.log(`Wczytano ${records.length} produktow z CSV`);
 
-  // Get total count
-  const countResult = await pool.request().query(COUNT_QUERY);
-  const totalProducts = countResult.recordset[0].total;
-  const effectiveTotal = limit ? Math.min(limit, totalProducts) : totalProducts;
-  const totalBatches = Math.ceil(effectiveTotal / BATCH_SIZE);
+  const items = limit ? records.slice(0, limit) : records;
+  const BATCH = 1000;
 
-  console.log(`Total products: ${totalProducts}, syncing: ${effectiveTotal}, batches: ${totalBatches}`);
+  for (let i = 0; i < items.length; i += BATCH) {
+    const batch = items.slice(i, i + BATCH);
 
-  let synced = 0;
+    const docs = batch.map((r) => ({
+      id: String(r.ProductID),
+      product_code: r.ProductCode || "",
+      name: r.Name || "",
+      description: r.Description || "",
+      brand: r.Brand || "",
+      brand_group: r.BrandGroup || "",
+      category: r.Category || "",
+      assortment: r.AssortmentName || "",
+      price_min: parsePrice(r.RetailPriceMin),
+      price_max: parsePrice(r.RetailPriceMax),
+      purchase_price: parsePrice(r.PurchasePrice),
+      in_stock: parsePrice(r.TotalStock) > 0,
+      stock_qty: parsePrice(r.TotalStock),
+      is_sale: r.IsSale === "1",
+      image_url: r.ImageURL || "",
+      oem_numbers: parsePipeList(r.OEMNumbers),
+      ean_codes: parsePipeList(r.EANCodes),
+      cross_numbers: parsePipeList(r.CrossNumbers),
+      updated_at: Date.now(),
+    }));
 
-  for (let batch = 0; batch < totalBatches; batch++) {
-    const offset = batch * BATCH_SIZE;
-    const batchStart = Date.now();
-    const currentBatchSize = limit
-      ? Math.min(BATCH_SIZE, effectiveTotal - offset)
-      : BATCH_SIZE;
+    await typesenseAdmin.collections("products").documents().import(docs, { action: "upsert" });
 
-    try {
-      const request = pool.request();
-      request.input("offset", sql.Int, offset);
-      request.input("batchSize", sql.Int, currentBatchSize);
-      const result = await request.query(EXPORT_QUERY);
-      const rows: DBRow[] = result.recordset;
-
-      if (rows.length === 0) break;
-
-      const documents = rows.map(transformRow);
-
-      if (dryRun) {
-        console.log(`[DRY RUN] Batch ${batch + 1}/${totalBatches} — ${rows.length} rows — sample:`, documents[0]);
-      } else {
-        try {
-          await typesenseAdmin
-            .collections("products")
-            .documents()
-            .import(documents, { action: "upsert", batch_size: BATCH_SIZE });
-        } catch (importError) {
-          console.error(`Batch ${batch + 1} import error:`, importError);
-        }
-      }
-
-      synced += rows.length;
-      const batchTime = ((Date.now() - batchStart) / 1000).toFixed(1);
-      console.log(`Batch ${batch + 1}/${totalBatches} — offset: ${offset} — ${rows.length} rows — ${batchTime}s`);
-    } catch (err) {
-      console.error(`Batch ${batch + 1} failed:`, err);
-      continue;
-    }
+    console.log(
+      `Batch ${Math.floor(i / BATCH) + 1}/${Math.ceil(items.length / BATCH)} — ${i + batch.length}/${items.length}`
+    );
   }
 
-  const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log(`\nSync complete: ${synced} products in ${totalTime}s`);
-  return { synced, totalTime };
+  console.log(
+    `Sync zakoncony — ${items.length} produktow — ${((Date.now() - startTime) / 1000).toFixed(1)}s`
+  );
+}
+
+export async function syncStocksFromCSV(): Promise<void> {
+  console.log("Pobieranie stanow z FTP...");
+
+  const csvContent = await fetchFileFromFTP(FTP_STOCKS_PATH);
+
+  const records: Record<string, string>[] = parse(csvContent, {
+    delimiter: ";",
+    columns: true,
+    skip_empty_lines: true,
+    quote: '"',
+    trim: true,
+    bom: true,
+  });
+
+  console.log(`Aktualizacja ${records.length} stanow...`);
+
+  const BATCH = 1000;
+
+  for (let i = 0; i < records.length; i += BATCH) {
+    const batch = records.slice(i, i + BATCH);
+    const docs = batch.map((r) => ({
+      id: String(r.ProductID),
+      price_min: parsePrice(r.RetailPriceMin),
+      price_max: parsePrice(r.RetailPriceMax),
+      in_stock: parsePrice(r.TotalStock) > 0,
+      stock_qty: parsePrice(r.TotalStock),
+      updated_at: Date.now(),
+    }));
+
+    await typesenseAdmin.collections("products").documents().import(docs, { action: "update" });
+  }
+
+  console.log(`Stany zaktualizowane — ${records.length} produktow`);
 }
