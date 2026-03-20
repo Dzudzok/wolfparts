@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No items" }, { status: 400 });
     }
 
-    const result = await sendOrder(items, userOrder, userNote);
+    const result = await sendOrder(items, userOrder);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Order send error:", error);

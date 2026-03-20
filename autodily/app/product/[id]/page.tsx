@@ -1,4 +1,4 @@
-import { checkItemsByID } from "@/lib/nextis-api";
+import { getTypesenseAdminClient } from "@/lib/typesense";
 import ProductDetail from "@/components/ProductDetail";
 import { notFound } from "next/navigation";
 
@@ -8,35 +8,11 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
-  const numericId = parseInt(id, 10);
-
-  if (isNaN(numericId)) notFound();
 
   let product;
   try {
-    const items = await checkItemsByID([numericId]);
-    const item = items[0];
-    if (!item) notFound();
-
-    product = {
-      id: item.ID,
-      productCode: item.ProductCode,
-      productName: item.ProductName,
-      productDescription: item.ProductDescription,
-      productBrand: item.ProductBrand,
-      price: item.Price?.UnitPrice ?? 0,
-      priceIncVAT: item.Price?.UnitPriceIncVAT ?? 0,
-      priceRetail: item.Price?.UnitPriceRetail ?? 0,
-      priceRetailIncVAT: item.Price?.UnitPriceRetailIncVAT ?? 0,
-      discount: item.Price?.Discount ?? 0,
-      currency: "CZK",
-      qty: item.QtyAvailableMain ?? 0,
-      qtySupplier: item.QtyAvailableSupplier ?? 0,
-      inStock: (item.QtyAvailableMain ?? 0) > 0,
-      valid: item.Price?.Valid ?? false,
-      oeCodes: item.OECodes ?? [],
-      barCodes: item.BarCodes ?? [],
-    };
+    const client = getTypesenseAdminClient();
+    product = await client.collections("products").documents(id).retrieve();
   } catch {
     notFound();
   }
@@ -52,7 +28,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <ProductDetail product={product} />
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <ProductDetail product={product as any} />
       </div>
     </main>
   );

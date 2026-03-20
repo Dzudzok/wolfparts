@@ -18,6 +18,7 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
     setResult(null);
     setWarning(null);
     try {
+      // Validate
       const valRes = await fetch("/api/order-validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,15 +33,11 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
       }
 
       const valItem = valData.items?.[0];
-      if (!valItem || valItem.status === "cancelled") {
-        setResult("Produkt neni dostupny");
-        return;
-      }
-
-      if (valItem.qtyToDelivery < qty) {
+      if (valItem?.qtyToDelivery < qty) {
         setWarning(`Skladem pouze ${valItem.qtyToDelivery} ks, zbytek na objednavku`);
       }
 
+      // Send order
       const orderRes = await fetch("/api/order-send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,36 +59,26 @@ export default function OrderButton({ productCode, brand }: OrderButtonProps) {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="flex items-center border border-gray-300 rounded">
+    <div>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center border border-gray-300 rounded-lg">
+          <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-l-lg">-</button>
+          <span className="px-4 py-2 min-w-[3rem] text-center font-medium">{qty}</span>
+          <button onClick={() => setQty(qty + 1)} className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-r-lg">+</button>
+        </div>
         <button
-          onClick={() => setQty(Math.max(1, qty - 1))}
-          className="px-3 py-2 text-gray-600 hover:bg-gray-100"
+          onClick={handleOrder}
+          disabled={loading}
+          className="bg-blue-600 text-white font-semibold py-2.5 px-8 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors text-lg"
         >
-          -
-        </button>
-        <span className="px-3 py-2 min-w-[2.5rem] text-center">{qty}</span>
-        <button
-          onClick={() => setQty(qty + 1)}
-          className="px-3 py-2 text-gray-600 hover:bg-gray-100"
-        >
-          +
+          {loading ? "..." : "Objednat"}
         </button>
       </div>
-      <button
-        onClick={handleOrder}
-        disabled={loading}
-        className="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-      >
-        {loading ? "..." : "Objednat"}
-      </button>
-      {warning && (
-        <span className="text-sm text-yellow-600">{warning}</span>
-      )}
+      {warning && <p className="text-sm text-yellow-600 mb-1">{warning}</p>}
       {result && (
-        <span className={`text-sm ${result.includes("Chyba") || result.includes("neni") ? "text-red-600" : "text-green-600"}`}>
+        <p className={`text-sm ${result.includes("Chyba") ? "text-red-600" : "text-green-600"}`}>
           {result}
-        </span>
+        </p>
       )}
     </div>
   );

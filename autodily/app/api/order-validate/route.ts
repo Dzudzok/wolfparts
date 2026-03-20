@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await validateOrder(items);
-    return NextResponse.json(result);
+    return NextResponse.json({ items: result });
   } catch (error) {
     console.error("Order validation error:", error);
     return NextResponse.json({ error: "Validation failed" }, { status: 500 });
