@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import SearchBox from "./SearchBox";
 import LoginModal from "./LoginModal";
+import { useCart } from "@/lib/cart";
 
 interface HeaderProps {
   initialQuery?: string;
@@ -13,6 +14,7 @@ export default function Header({ initialQuery, showSearch = true }: HeaderProps)
   const [showLogin, setShowLogin] = useState(false);
   const [user, setUser] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const cart = useCart();
 
   useEffect(() => {
     setMounted(true);
@@ -111,14 +113,21 @@ export default function Header({ initialQuery, showSearch = true }: HeaderProps)
               )}
 
               {/* Cart */}
-              <a href="#" className="relative w-10 h-10 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] transition-all">
+              <button
+                onClick={() => cart.setIsOpen(true)}
+                className="relative w-10 h-10 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] transition-all"
+              >
                 <svg viewBox="0 0 24 24" className="w-[22px] h-[22px]" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                   <line x1="3" y1="6" x2="21" y2="6" />
                   <path d="M16 10a4 4 0 0 1-8 0" />
                 </svg>
-                <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-mlbg">0</span>
-              </a>
+                {mounted && cart.count > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-mlbg">
+                    {cart.count > 99 ? "99" : cart.count}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </div>

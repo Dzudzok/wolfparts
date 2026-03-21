@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import OrderButton from "./OrderButton";
 import ProductGallery from "./ProductGallery";
+import AddToCartButton from "./AddToCartButton";
 import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
 
 interface LiveData {
@@ -136,8 +136,15 @@ export default function ProductDetail({ product }: { product: Product }) {
             )}
           </div>
 
-          {/* Order */}
-          <OrderButton productCode={product.product_code} brand={product.brand} />
+          {/* Add to cart */}
+          <AddToCartButton
+            id={product.id}
+            productCode={product.product_code}
+            brand={product.brand}
+            name={product.name}
+            price={live?.priceRetail || product.price_min}
+            imageUrl={product.image_url}
+          />
 
           {/* Description */}
           {product.description && (

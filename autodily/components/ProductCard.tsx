@@ -1,5 +1,6 @@
 import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
 import ProductImage from "./ProductImage";
+import AddToCartButton from "./AddToCartButton";
 
 interface ProductCardProps {
   hit: {
@@ -92,8 +93,19 @@ export default function ProductCard({ hit, highlight }: ProductCardProps) {
                   <span className="text-mltext-light text-sm font-medium">Na dotaz</span>
                 )}
               </div>
-              <div className={`text-[11px] font-bold ${hit.in_stock ? "text-mlgreen" : "text-mltext-light"}`}>
-                {hit.in_stock ? `${hit.stock_qty.toFixed(0)} ks` : "Na obj."}
+              <div className="flex items-center gap-2">
+                <span className={`text-[11px] font-bold ${hit.in_stock ? "text-mlgreen" : "text-mltext-light"}`}>
+                  {hit.in_stock ? `${hit.stock_qty.toFixed(0)} ks` : "Na obj."}
+                </span>
+                <AddToCartButton
+                  id={hit.id}
+                  productCode={hit.product_code}
+                  brand={hit.brand}
+                  name={hit.name}
+                  price={hit.price_min}
+                  imageUrl={hit.image_url}
+                  compact
+                />
               </div>
             </div>
           </div>
