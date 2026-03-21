@@ -5,7 +5,7 @@ const BASE_URL = process.env.NEXTIS_API_URL || "https://api.mroauto.nextis.cz";
 let cachedToken: string | null = null;
 let tokenValidTo: Date | null = null;
 
-async function getToken(): Promise<string> {
+export async function getToken(): Promise<string> {
   if (cachedToken && tokenValidTo && new Date() < tokenValidTo) {
     return cachedToken;
   }

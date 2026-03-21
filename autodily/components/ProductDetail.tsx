@@ -92,48 +92,51 @@ export default function ProductDetail({ product }: { product: Product }) {
           <p className="text-mltext-light mb-4">Kód: {product.product_code}</p>
 
           {/* Live price */}
-          <div className="bg-gray-50 border border-mlborder-light rounded p-4 mb-4">
-            {liveLoading ? (
-              <div className="animate-pulse">
-                <div className="h-8 bg-gray-200 rounded w-32 mb-2" />
-                <div className="h-4 bg-gray-200 rounded w-24" />
-              </div>
-            ) : live ? (
-              <>
-                <p className="text-3xl font-bold text-mltext-dark">
-                  {live.priceRetail > 0 ? `${formatPrice(live.priceRetail)} Kč` : "Cena na dotaz"}
-                </p>
-                {live.discount > 0 && (
-                  <p className="text-sm text-mlgreen mt-1 font-semibold">Sleva {live.discount}%</p>
-                )}
-              </>
-            ) : (
-              <div>
-                <p className="text-2xl font-bold text-mltext-dark">
-                  {product.price_min > 0
-                    ? product.price_min !== product.price_max
-                      ? `od ${formatPrice(product.price_min)} Kč`
-                      : `${formatPrice(product.price_min)} Kč`
-                    : "Cena na dotaz"}
-                </p>
-                <p className="text-xs text-mltext-light mt-1">* orientační cena</p>
-              </div>
-            )}
-          </div>
+          <div className="bg-gray-50 border border-mlborder-light rounded-xl p-5 mb-4">
+            {(() => {
+              // Use live price if valid, otherwise fallback to static
+              const livePrice = live?.priceRetail || live?.price || 0;
+              const showPrice = livePrice > 0 ? livePrice : product.price_min;
+              const isLive = livePrice > 0;
+              const showStock = live?.valid ? live.inStock : product.in_stock;
+              const showQty = live?.valid ? Math.floor(live.qty) : Math.floor(product.stock_qty);
 
-          {/* Stock */}
-          <div className="mb-6">
-            {liveLoading ? (
-              <div className="h-5 bg-gray-200 rounded w-32 animate-pulse" />
-            ) : live ? (
-              <p className={`text-sm font-semibold ${live.inStock ? "text-mlgreen" : "text-mlorange"}`}>
-                {live.inStock ? `Skladem — ${Math.floor(live.qty)} ks` : "Na objednávku"}
-              </p>
-            ) : (
-              <p className={`text-sm font-semibold ${product.in_stock ? "text-mlgreen" : "text-mltext-light"}`}>
-                {product.in_stock ? `Skladem (${Math.floor(product.stock_qty)} ks)` : "Na objednávku"}
-              </p>
-            )}
+              if (liveLoading) {
+                return (
+                  <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-32 mb-2" />
+                    <div className="h-4 bg-gray-200 rounded w-24" />
+                  </div>
+                );
+              }
+
+              return (
+                <>
+                  {showPrice > 0 ? (
+                    <div className="flex items-end gap-2">
+                      <span className="text-3xl font-extrabold text-mltext-dark">{formatPrice(showPrice)}</span>
+                      <span className="text-lg font-bold text-mltext-light mb-0.5">Kč</span>
+                      {!isLive && <span className="text-xs text-mltext-light mb-1">(orientační)</span>}
+                    </div>
+                  ) : (
+                    <p className="text-2xl font-bold text-mltext-light">Cena na dotaz</p>
+                  )}
+                  {live && live.discount > 0 && (
+                    <p className="text-sm text-mlgreen mt-1 font-semibold">Sleva {live.discount}%</p>
+                  )}
+                  {product.price_min !== product.price_max && product.price_max > 0 && (
+                    <p className="text-xs text-mltext-light mt-1">Rozsah: {formatPrice(product.price_min)} – {formatPrice(product.price_max)} Kč</p>
+                  )}
+
+                  {/* Stock */}
+                  <div className="mt-3 pt-3 border-t border-mlborder-light">
+                    <p className={`text-sm font-semibold ${showStock ? "text-mlgreen" : "text-mlorange"}`}>
+                      {showStock ? `Skladem — ${showQty} ks` : "Na objednávku"}
+                    </p>
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           {/* Add to cart */}
