@@ -78,7 +78,7 @@ export default function VinInput({ onSubmit, loading }: VinInputProps) {
           value={value}
           onChange={handleChange}
           onPaste={handlePaste}
-          inputMode="latin"
+          inputMode="text"
           autoComplete="off"
           maxLength={17}
           className="absolute opacity-0 w-0 h-0"
@@ -93,7 +93,7 @@ export default function VinInput({ onSubmit, loading }: VinInputProps) {
           value={value}
           onChange={handleChange}
           onPaste={handlePaste}
-          inputMode="latin"
+          inputMode="text"
           autoComplete="off"
           maxLength={17}
           placeholder="Zadejte 17místný VIN kód"
