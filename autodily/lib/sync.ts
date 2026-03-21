@@ -11,6 +11,11 @@ function parsePrice(val: string | number): number {
   return parseFloat(String(val).replace(",", ".")) || 0;
 }
 
+function stripHtml(val: string): string {
+  if (!val) return "";
+  return val.replace(/<[^>]*>/g, "").replace(/&[a-z]+;/gi, "").replace(/["']/g, "").trim();
+}
+
 function parsePipeList(val: string): string[] {
   if (!val || val === "") return [];
   return val
@@ -65,13 +70,13 @@ export async function syncProductsFromCSV(limit?: number): Promise<void> {
       .filter((r) => r.ProductID && r.ProductID !== "")
       .map((r) => ({
         id: String(r.ProductID),
-        product_code: r.ProductCode || "",
-        name: r.Name || "",
-        description: r.Description || "",
-        brand: r.Brand || "Neznama",
-        brand_group: r.BrandGroup || "",
-        category: r.Category || "Nezarazeno",
-        assortment: r.AssortmentName || "",
+        product_code: stripHtml(r.ProductCode) || "",
+        name: stripHtml(r.Name) || "",
+        description: stripHtml(r.Description) || "",
+        brand: stripHtml(r.Brand) || "Neznama",
+        brand_group: stripHtml(r.BrandGroup) || "",
+        category: stripHtml(r.Category) || "Nezarazeno",
+        assortment: stripHtml(r.AssortmentName) || "",
         price_min: parsePrice(r.RetailPriceMin),
         price_max: parsePrice(r.RetailPriceMax),
         in_stock: parsePrice(r.TotalStock) > 0,
