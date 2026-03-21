@@ -1,0 +1,5193 @@
+[
+  {
+    "name": "SKODA",
+    "slug": "skoda",
+    "brandId": 106,
+    "models": [
+      {
+        "name": "100",
+        "slug": "100",
+        "modelId": 268,
+        "years": "01.1970 - 12.1977",
+        "engines": [
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 3021,
+            "power": "31 kW / 42 HP",
+            "years": "01.1970 - 12.1977",
+            "engineCode": ""
+          },
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 3022,
+            "power": "29 kW / 39 HP",
+            "years": "01.1970 - 12.1977",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "1000MB (710, 990)",
+        "slug": "1000mb-710-990",
+        "modelId": 1814,
+        "years": "09.1964 - 01.1970",
+        "engines": [
+          {
+            "name": "MB",
+            "slug": "mb",
+            "engineId": 7219,
+            "power": "27 kW / 37 HP",
+            "years": "09.1964 - 01.1970",
+            "engineCode": ""
+          },
+          {
+            "name": "MB",
+            "slug": "mb",
+            "engineId": 7220,
+            "power": "32 kW / 44 HP",
+            "years": "03.1966 - 01.1970",
+            "engineCode": ""
+          },
+          {
+            "name": "MBX de Luxe",
+            "slug": "mbx-de-luxe",
+            "engineId": 7222,
+            "power": "34 kW / 46 HP",
+            "years": "01.1969 - 01.1970",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "105,120 (742)",
+        "slug": "105-120-742",
+        "modelId": 272,
+        "years": "08.1976 - 12.1990",
+        "engines": [
+          {
+            "name": "1.0 105 S, L",
+            "slug": "1-0-105-s-l",
+            "engineId": 3024,
+            "power": "34 kW / 46 HP",
+            "years": "08.1976 - 12.1990",
+            "engineCode": ""
+          },
+          {
+            "name": "1.0 105 S, L, GL",
+            "slug": "1-0-105-s-l-gl",
+            "engineId": 3023,
+            "power": "33 kW / 45 HP",
+            "years": "08.1976 - 08.1983",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2 120 L",
+            "slug": "1-2-120-l",
+            "engineId": 3025,
+            "power": "38 kW / 52 HP",
+            "years": "08.1976 - 12.1990",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2 120 LS",
+            "slug": "1-2-120-ls",
+            "engineId": 3026,
+            "power": "43 kW / 58 HP",
+            "years": "08.1976 - 12.1990",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "105,120 (744)",
+        "slug": "105-120-744",
+        "modelId": 3992,
+        "years": "02.1983 - 12.1990",
+        "engines": [
+          {
+            "name": "1.0 105 S, L",
+            "slug": "1-0-105-s-l",
+            "engineId": 3027,
+            "power": "32 kW / 44 HP",
+            "years": "02.1988 - 12.1990",
+            "engineCode": ""
+          },
+          {
+            "name": "1.0 105 S, L, LS",
+            "slug": "1-0-105-s-l-ls",
+            "engineId": 3028,
+            "power": "33 kW / 45 HP",
+            "years": "10.1983 - 12.1990",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2 120 GLS",
+            "slug": "1-2-120-gls",
+            "engineId": 7215,
+            "power": "43 kW / 58 HP",
+            "years": "02.1983 - 12.1990",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2 120 L",
+            "slug": "1-2-120-l",
+            "engineId": 5070,
+            "power": "35 kW / 48 HP",
+            "years": "08.1987 - 12.1990",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2 120 L",
+            "slug": "1-2-120-l",
+            "engineId": 3029,
+            "power": "38 kW / 52 HP",
+            "years": "10.1983 - 12.1990",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "110",
+        "slug": "110",
+        "modelId": 1816,
+        "years": "12.1969 - 03.1982",
+        "engines": [
+          {
+            "name": "1.1 L",
+            "slug": "1-1-l",
+            "engineId": 7226,
+            "power": "33 kW / 45 HP",
+            "years": "12.1969 - 03.1982",
+            "engineCode": ""
+          },
+          {
+            "name": "1.1 L",
+            "slug": "1-1-l",
+            "engineId": 7227,
+            "power": "35 kW / 48 HP",
+            "years": "12.1969 - 03.1982",
+            "engineCode": ""
+          },
+          {
+            "name": "1.1 LS",
+            "slug": "1-1-ls",
+            "engineId": 7228,
+            "power": "38 kW / 52 HP",
+            "years": "07.1970 - 03.1982",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "110 kupé",
+        "slug": "110-kupe",
+        "modelId": 2085,
+        "years": "07.1970 - 03.1982",
+        "engines": [
+          {
+            "name": "1.1 R",
+            "slug": "1-1-r",
+            "engineId": 7229,
+            "power": "38 kW / 52 HP",
+            "years": "07.1970 - 03.1982",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "1100MB (715)",
+        "slug": "1100mb-715",
+        "modelId": 3993,
+        "years": "01.1969 - 01.1970",
+        "engines": [
+          {
+            "name": "MB",
+            "slug": "mb",
+            "engineId": 7223,
+            "power": "34 kW / 46 HP",
+            "years": "01.1969 - 01.1970",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "130",
+        "slug": "130",
+        "modelId": 1817,
+        "years": "02.1985 - 10.1991",
+        "engines": [
+          {
+            "name": "G,GL (S136)",
+            "slug": "g-gl-s136",
+            "engineId": 7233,
+            "power": "46 kW / 63 HP",
+            "years": "02.1985 - 10.1991",
+            "engineCode": ""
+          },
+          {
+            "name": "GL",
+            "slug": "gl",
+            "engineId": 7232,
+            "power": "39 kW / 53 HP",
+            "years": "08.1987 - 10.1991",
+            "engineCode": ""
+          },
+          {
+            "name": "GL (S135)",
+            "slug": "gl-s135",
+            "engineId": 7234,
+            "power": "43 kW / 58 HP",
+            "years": "01.1987 - 10.1991",
+            "engineCode": ""
+          },
+          {
+            "name": "L,GL",
+            "slug": "l-gl",
+            "engineId": 7230,
+            "power": "45 kW / 61 HP",
+            "years": "02.1985 - 10.1991",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "CITIGO (NF1)",
+        "slug": "citigo-nf1",
+        "modelId": 10126,
+        "years": "10.2011 - 08.2019",
+        "engines": [
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 15989,
+            "power": "44 kW / 60 HP",
+            "years": "10.2011 - 08.2019",
+            "engineCode": "CHYA"
+          },
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 15995,
+            "power": "55 kW / 75 HP",
+            "years": "10.2011 - 08.2019",
+            "engineCode": "CHYB"
+          },
+          {
+            "name": "1.0 CNG",
+            "slug": "1-0-cng",
+            "engineId": 58802,
+            "power": "50 kW / 68 HP",
+            "years": "11.2012 - 08.2019",
+            "engineCode": "CPGA"
+          }
+        ]
+      },
+      {
+        "name": "E-CITIGO (NE1)",
+        "slug": "e-citigo-ne1",
+        "modelId": 40839,
+        "years": "09.2019 - 09.2021",
+        "engines": [
+          {
+            "name": "e iV",
+            "slug": "e-iv",
+            "engineId": 140638,
+            "power": "61 kW / 83 HP",
+            "years": "09.2019 - 09.2021",
+            "engineCode": "EBMA"
+          }
+        ]
+      },
+      {
+        "name": "ELROQ (PYL)",
+        "slug": "elroq-pyl",
+        "modelId": 45683,
+        "years": "11.2024 - Nyní",
+        "engines": [
+          {
+            "name": "50",
+            "slug": "50",
+            "engineId": 159345,
+            "power": "125 kW / 170 HP",
+            "years": "11.2024 - Nyní",
+            "engineCode": "EDCA"
+          },
+          {
+            "name": "60",
+            "slug": "60",
+            "engineId": 159346,
+            "power": "150 kW / 204 HP",
+            "years": "11.2024 - Nyní",
+            "engineCode": ""
+          },
+          {
+            "name": "85",
+            "slug": "85",
+            "engineId": 159344,
+            "power": "210 kW / 286 HP",
+            "years": "11.2024 - Nyní",
+            "engineCode": "EDFA"
+          },
+          {
+            "name": "85x 4motion",
+            "slug": "85x-4motion",
+            "engineId": 159347,
+            "power": "220 kW / 299 HP",
+            "years": "11.2024 - Nyní",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "ENYAQ iV Coupe (5AC)",
+        "slug": "enyaq-iv-coupe-5ac",
+        "modelId": 42681,
+        "years": "07.2021 - Nyní",
+        "engines": [
+          {
+            "name": "60",
+            "slug": "60",
+            "engineId": 147493,
+            "power": "132 kW / 179 HP",
+            "years": "07.2021 - Nyní",
+            "engineCode": "EBJC"
+          },
+          {
+            "name": "80",
+            "slug": "80",
+            "engineId": 147494,
+            "power": "150 kW / 204 HP",
+            "years": "07.2021 - Nyní",
+            "engineCode": "EBJA"
+          },
+          {
+            "name": "80X 4x4",
+            "slug": "80x-4x4",
+            "engineId": 147495,
+            "power": "195 kW / 265 HP",
+            "years": "07.2021 - Nyní",
+            "engineCode": "EBJA"
+          },
+          {
+            "name": "85",
+            "slug": "85",
+            "engineId": 156516,
+            "power": "210 kW / 286 HP",
+            "years": "10.2023 - Nyní",
+            "engineCode": "EDFA"
+          },
+          {
+            "name": "85X pohon na 4 kola",
+            "slug": "85x-pohon-na-4-kola",
+            "engineId": 156517,
+            "power": "210 kW / 286 HP",
+            "years": "10.2023 - Nyní",
+            "engineCode": "EDDA"
+          },
+          {
+            "name": "RS",
+            "slug": "rs",
+            "engineId": 156809,
+            "power": "250 kW / 340 HP",
+            "years": "10.2021 - Nyní",
+            "engineCode": "EDDA"
+          },
+          {
+            "name": "RS",
+            "slug": "rs",
+            "engineId": 146691,
+            "power": "220 kW / 299 HP",
+            "years": "07.2021 - Nyní",
+            "engineCode": "EBJA"
+          }
+        ]
+      },
+      {
+        "name": "ENYAQ iV SUV (5AZ)",
+        "slug": "enyaq-iv-suv-5az",
+        "modelId": 41279,
+        "years": "10.2020 - Nyní",
+        "engines": [
+          {
+            "name": "50",
+            "slug": "50",
+            "engineId": 142228,
+            "power": "109 kW / 148 HP",
+            "years": "10.2020 - Nyní",
+            "engineCode": "EBJA"
+          },
+          {
+            "name": "50",
+            "slug": "50",
+            "engineId": 800212,
+            "power": "125 kW / 170 HP",
+            "years": "07.2024 - Nyní",
+            "engineCode": "EDCA"
+          },
+          {
+            "name": "60",
+            "slug": "60",
+            "engineId": 142229,
+            "power": "132 kW / 179 HP",
+            "years": "10.2020 - Nyní",
+            "engineCode": "EBJC"
+          },
+          {
+            "name": "80",
+            "slug": "80",
+            "engineId": 142230,
+            "power": "150 kW / 204 HP",
+            "years": "10.2020 - Nyní",
+            "engineCode": "EBJA"
+          },
+          {
+            "name": "80X 4x4",
+            "slug": "80x-4x4",
+            "engineId": 145613,
+            "power": "195 kW / 265 HP",
+            "years": "10.2021 - Nyní",
+            "engineCode": "EBJA"
+          },
+          {
+            "name": "85",
+            "slug": "85",
+            "engineId": 156287,
+            "power": "210 kW / 286 HP",
+            "years": "10.2023 - Nyní",
+            "engineCode": "EDFA"
+          },
+          {
+            "name": "85X",
+            "slug": "85x",
+            "engineId": 156288,
+            "power": "210 kW / 286 HP",
+            "years": "10.2023 - Nyní",
+            "engineCode": "EDDA"
+          },
+          {
+            "name": "RS",
+            "slug": "rs",
+            "engineId": 155565,
+            "power": "220 kW / 299 HP",
+            "years": "07.2023 - Nyní",
+            "engineCode": "EBJA"
+          },
+          {
+            "name": "RS",
+            "slug": "rs",
+            "engineId": 156807,
+            "power": "250 kW / 340 HP",
+            "years": "10.2023 - Nyní",
+            "engineCode": "EDDA"
+          }
+        ]
+      },
+      {
+        "name": "FABIA I (6Y2)",
+        "slug": "fabia-i-6y2",
+        "modelId": 4383,
+        "years": "08.1999 - 03.2008",
+        "engines": [
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 14277,
+            "power": "37 kW / 50 HP",
+            "years": "12.1999 - 08.2002",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 17393,
+            "power": "47 kW / 64 HP",
+            "years": "01.2003 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 16944,
+            "power": "40 kW / 54 HP",
+            "years": "07.2001 - 04.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 13363,
+            "power": "50 kW / 68 HP",
+            "years": "08.1999 - 05.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 15106,
+            "power": "44 kW / 60 HP",
+            "years": "08.2000 - 08.2002",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 13362,
+            "power": "74 kW / 100 HP",
+            "years": "12.1999 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 15107,
+            "power": "55 kW / 75 HP",
+            "years": "12.1999 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 17519,
+            "power": "55 kW / 75 HP",
+            "years": "04.2003 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19225,
+            "power": "51 kW / 70 HP",
+            "years": "10.2005 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19226,
+            "power": "59 kW / 80 HP",
+            "years": "10.2005 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 SDI",
+            "slug": "1-9-sdi",
+            "engineId": 13364,
+            "power": "47 kW / 64 HP",
+            "years": "12.1999 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 14278,
+            "power": "74 kW / 100 HP",
+            "years": "01.2000 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI RS",
+            "slug": "1-9-tdi-rs",
+            "engineId": 17456,
+            "power": "96 kW / 130 HP",
+            "years": "06.2003 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0",
+            "slug": "2-0",
+            "engineId": 15586,
+            "power": "85 kW / 116 HP",
+            "years": "12.1999 - 03.2008",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FABIA I Combi (6Y5)",
+        "slug": "fabia-i-combi-6y5",
+        "modelId": 4727,
+        "years": "04.2000 - 12.2007",
+        "engines": [
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 17395,
+            "power": "47 kW / 64 HP",
+            "years": "01.2003 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 19270,
+            "power": "40 kW / 54 HP",
+            "years": "07.2001 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 15503,
+            "power": "50 kW / 68 HP",
+            "years": "04.2000 - 05.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 17321,
+            "power": "44 kW / 60 HP",
+            "years": "04.2000 - 03.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 19905,
+            "power": "59 kW / 80 HP",
+            "years": "04.2006 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 15582,
+            "power": "55 kW / 75 HP",
+            "years": "05.2000 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 15583,
+            "power": "74 kW / 100 HP",
+            "years": "04.2000 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 17518,
+            "power": "55 kW / 75 HP",
+            "years": "04.2003 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19229,
+            "power": "51 kW / 70 HP",
+            "years": "10.2005 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19230,
+            "power": "59 kW / 80 HP",
+            "years": "10.2005 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 SDI",
+            "slug": "1-9-sdi",
+            "engineId": 15504,
+            "power": "47 kW / 64 HP",
+            "years": "04.2000 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 15584,
+            "power": "74 kW / 100 HP",
+            "years": "04.2000 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0",
+            "slug": "2-0",
+            "engineId": 15585,
+            "power": "85 kW / 116 HP",
+            "years": "04.2000 - 12.2007",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FABIA I limuzína (6Y3)",
+        "slug": "fabia-i-limuzina-6y3",
+        "modelId": 4777,
+        "years": "10.1999 - 12.2007",
+        "engines": [
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 17394,
+            "power": "47 kW / 64 HP",
+            "years": "01.2003 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 18149,
+            "power": "40 kW / 54 HP",
+            "years": "07.2001 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 16059,
+            "power": "50 kW / 68 HP",
+            "years": "07.2001 - 05.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 18150,
+            "power": "44 kW / 60 HP",
+            "years": "04.2000 - 08.2002",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 16060,
+            "power": "74 kW / 100 HP",
+            "years": "12.1999 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 15938,
+            "power": "55 kW / 75 HP",
+            "years": "10.1999 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 19901,
+            "power": "59 kW / 80 HP",
+            "years": "04.2006 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 17517,
+            "power": "55 kW / 75 HP",
+            "years": "04.2003 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19227,
+            "power": "51 kW / 70 HP",
+            "years": "10.2005 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19228,
+            "power": "59 kW / 80 HP",
+            "years": "10.2005 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 SDI",
+            "slug": "1-9-sdi",
+            "engineId": 16058,
+            "power": "47 kW / 64 HP",
+            "years": "11.1999 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 15937,
+            "power": "74 kW / 100 HP",
+            "years": "01.2000 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0",
+            "slug": "2-0",
+            "engineId": 16290,
+            "power": "85 kW / 116 HP",
+            "years": "12.1999 - 12.2007",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FABIA I Praktik (6Y5)",
+        "slug": "fabia-i-praktik-6y5",
+        "modelId": 5009,
+        "years": "01.2000 - 12.2007",
+        "engines": [
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 17396,
+            "power": "47 kW / 64 HP",
+            "years": "01.2003 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 19271,
+            "power": "40 kW / 54 HP",
+            "years": "07.2001 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 132416,
+            "power": "55 kW / 75 HP",
+            "years": "05.2004 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 19335,
+            "power": "50 kW / 68 HP",
+            "years": "07.2001 - 05.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19231,
+            "power": "51 kW / 70 HP",
+            "years": "10.2005 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 133129,
+            "power": "55 kW / 75 HP",
+            "years": "08.2004 - 10.2005",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 SDI",
+            "slug": "1-9-sdi",
+            "engineId": 17397,
+            "power": "47 kW / 64 HP",
+            "years": "07.2001 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 133125,
+            "power": "74 kW / 101 HP",
+            "years": "01.2000 - 12.2007",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FABIA II (542)",
+        "slug": "fabia-ii-542",
+        "modelId": 6363,
+        "years": "12.2006 - 12.2014",
+        "engines": [
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 22944,
+            "power": "44 kW / 60 HP",
+            "years": "12.2006 - 12.2014",
+            "engineCode": "CHFA"
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 22945,
+            "power": "51 kW / 70 HP",
+            "years": "01.2007 - 12.2014",
+            "engineCode": "CEVA"
+          },
+          {
+            "name": "1.2 12V",
+            "slug": "1-2-12v",
+            "engineId": 9409,
+            "power": "44 kW / 60 HP",
+            "years": "11.2011 - 12.2014",
+            "engineCode": "CGPB"
+          },
+          {
+            "name": "1.2 TDI",
+            "slug": "1-2-tdi",
+            "engineId": 33876,
+            "power": "55 kW / 75 HP",
+            "years": "05.2010 - 12.2014",
+            "engineCode": "CFWA"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 33243,
+            "power": "77 kW / 105 HP",
+            "years": "03.2010 - 12.2014",
+            "engineCode": "CBZB"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 33311,
+            "power": "63 kW / 86 HP",
+            "years": "03.2010 - 12.2014",
+            "engineCode": "CBZA"
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 22946,
+            "power": "63 kW / 86 HP",
+            "years": "01.2007 - 12.2014",
+            "engineCode": "CGGB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 22948,
+            "power": "51 kW / 70 HP",
+            "years": "02.2007 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 22949,
+            "power": "59 kW / 80 HP",
+            "years": "01.2007 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TSI RS",
+            "slug": "1-4-tsi-rs",
+            "engineId": 33681,
+            "power": "132 kW / 180 HP",
+            "years": "05.2010 - 12.2014",
+            "engineCode": "CAVE"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 22947,
+            "power": "77 kW / 105 HP",
+            "years": "04.2007 - 12.2014",
+            "engineCode": "CFNA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 33314,
+            "power": "66 kW / 90 HP",
+            "years": "03.2010 - 12.2014",
+            "engineCode": "CAYB"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 33315,
+            "power": "77 kW / 105 HP",
+            "years": "03.2010 - 12.2014",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 33679,
+            "power": "55 kW / 75 HP",
+            "years": "04.2010 - 12.2014",
+            "engineCode": "CAYA"
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 22950,
+            "power": "77 kW / 105 HP",
+            "years": "04.2007 - 03.2010",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FABIA II Combi (545)",
+        "slug": "fabia-ii-combi-545",
+        "modelId": 6395,
+        "years": "10.2007 - 12.2014",
+        "engines": [
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 28175,
+            "power": "44 kW / 60 HP",
+            "years": "10.2007 - 11.2014",
+            "engineCode": "CHFA"
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 23165,
+            "power": "51 kW / 70 HP",
+            "years": "10.2007 - 12.2014",
+            "engineCode": "CEVA"
+          },
+          {
+            "name": "1.2 12V",
+            "slug": "1-2-12v",
+            "engineId": 9410,
+            "power": "44 kW / 60 HP",
+            "years": "11.2011 - 12.2014",
+            "engineCode": "CGPB"
+          },
+          {
+            "name": "1.2 LPG",
+            "slug": "1-2-lpg",
+            "engineId": 133139,
+            "power": "51 kW / 69 HP",
+            "years": "10.2007 - 11.2014",
+            "engineCode": "CGPA"
+          },
+          {
+            "name": "1.2 TDI",
+            "slug": "1-2-tdi",
+            "engineId": 33877,
+            "power": "55 kW / 75 HP",
+            "years": "05.2010 - 12.2014",
+            "engineCode": "CFWA"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 33244,
+            "power": "77 kW / 105 HP",
+            "years": "03.2010 - 12.2014",
+            "engineCode": "CBZB"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 33312,
+            "power": "63 kW / 86 HP",
+            "years": "03.2010 - 12.2014",
+            "engineCode": "CBZA"
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 23166,
+            "power": "63 kW / 86 HP",
+            "years": "10.2007 - 12.2014",
+            "engineCode": "CGGB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 23168,
+            "power": "51 kW / 70 HP",
+            "years": "10.2007 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 23169,
+            "power": "59 kW / 80 HP",
+            "years": "10.2007 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TSI RS",
+            "slug": "1-4-tsi-rs",
+            "engineId": 33682,
+            "power": "132 kW / 180 HP",
+            "years": "05.2010 - 12.2014",
+            "engineCode": "CAVE"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 23167,
+            "power": "77 kW / 105 HP",
+            "years": "10.2007 - 12.2014",
+            "engineCode": "CFNA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 33316,
+            "power": "66 kW / 90 HP",
+            "years": "03.2010 - 12.2014",
+            "engineCode": "CAYB"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 33317,
+            "power": "77 kW / 105 HP",
+            "years": "03.2010 - 12.2014",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 33680,
+            "power": "55 kW / 75 HP",
+            "years": "04.2010 - 12.2014",
+            "engineCode": "CAYA"
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 23170,
+            "power": "77 kW / 105 HP",
+            "years": "10.2007 - 03.2010",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FABIA II Praktik (545)",
+        "slug": "fabia-ii-praktik-545",
+        "modelId": 44365,
+        "years": "12.2006 - 12.2014",
+        "engines": [
+          {
+            "name": "TDI",
+            "slug": "tdi",
+            "engineId": 154623,
+            "power": "55 kW / 75 HP",
+            "years": "10.2013 - 11.2014",
+            "engineCode": "CAYA"
+          }
+        ]
+      },
+      {
+        "name": "FABIA III (NJ3)",
+        "slug": "fabia-iii-nj3",
+        "modelId": 13331,
+        "years": "08.2014 - 06.2021",
+        "engines": [
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 108655,
+            "power": "44 kW / 60 HP",
+            "years": "08.2014 - 06.2021",
+            "engineCode": "CHYA"
+          },
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 108656,
+            "power": "55 kW / 75 HP",
+            "years": "08.2014 - 06.2021",
+            "engineCode": "CHYB"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 127941,
+            "power": "70 kW / 95 HP",
+            "years": "08.2014 - 06.2021",
+            "engineCode": "CHZB"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 128141,
+            "power": "81 kW / 110 HP",
+            "years": "08.2014 - 06.2021",
+            "engineCode": "CHZC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 108657,
+            "power": "66 kW / 90 HP",
+            "years": "08.2014 - 06.2021",
+            "engineCode": "CJZC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 108658,
+            "power": "81 kW / 110 HP",
+            "years": "08.2014 - 06.2021",
+            "engineCode": "CJZD"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 108659,
+            "power": "66 kW / 90 HP",
+            "years": "08.2014 - 06.2021",
+            "engineCode": "CUSB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 108660,
+            "power": "77 kW / 105 HP",
+            "years": "08.2014 - 06.2021",
+            "engineCode": "CUTA"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 117784,
+            "power": "55 kW / 75 HP",
+            "years": "05.2015 - 06.2021",
+            "engineCode": "CUSA"
+          },
+          {
+            "name": "1.4 TSI R5",
+            "slug": "1-4-tsi-r5",
+            "engineId": 131223,
+            "power": "92 kW / 125 HP",
+            "years": "02.2018 - 06.2021",
+            "engineCode": "CZCA"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 117788,
+            "power": "81 kW / 110 HP",
+            "years": "01.2015 - 06.2021",
+            "engineCode": "CWVA"
+          }
+        ]
+      },
+      {
+        "name": "FABIA III kombi (NJ5)",
+        "slug": "fabia-iii-kombi-nj5",
+        "modelId": 13332,
+        "years": "08.2014 - 12.2022",
+        "engines": [
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 108661,
+            "power": "55 kW / 75 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CHYB"
+          },
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 108666,
+            "power": "44 kW / 60 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CHYA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 127942,
+            "power": "70 kW / 95 HP",
+            "years": "08.2014 - 12.2022",
+            "engineCode": "CHZB"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 128142,
+            "power": "81 kW / 110 HP",
+            "years": "08.2014 - 12.2022",
+            "engineCode": "CHZC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 108662,
+            "power": "66 kW / 90 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CJZC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 108663,
+            "power": "81 kW / 110 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CJZD"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 108664,
+            "power": "66 kW / 90 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CUSB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 108665,
+            "power": "77 kW / 105 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CUTA"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 117785,
+            "power": "55 kW / 75 HP",
+            "years": "05.2015 - 12.2022",
+            "engineCode": "CUSA"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 117789,
+            "power": "81 kW / 110 HP",
+            "years": "01.2015 - 12.2022",
+            "engineCode": "CWVA"
+          }
+        ]
+      },
+      {
+        "name": "FABIA III Praktik (NJ5)",
+        "slug": "fabia-iii-praktik-nj5",
+        "modelId": 44366,
+        "years": "08.2014 - 12.2022",
+        "engines": [
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 154628,
+            "power": "55 kW / 75 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CHYB"
+          },
+          {
+            "name": "1.0",
+            "slug": "1-0",
+            "engineId": 154627,
+            "power": "44 kW / 60 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CHYA"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 154637,
+            "power": "66 kW / 90 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CJZC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 154638,
+            "power": "81 kW / 110 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CJZD"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 154639,
+            "power": "66 kW / 90 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CUSB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 154640,
+            "power": "77 kW / 105 HP",
+            "years": "10.2014 - 12.2022",
+            "engineCode": "CUTA"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 154641,
+            "power": "55 kW / 75 HP",
+            "years": "05.2015 - 12.2022",
+            "engineCode": "CUSA"
+          }
+        ]
+      },
+      {
+        "name": "FABIA IV (PJ3)",
+        "slug": "fabia-iv-pj3",
+        "modelId": 42133,
+        "years": "06.2021 - Nyní",
+        "engines": [
+          {
+            "name": "1.0 MPI",
+            "slug": "1-0-mpi",
+            "engineId": 145019,
+            "power": "59 kW / 80 HP",
+            "years": "06.2021 - Nyní",
+            "engineCode": "DSGD"
+          },
+          {
+            "name": "1.0 MPI",
+            "slug": "1-0-mpi",
+            "engineId": 145238,
+            "power": "48 kW / 65 HP",
+            "years": "08.2021 - Nyní",
+            "engineCode": "DSGA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 145018,
+            "power": "70 kW / 95 HP",
+            "years": "06.2021 - Nyní",
+            "engineCode": "DLAC"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 157377,
+            "power": "85 kW / 116 HP",
+            "years": "01.2024 - Nyní",
+            "engineCode": "DUSA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 145017,
+            "power": "81 kW / 110 HP",
+            "years": "06.2021 - Nyní",
+            "engineCode": "DLAA"
+          },
+          {
+            "name": "1.5 Rally2",
+            "slug": "1-5-rally2",
+            "engineId": 801036,
+            "power": "140 kW / 190 HP",
+            "years": "11.2024 - Nyní",
+            "engineCode": ""
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 146489,
+            "power": "110 kW / 150 HP",
+            "years": "11.2021 - Nyní",
+            "engineCode": "DPCA"
+          }
+        ]
+      },
+      {
+        "name": "FAVORIT (781)",
+        "slug": "favorit-781",
+        "modelId": 398,
+        "years": "05.1989 - 09.1994",
+        "engines": [
+          {
+            "name": "1.3 (781)",
+            "slug": "1-3-781",
+            "engineId": 4088,
+            "power": "50 kW / 68 HP",
+            "years": "01.1994 - 09.1994",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 135 (781)",
+            "slug": "1-3-135-781",
+            "engineId": 3031,
+            "power": "44 kW / 60 HP",
+            "years": "10.1990 - 09.1994",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 135 (781)",
+            "slug": "1-3-135-781",
+            "engineId": 3033,
+            "power": "42 kW / 57 HP",
+            "years": "12.1991 - 09.1994",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 135 (781)",
+            "slug": "1-3-135-781",
+            "engineId": 3034,
+            "power": "43 kW / 58 HP",
+            "years": "12.1991 - 09.1994",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 135 X, LX, GLX (781)",
+            "slug": "1-3-135-x-lx-glx-781",
+            "engineId": 3035,
+            "power": "40 kW / 54 HP",
+            "years": "01.1990 - 09.1994",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 135L (781)",
+            "slug": "1-3-135l-781",
+            "engineId": 3030,
+            "power": "43 kW / 58 HP",
+            "years": "05.1989 - 09.1994",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 136 (781)",
+            "slug": "1-3-136-781",
+            "engineId": 3032,
+            "power": "45 kW / 61 HP",
+            "years": "10.1990 - 09.1994",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FAVORIT Forman (785)",
+        "slug": "favorit-forman-785",
+        "modelId": 426,
+        "years": "06.1988 - 06.1995",
+        "engines": [
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 4089,
+            "power": "50 kW / 68 HP",
+            "years": "01.1994 - 06.1995",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 (135 E)",
+            "slug": "1-3-135-e",
+            "engineId": 3038,
+            "power": "40 kW / 54 HP",
+            "years": "09.1991 - 06.1995",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 (135)",
+            "slug": "1-3-135",
+            "engineId": 55678,
+            "power": "43 kW / 58 HP",
+            "years": "01.1993 - 12.1993",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 (135)",
+            "slug": "1-3-135",
+            "engineId": 3036,
+            "power": "44 kW / 60 HP",
+            "years": "12.1991 - 06.1995",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 (136)",
+            "slug": "1-3-136",
+            "engineId": 3037,
+            "power": "45 kW / 61 HP",
+            "years": "08.1991 - 06.1995",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FAVORIT pick-up (787)",
+        "slug": "favorit-pick-up-787",
+        "modelId": 4074,
+        "years": "06.1992 - 06.1997",
+        "engines": [
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 11191,
+            "power": "42 kW / 57 HP",
+            "years": "12.1992 - 06.1997",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 11189,
+            "power": "50 kW / 68 HP",
+            "years": "12.1992 - 06.1997",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 30100,
+            "power": "46 kW / 63 HP",
+            "years": "06.1992 - 09.1993",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 11190,
+            "power": "40 kW / 54 HP",
+            "years": "12.1992 - 06.1997",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FELICIA Cube Van (6U5)",
+        "slug": "felicia-cube-van-6u5",
+        "modelId": 38756,
+        "years": "11.1995 - 12.2001",
+        "engines": [
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 134459,
+            "power": "43 kW / 58 HP",
+            "years": "11.1995 - 11.2000",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FELICIA I (6U1)",
+        "slug": "felicia-i-6u1",
+        "modelId": 1319,
+        "years": "10.1994 - 03.1998",
+        "engines": [
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 14741,
+            "power": "43 kW / 58 HP",
+            "years": "10.1994 - 03.1998",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 4734,
+            "power": "40 kW / 54 HP",
+            "years": "10.1994 - 03.1998",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 4735,
+            "power": "50 kW / 68 HP",
+            "years": "10.1994 - 03.1998",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 5256,
+            "power": "55 kW / 75 HP",
+            "years": "08.1995 - 03.1998",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 D",
+            "slug": "1-9-d",
+            "engineId": 5678,
+            "power": "47 kW / 64 HP",
+            "years": "10.1995 - 03.1998",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FELICIA I kombi (6U5)",
+        "slug": "felicia-i-kombi-6u5",
+        "modelId": 1480,
+        "years": "07.1995 - 03.1998",
+        "engines": [
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 5257,
+            "power": "40 kW / 54 HP",
+            "years": "08.1995 - 03.1998",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 5258,
+            "power": "50 kW / 68 HP",
+            "years": "08.1995 - 03.1998",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 14744,
+            "power": "43 kW / 58 HP",
+            "years": "08.1995 - 03.1998",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 5259,
+            "power": "55 kW / 75 HP",
+            "years": "08.1995 - 03.1998",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 D",
+            "slug": "1-9-d",
+            "engineId": 5679,
+            "power": "47 kW / 64 HP",
+            "years": "10.1995 - 03.1998",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FELICIA I pick-up (6UF, 6U7)",
+        "slug": "felicia-i-pick-up-6uf-6u7",
+        "modelId": 3994,
+        "years": "10.1995 - 04.2002",
+        "engines": [
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 11187,
+            "power": "50 kW / 68 HP",
+            "years": "06.1997 - 04.2002",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 11188,
+            "power": "40 kW / 54 HP",
+            "years": "06.1997 - 04.2002",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 8702,
+            "power": "55 kW / 75 HP",
+            "years": "06.1997 - 04.2002",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 D",
+            "slug": "1-9-d",
+            "engineId": 8703,
+            "power": "47 kW / 64 HP",
+            "years": "06.1997 - 04.2002",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FELICIA II (6U1)",
+        "slug": "felicia-ii-6u1",
+        "modelId": 4075,
+        "years": "01.1998 - 06.2001",
+        "engines": [
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 11192,
+            "power": "40 kW / 54 HP",
+            "years": "01.1998 - 06.2001",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 11193,
+            "power": "50 kW / 68 HP",
+            "years": "01.1998 - 06.2001",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 14745,
+            "power": "43 kW / 58 HP",
+            "years": "01.1998 - 06.2001",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 11194,
+            "power": "55 kW / 75 HP",
+            "years": "01.1998 - 06.2001",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 D",
+            "slug": "1-9-d",
+            "engineId": 11195,
+            "power": "47 kW / 64 HP",
+            "years": "01.1998 - 06.2001",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "FELICIA II kombi (6U5)",
+        "slug": "felicia-ii-kombi-6u5",
+        "modelId": 4076,
+        "years": "07.1995 - 06.2001",
+        "engines": [
+          {
+            "name": "1.3",
+            "slug": "1-3",
+            "engineId": 11196,
+            "power": "50 kW / 68 HP",
+            "years": "08.1996 - 06.2001",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 11197,
+            "power": "55 kW / 75 HP",
+            "years": "01.1998 - 06.2001",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 D",
+            "slug": "1-9-d",
+            "engineId": 11198,
+            "power": "47 kW / 64 HP",
+            "years": "01.1998 - 06.2001",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "KAMIQ (NW4)",
+        "slug": "kamiq-nw4",
+        "modelId": 39796,
+        "years": "07.2019 - Nyní",
+        "engines": [
+          {
+            "name": "1.0 TGI CNG",
+            "slug": "1-0-tgi-cng",
+            "engineId": 139309,
+            "power": "66 kW / 90 HP",
+            "years": "11.2019 - Nyní",
+            "engineCode": "DBYA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 137056,
+            "power": "70 kW / 95 HP",
+            "years": "07.2019 - Nyní",
+            "engineCode": "DKLA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 137058,
+            "power": "85 kW / 116 HP",
+            "years": "07.2019 - Nyní",
+            "engineCode": "DKJA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 142440,
+            "power": "81 kW / 110 HP",
+            "years": "08.2020 - Nyní",
+            "engineCode": "DLAA"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 138164,
+            "power": "110 kW / 150 HP",
+            "years": "07.2019 - Nyní",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 146729,
+            "power": "70 kW / 95 HP",
+            "years": "09.2019 - Nyní",
+            "engineCode": "DGTD"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 137059,
+            "power": "85 kW / 115 HP",
+            "years": "07.2019 - Nyní",
+            "engineCode": "DGTA"
+          }
+        ]
+      },
+      {
+        "name": "KAROQ (NU7, ND7)",
+        "slug": "karoq-nu7-nd7",
+        "modelId": 38149,
+        "years": "07.2017 - Nyní",
+        "engines": [
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 142867,
+            "power": "81 kW / 110 HP",
+            "years": "09.2020 - Nyní",
+            "engineCode": "DLAA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 128286,
+            "power": "85 kW / 116 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "CHZJ"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 141828,
+            "power": "110 kW / 150 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "CZEA"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 128287,
+            "power": "110 kW / 150 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.5 TSI 4x4",
+            "slug": "1-5-tsi-4x4",
+            "engineId": 134266,
+            "power": "110 kW / 150 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.6 SRE",
+            "slug": "1-6-sre",
+            "engineId": 141827,
+            "power": "81 kW / 110 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "CWVA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 128288,
+            "power": "85 kW / 115 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "DDYA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 144747,
+            "power": "85 kW / 116 HP",
+            "years": "11.2020 - Nyní",
+            "engineCode": "DTRB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 135315,
+            "power": "110 kW / 150 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "DFFA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 128471,
+            "power": "140 kW / 190 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "DFHA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 128289,
+            "power": "110 kW / 150 HP",
+            "years": "07.2017 - Nyní",
+            "engineCode": "DFFA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 801672,
+            "power": "140 kW / 190 HP",
+            "years": "11.2020 - Nyní",
+            "engineCode": "DNNA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 136264,
+            "power": "140 kW / 190 HP",
+            "years": "11.2018 - Nyní",
+            "engineCode": "DKZA"
+          }
+        ]
+      },
+      {
+        "name": "KODIAQ I (NS6, NS7, NV7)",
+        "slug": "kodiaq-i-ns6-ns7-nv7",
+        "modelId": 37164,
+        "years": "10.2016 - Nyní",
+        "engines": [
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 123422,
+            "power": "92 kW / 125 HP",
+            "years": "10.2016 - Nyní",
+            "engineCode": "CZCA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 123933,
+            "power": "110 kW / 150 HP",
+            "years": "10.2016 - Nyní",
+            "engineCode": "CZDA"
+          },
+          {
+            "name": "1.4 TSI 4x4",
+            "slug": "1-4-tsi-4x4",
+            "engineId": 123424,
+            "power": "110 kW / 150 HP",
+            "years": "10.2016 - Nyní",
+            "engineCode": "CZDA"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 133857,
+            "power": "110 kW / 150 HP",
+            "years": "07.2018 - Nyní",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.5 TSI 4x4",
+            "slug": "1-5-tsi-4x4",
+            "engineId": 134285,
+            "power": "110 kW / 150 HP",
+            "years": "07.2018 - Nyní",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "2.0 RS 4x4",
+            "slug": "2-0-rs-4x4",
+            "engineId": 145016,
+            "power": "180 kW / 245 HP",
+            "years": "06.2021 - Nyní",
+            "engineCode": "DNPA"
+          },
+          {
+            "name": "2.0 RS Bi-TDI 4x4",
+            "slug": "2-0-rs-bi-tdi-4x4",
+            "engineId": 134287,
+            "power": "176 kW / 239 HP",
+            "years": "11.2018 - Nyní",
+            "engineCode": "CUAA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 123934,
+            "power": "110 kW / 150 HP",
+            "years": "10.2016 - Nyní",
+            "engineCode": "DBGC"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 154693,
+            "power": "85 kW / 116 HP",
+            "years": "07.2018 - Nyní",
+            "engineCode": "DFGC"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 123426,
+            "power": "110 kW / 150 HP",
+            "years": "10.2016 - Nyní",
+            "engineCode": "DBGC"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 123427,
+            "power": "140 kW / 190 HP",
+            "years": "10.2016 - Nyní",
+            "engineCode": "DFHA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 142122,
+            "power": "147 kW / 200 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 141826,
+            "power": "130 kW / 177 HP",
+            "years": "04.2017 - Nyní",
+            "engineCode": "CRGB"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 123425,
+            "power": "132 kW / 180 HP",
+            "years": "10.2016 - Nyní",
+            "engineCode": "CZPA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 801673,
+            "power": "140 kW / 190 HP",
+            "years": "11.2020 - Nyní",
+            "engineCode": "DNNA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 135316,
+            "power": "140 kW / 190 HP",
+            "years": "02.2019 - Nyní",
+            "engineCode": "DKZA"
+          }
+        ]
+      },
+      {
+        "name": "KODIAQ II (PS7)",
+        "slug": "kodiaq-ii-ps7",
+        "modelId": 45125,
+        "years": "01.2024 - Nyní",
+        "engines": [
+          {
+            "name": "1.5 TSI iV PHEV",
+            "slug": "1-5-tsi-iv-phev",
+            "engineId": 158377,
+            "power": "150 kW / 204 HP",
+            "years": "04.2024 - Nyní",
+            "engineCode": "DUCB"
+          },
+          {
+            "name": "1.5 TSI mHEV",
+            "slug": "1-5-tsi-mhev",
+            "engineId": 157549,
+            "power": "110 kW / 150 HP",
+            "years": "01.2024 - Nyní",
+            "engineCode": "DXDB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 157362,
+            "power": "110 kW / 150 HP",
+            "years": "01.2024 - Nyní",
+            "engineCode": "DXPA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 157363,
+            "power": "142 kW / 193 HP",
+            "years": "01.2024 - Nyní",
+            "engineCode": "DXNB"
+          },
+          {
+            "name": "2.0 TSi 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 801026,
+            "power": "150 kW / 204 HP",
+            "years": "11.2024 - Nyní",
+            "engineCode": "DNNE"
+          },
+          {
+            "name": "2.0 TSi 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 801222,
+            "power": "195 kW / 265 HP",
+            "years": "01.2025 - Nyní",
+            "engineCode": "DNPB"
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA",
+        "slug": "octavia",
+        "modelId": 1815,
+        "years": "04.1959 - 10.1971",
+        "engines": [
+          {
+            "name": "1.1",
+            "slug": "1-1",
+            "engineId": 7237,
+            "power": "29 kW / 39 HP",
+            "years": "04.1959 - 02.1962",
+            "engineCode": ""
+          },
+          {
+            "name": "1.1",
+            "slug": "1-1",
+            "engineId": 7243,
+            "power": "31 kW / 42 HP",
+            "years": "02.1962 - 10.1971",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2 Super",
+            "slug": "1-2-super",
+            "engineId": 7224,
+            "power": "33 kW / 45 HP",
+            "years": "04.1959 - 02.1961",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2 Super",
+            "slug": "1-2-super",
+            "engineId": 7225,
+            "power": "32 kW / 44 HP",
+            "years": "02.1961 - 10.1971",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA I (1U2)",
+        "slug": "octavia-i-1u2",
+        "modelId": 1904,
+        "years": "09.1996 - 12.2010",
+        "engines": [
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 14748,
+            "power": "44 kW / 60 HP",
+            "years": "04.1999 - 03.2001",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 15292,
+            "power": "55 kW / 75 HP",
+            "years": "09.2000 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 7907,
+            "power": "55 kW / 75 HP",
+            "years": "09.1996 - 09.2004",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 15910,
+            "power": "75 kW / 102 HP",
+            "years": "11.2000 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 8009,
+            "power": "74 kW / 101 HP",
+            "years": "02.1997 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.8",
+            "slug": "1-8",
+            "engineId": 7908,
+            "power": "92 kW / 125 HP",
+            "years": "09.1996 - 07.2000",
+            "engineCode": ""
+          },
+          {
+            "name": "1.8 T",
+            "slug": "1-8-t",
+            "engineId": 11346,
+            "power": "110 kW / 150 HP",
+            "years": "08.1997 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.8 T 4x4",
+            "slug": "1-8-t-4x4",
+            "engineId": 16086,
+            "power": "110 kW / 150 HP",
+            "years": "05.2001 - 05.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 SDI",
+            "slug": "1-9-sdi",
+            "engineId": 8704,
+            "power": "50 kW / 68 HP",
+            "years": "06.1997 - 12.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 7909,
+            "power": "66 kW / 90 HP",
+            "years": "09.1996 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 23291,
+            "power": "74 kW / 100 HP",
+            "years": "10.2005 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 9063,
+            "power": "81 kW / 110 HP",
+            "years": "08.1997 - 01.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 17475,
+            "power": "96 kW / 130 HP",
+            "years": "09.2002 - 09.2004",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0",
+            "slug": "2-0",
+            "engineId": 13085,
+            "power": "85 kW / 116 HP",
+            "years": "04.1999 - 05.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "RS 1.8 T",
+            "slug": "rs-1-8-t",
+            "engineId": 15293,
+            "power": "132 kW / 180 HP",
+            "years": "05.2001 - 01.2006",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA I Combi (1U5)",
+        "slug": "octavia-i-combi-1u5",
+        "modelId": 3560,
+        "years": "07.1998 - 12.2010",
+        "engines": [
+          {
+            "name": "1.4 16V",
+            "slug": "1-4-16v",
+            "engineId": 15917,
+            "power": "55 kW / 75 HP",
+            "years": "08.2000 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 9515,
+            "power": "74 kW / 101 HP",
+            "years": "07.1998 - 12.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 11629,
+            "power": "55 kW / 75 HP",
+            "years": "07.1998 - 09.2004",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 15918,
+            "power": "75 kW / 102 HP",
+            "years": "09.2000 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.8 20V",
+            "slug": "1-8-20v",
+            "engineId": 9516,
+            "power": "92 kW / 125 HP",
+            "years": "07.1998 - 07.2000",
+            "engineCode": ""
+          },
+          {
+            "name": "1.8 T",
+            "slug": "1-8-t",
+            "engineId": 10270,
+            "power": "110 kW / 150 HP",
+            "years": "07.1998 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.8 T 4x4",
+            "slug": "1-8-t-4x4",
+            "engineId": 16087,
+            "power": "110 kW / 150 HP",
+            "years": "05.2001 - 05.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 SDI",
+            "slug": "1-9-sdi",
+            "engineId": 9517,
+            "power": "50 kW / 68 HP",
+            "years": "07.1998 - 12.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 9518,
+            "power": "66 kW / 90 HP",
+            "years": "07.1998 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 9519,
+            "power": "81 kW / 110 HP",
+            "years": "07.1998 - 01.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 23268,
+            "power": "74 kW / 100 HP",
+            "years": "08.2000 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 17476,
+            "power": "96 kW / 130 HP",
+            "years": "09.2002 - 09.2004",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI 4x4",
+            "slug": "1-9-tdi-4x4",
+            "engineId": 15294,
+            "power": "74 kW / 100 HP",
+            "years": "09.2000 - 01.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI 4x4",
+            "slug": "1-9-tdi-4x4",
+            "engineId": 12243,
+            "power": "66 kW / 90 HP",
+            "years": "11.1999 - 02.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0",
+            "slug": "2-0",
+            "engineId": 13086,
+            "power": "85 kW / 116 HP",
+            "years": "04.1999 - 05.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 4x4",
+            "slug": "2-0-4x4",
+            "engineId": 16088,
+            "power": "85 kW / 116 HP",
+            "years": "08.2000 - 09.2004",
+            "engineCode": ""
+          },
+          {
+            "name": "RS 1.8 T",
+            "slug": "rs-1-8-t",
+            "engineId": 16945,
+            "power": "132 kW / 180 HP",
+            "years": "08.2002 - 01.2006",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA I karoserie/kombi (1U5)",
+        "slug": "octavia-i-karoserie-kombi-1u5",
+        "modelId": 39014,
+        "years": "08.2000 - 03.2010",
+        "engines": [
+          {
+            "name": "1.9 D",
+            "slug": "1-9-d",
+            "engineId": 133123,
+            "power": "50 kW / 68 HP",
+            "years": "08.2000 - 12.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 133122,
+            "power": "66 kW / 90 HP",
+            "years": "08.2000 - 03.2010",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA II (1Z3)",
+        "slug": "octavia-ii-1z3",
+        "modelId": 5120,
+        "years": "02.2004 - 06.2013",
+        "engines": [
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 33245,
+            "power": "77 kW / 105 HP",
+            "years": "02.2010 - 06.2013",
+            "engineCode": "CBZB"
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 17972,
+            "power": "55 kW / 75 HP",
+            "years": "05.2004 - 05.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 19820,
+            "power": "59 kW / 80 HP",
+            "years": "06.2004 - 04.2013",
+            "engineCode": "CGGA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 31592,
+            "power": "90 kW / 122 HP",
+            "years": "11.2008 - 06.2013",
+            "engineCode": "CAXA"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 17973,
+            "power": "75 kW / 102 HP",
+            "years": "06.2004 - 06.2013",
+            "engineCode": "CCSA"
+          },
+          {
+            "name": "1.6 FSI",
+            "slug": "1-6-fsi",
+            "engineId": 17974,
+            "power": "85 kW / 115 HP",
+            "years": "02.2004 - 10.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6 LPG",
+            "slug": "1-6-lpg",
+            "engineId": 5020,
+            "power": "75 kW / 102 HP",
+            "years": "08.2009 - 11.2012",
+            "engineCode": "CHGA"
+          },
+          {
+            "name": "1.6 MultiFuel",
+            "slug": "1-6-multifuel",
+            "engineId": 30441,
+            "power": "75 kW / 102 HP",
+            "years": "01.2008 - 06.2013",
+            "engineCode": "CCSA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 31590,
+            "power": "77 kW / 105 HP",
+            "years": "06.2009 - 04.2013",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 7867,
+            "power": "112 kW / 152 HP",
+            "years": "03.2009 - 06.2013",
+            "engineCode": "CDAB"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 28203,
+            "power": "118 kW / 160 HP",
+            "years": "06.2007 - 04.2013",
+            "engineCode": "CDAA"
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 17970,
+            "power": "77 kW / 105 HP",
+            "years": "06.2004 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 FSI",
+            "slug": "2-0-fsi",
+            "engineId": 18478,
+            "power": "110 kW / 150 HP",
+            "years": "11.2004 - 10.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 20001,
+            "power": "103 kW / 140 HP",
+            "years": "11.2005 - 05.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 7894,
+            "power": "81 kW / 110 HP",
+            "years": "03.2010 - 06.2013",
+            "engineCode": "CFHF"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 28206,
+            "power": "100 kW / 136 HP",
+            "years": "02.2004 - 05.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI 16V",
+            "slug": "2-0-tdi-16v",
+            "engineId": 17971,
+            "power": "103 kW / 140 HP",
+            "years": "02.2004 - 04.2013",
+            "engineCode": "CFHC"
+          },
+          {
+            "name": "2.0 TDI RS",
+            "slug": "2-0-tdi-rs",
+            "engineId": 26623,
+            "power": "125 kW / 170 HP",
+            "years": "04.2006 - 02.2013",
+            "engineCode": "CEGA"
+          },
+          {
+            "name": "2.0 TFSI",
+            "slug": "2-0-tfsi",
+            "engineId": 19458,
+            "power": "147 kW / 200 HP",
+            "years": "10.2005 - 02.2013",
+            "engineCode": "CCZA"
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA II Combi (1Z5)",
+        "slug": "octavia-ii-combi-1z5",
+        "modelId": 5162,
+        "years": "02.2004 - 06.2013",
+        "engines": [
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 33246,
+            "power": "77 kW / 105 HP",
+            "years": "02.2010 - 04.2013",
+            "engineCode": "CBZB"
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 23290,
+            "power": "59 kW / 80 HP",
+            "years": "05.2006 - 06.2013",
+            "engineCode": "CGGA"
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 6799,
+            "power": "55 kW / 75 HP",
+            "years": "05.2004 - 05.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 31593,
+            "power": "90 kW / 122 HP",
+            "years": "11.2008 - 06.2013",
+            "engineCode": "CAXA"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 18246,
+            "power": "75 kW / 102 HP",
+            "years": "09.2004 - 06.2013",
+            "engineCode": "CCSA"
+          },
+          {
+            "name": "1.6 FSI",
+            "slug": "1-6-fsi",
+            "engineId": 18247,
+            "power": "85 kW / 115 HP",
+            "years": "02.2004 - 10.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6 LPG",
+            "slug": "1-6-lpg",
+            "engineId": 5017,
+            "power": "75 kW / 102 HP",
+            "years": "08.2009 - 11.2012",
+            "engineCode": "CHGA"
+          },
+          {
+            "name": "1.6 MultiFuel",
+            "slug": "1-6-multifuel",
+            "engineId": 30442,
+            "power": "75 kW / 102 HP",
+            "years": "01.2008 - 06.2013",
+            "engineCode": "CCSA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 31591,
+            "power": "77 kW / 105 HP",
+            "years": "06.2009 - 04.2013",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.6 TDI 4x4",
+            "slug": "1-6-tdi-4x4",
+            "engineId": 5013,
+            "power": "77 kW / 105 HP",
+            "years": "06.2009 - 02.2013",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 7868,
+            "power": "112 kW / 152 HP",
+            "years": "03.2009 - 06.2013",
+            "engineCode": "CDAB"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 28204,
+            "power": "118 kW / 160 HP",
+            "years": "06.2007 - 04.2013",
+            "engineCode": "CDAA"
+          },
+          {
+            "name": "1.8 TSI 4x4",
+            "slug": "1-8-tsi-4x4",
+            "engineId": 31594,
+            "power": "118 kW / 160 HP",
+            "years": "11.2008 - 02.2013",
+            "engineCode": "CDAA"
+          },
+          {
+            "name": "1.8 TSI 4x4",
+            "slug": "1-8-tsi-4x4",
+            "engineId": 6800,
+            "power": "112 kW / 152 HP",
+            "years": "03.2009 - 02.2013",
+            "engineCode": "CDAB"
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 18248,
+            "power": "77 kW / 105 HP",
+            "years": "09.2004 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI 4x4",
+            "slug": "1-9-tdi-4x4",
+            "engineId": 18481,
+            "power": "77 kW / 105 HP",
+            "years": "11.2004 - 12.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 FSI",
+            "slug": "2-0-fsi",
+            "engineId": 18479,
+            "power": "110 kW / 150 HP",
+            "years": "11.2004 - 10.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 FSI 4x4",
+            "slug": "2-0-fsi-4x4",
+            "engineId": 18480,
+            "power": "110 kW / 150 HP",
+            "years": "11.2004 - 04.2009",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 20002,
+            "power": "103 kW / 140 HP",
+            "years": "11.2005 - 05.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 7904,
+            "power": "81 kW / 110 HP",
+            "years": "03.2010 - 06.2013",
+            "engineCode": "CFHF"
+          },
+          {
+            "name": "2.0 TDI 16V",
+            "slug": "2-0-tdi-16v",
+            "engineId": 18249,
+            "power": "103 kW / 140 HP",
+            "years": "02.2004 - 05.2013",
+            "engineCode": "CFHC"
+          },
+          {
+            "name": "2.0 TDI 16V",
+            "slug": "2-0-tdi-16v",
+            "engineId": 28207,
+            "power": "100 kW / 136 HP",
+            "years": "02.2004 - 05.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI 16V 4x4",
+            "slug": "2-0-tdi-16v-4x4",
+            "engineId": 6042,
+            "power": "103 kW / 140 HP",
+            "years": "05.2010 - 02.2013",
+            "engineCode": "CFHC"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 4819,
+            "power": "81 kW / 110 HP",
+            "years": "05.2011 - 02.2013",
+            "engineCode": "CFHF"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 19821,
+            "power": "103 kW / 140 HP",
+            "years": "07.2006 - 05.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI RS",
+            "slug": "2-0-tdi-rs",
+            "engineId": 26624,
+            "power": "125 kW / 170 HP",
+            "years": "04.2006 - 02.2013",
+            "engineCode": "CEGA"
+          },
+          {
+            "name": "2.0 TFSI",
+            "slug": "2-0-tfsi",
+            "engineId": 19459,
+            "power": "147 kW / 200 HP",
+            "years": "10.2005 - 02.2013",
+            "engineCode": "CCZA"
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA III (5E3, NL3, NR3)",
+        "slug": "octavia-iii-5e3-nl3-nr3",
+        "modelId": 11195,
+        "years": "11.2012 - 03.2021",
+        "engines": [
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 120206,
+            "power": "85 kW / 115 HP",
+            "years": "05.2016 - 10.2020",
+            "engineCode": "CHZD"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 115152,
+            "power": "81 kW / 110 HP",
+            "years": "05.2015 - 02.2017",
+            "engineCode": "CYVB"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 58757,
+            "power": "63 kW / 86 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CJZB"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 58758,
+            "power": "77 kW / 105 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CJZA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 115156,
+            "power": "110 kW / 150 HP",
+            "years": "08.2014 - 10.2020",
+            "engineCode": "CHPB"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 58750,
+            "power": "103 kW / 140 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CHPA"
+          },
+          {
+            "name": "1.4 TSI G-TEC",
+            "slug": "1-4-tsi-g-tec",
+            "engineId": 106544,
+            "power": "81 kW / 110 HP",
+            "years": "11.2013 - 02.2017",
+            "engineCode": "CPWA"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 128418,
+            "power": "110 kW / 150 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 107943,
+            "power": "81 kW / 110 HP",
+            "years": "01.2014 - 10.2020",
+            "engineCode": "CWVA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 58760,
+            "power": "77 kW / 105 HP",
+            "years": "11.2012 - 05.2015",
+            "engineCode": "CLHA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 126000,
+            "power": "85 kW / 115 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DDYA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 59077,
+            "power": "66 kW / 90 HP",
+            "years": "11.2012 - 10.2020",
+            "engineCode": "CLHB"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 100629,
+            "power": "81 kW / 110 HP",
+            "years": "05.2013 - 02.2017",
+            "engineCode": "CRKB"
+          },
+          {
+            "name": "1.6 TDI 4x4",
+            "slug": "1-6-tdi-4x4",
+            "engineId": 115209,
+            "power": "81 kW / 110 HP",
+            "years": "05.2015 - 02.2017",
+            "engineCode": "CRKB"
+          },
+          {
+            "name": "1.6 TDI 4x4",
+            "slug": "1-6-tdi-4x4",
+            "engineId": 108643,
+            "power": "77 kW / 105 HP",
+            "years": "05.2013 - 05.2015",
+            "engineCode": "CLHA"
+          },
+          {
+            "name": "1.6 TDI 4x4",
+            "slug": "1-6-tdi-4x4",
+            "engineId": 133302,
+            "power": "85 kW / 115 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DGTE"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 58759,
+            "power": "132 kW / 180 HP",
+            "years": "11.2012 - 10.2020",
+            "engineCode": "CJSA"
+          },
+          {
+            "name": "1.8 TSI 4x4",
+            "slug": "1-8-tsi-4x4",
+            "engineId": 108644,
+            "power": "132 kW / 180 HP",
+            "years": "05.2014 - 10.2020",
+            "engineCode": "CJSB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 58761,
+            "power": "110 kW / 150 HP",
+            "years": "11.2012 - 10.2020",
+            "engineCode": "CKFC"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 59079,
+            "power": "105 kW / 143 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CKFB"
+          },
+          {
+            "name": "2.0 TDI / TDI RS 4x4",
+            "slug": "2-0-tdi-tdi-rs-4x4",
+            "engineId": 108649,
+            "power": "135 kW / 184 HP",
+            "years": "05.2013 - 10.2020",
+            "engineCode": "CUNA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 108645,
+            "power": "110 kW / 150 HP",
+            "years": "05.2013 - 10.2020",
+            "engineCode": "CKFC"
+          },
+          {
+            "name": "2.0 TDI RS",
+            "slug": "2-0-tdi-rs",
+            "engineId": 59676,
+            "power": "135 kW / 184 HP",
+            "years": "05.2013 - 10.2020",
+            "engineCode": "CUNA"
+          },
+          {
+            "name": "2.0 TSI",
+            "slug": "2-0-tsi",
+            "engineId": 132922,
+            "power": "140 kW / 190 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DKZA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 135317,
+            "power": "140 kW / 190 HP",
+            "years": "02.2019 - 10.2020",
+            "engineCode": "DKZA"
+          },
+          {
+            "name": "2.0 TSI RS",
+            "slug": "2-0-tsi-rs",
+            "engineId": 126002,
+            "power": "180 kW / 245 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DHGA"
+          },
+          {
+            "name": "2.0 TSI RS",
+            "slug": "2-0-tsi-rs",
+            "engineId": 59677,
+            "power": "162 kW / 220 HP",
+            "years": "05.2013 - 02.2017",
+            "engineCode": "CHHB"
+          },
+          {
+            "name": "2.0 TSI RS",
+            "slug": "2-0-tsi-rs",
+            "engineId": 115160,
+            "power": "169 kW / 230 HP",
+            "years": "05.2015 - 10.2020",
+            "engineCode": "CHHA"
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA III Combi (5E5, 5E6)",
+        "slug": "octavia-iii-combi-5e5-5e6",
+        "modelId": 11196,
+        "years": "11.2012 - 10.2020",
+        "engines": [
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 120207,
+            "power": "85 kW / 115 HP",
+            "years": "05.2016 - 10.2020",
+            "engineCode": "CHZD"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 115154,
+            "power": "81 kW / 110 HP",
+            "years": "05.2015 - 02.2017",
+            "engineCode": "CYVB"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 58762,
+            "power": "63 kW / 86 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CJZB"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 58763,
+            "power": "77 kW / 105 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CJZA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 115158,
+            "power": "110 kW / 150 HP",
+            "years": "08.2014 - 10.2020",
+            "engineCode": "CHPB"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 58764,
+            "power": "103 kW / 140 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CHPA"
+          },
+          {
+            "name": "1.4 TSI G-TEC",
+            "slug": "1-4-tsi-g-tec",
+            "engineId": 106545,
+            "power": "81 kW / 110 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CPWA"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 128420,
+            "power": "110 kW / 150 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.5 TSI G-TEC",
+            "slug": "1-5-tsi-g-tec",
+            "engineId": 135621,
+            "power": "96 kW / 130 HP",
+            "years": "01.2019 - 10.2020",
+            "engineCode": "DHFA"
+          },
+          {
+            "name": "1.6 SRE",
+            "slug": "1-6-sre",
+            "engineId": 107944,
+            "power": "81 kW / 110 HP",
+            "years": "01.2014 - 02.2017",
+            "engineCode": "CWVA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 59078,
+            "power": "66 kW / 90 HP",
+            "years": "11.2012 - 10.2020",
+            "engineCode": "CLHB"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 100630,
+            "power": "81 kW / 110 HP",
+            "years": "05.2013 - 02.2017",
+            "engineCode": "CRKB"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 126001,
+            "power": "85 kW / 115 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DDYA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 58766,
+            "power": "77 kW / 105 HP",
+            "years": "11.2012 - 05.2015",
+            "engineCode": "CLHA"
+          },
+          {
+            "name": "1.6 TDI 4x4",
+            "slug": "1-6-tdi-4x4",
+            "engineId": 133304,
+            "power": "85 kW / 115 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DGTE"
+          },
+          {
+            "name": "1.6 TDI 4x4",
+            "slug": "1-6-tdi-4x4",
+            "engineId": 59488,
+            "power": "77 kW / 105 HP",
+            "years": "11.2012 - 05.2015",
+            "engineCode": "CLHA"
+          },
+          {
+            "name": "1.6 TDI 4x4",
+            "slug": "1-6-tdi-4x4",
+            "engineId": 115210,
+            "power": "81 kW / 110 HP",
+            "years": "05.2015 - 02.2017",
+            "engineCode": "CRKB"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 58765,
+            "power": "132 kW / 180 HP",
+            "years": "11.2012 - 10.2020",
+            "engineCode": "CJSA"
+          },
+          {
+            "name": "1.8 TSI 4x4",
+            "slug": "1-8-tsi-4x4",
+            "engineId": 59489,
+            "power": "132 kW / 180 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CJSB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 59080,
+            "power": "105 kW / 143 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CKFB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 58767,
+            "power": "110 kW / 150 HP",
+            "years": "11.2012 - 10.2020",
+            "engineCode": "CKFC"
+          },
+          {
+            "name": "2.0 TDI / TDI RS 4x4",
+            "slug": "2-0-tdi-tdi-rs-4x4",
+            "engineId": 108648,
+            "power": "135 kW / 184 HP",
+            "years": "05.2013 - 10.2020",
+            "engineCode": "CUNA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 59490,
+            "power": "110 kW / 150 HP",
+            "years": "11.2012 - 10.2020",
+            "engineCode": "CKFC"
+          },
+          {
+            "name": "2.0 TDI RS",
+            "slug": "2-0-tdi-rs",
+            "engineId": 59679,
+            "power": "135 kW / 184 HP",
+            "years": "05.2013 - 10.2020",
+            "engineCode": "CUNA"
+          },
+          {
+            "name": "2.0 TSI",
+            "slug": "2-0-tsi",
+            "engineId": 132923,
+            "power": "140 kW / 190 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DKZA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 135318,
+            "power": "140 kW / 190 HP",
+            "years": "02.2019 - 10.2020",
+            "engineCode": "DKZA"
+          },
+          {
+            "name": "2.0 TSI RS",
+            "slug": "2-0-tsi-rs",
+            "engineId": 115161,
+            "power": "169 kW / 230 HP",
+            "years": "05.2015 - 10.2020",
+            "engineCode": "CHHA"
+          },
+          {
+            "name": "2.0 TSI RS",
+            "slug": "2-0-tsi-rs",
+            "engineId": 59680,
+            "power": "162 kW / 220 HP",
+            "years": "11.2012 - 02.2017",
+            "engineCode": "CHHB"
+          },
+          {
+            "name": "2.0 TSI RS",
+            "slug": "2-0-tsi-rs",
+            "engineId": 126003,
+            "power": "180 kW / 245 HP",
+            "years": "02.2017 - 10.2020",
+            "engineCode": "DHGA"
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA IV (NX3, NN3, PV3)",
+        "slug": "octavia-iv-nx3-nn3-pv3",
+        "modelId": 40538,
+        "years": "01.2020 - Nyní",
+        "engines": [
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 141524,
+            "power": "81 kW / 110 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DLAA"
+          },
+          {
+            "name": "1.0 TSI e-TEC",
+            "slug": "1-0-tsi-e-tec",
+            "engineId": 142242,
+            "power": "81 kW / 110 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DLAA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 146987,
+            "power": "110 kW / 150 HP",
+            "years": "01.2021 - Nyní",
+            "engineCode": "DJKA"
+          },
+          {
+            "name": "1.4 TSI iV",
+            "slug": "1-4-tsi-iv",
+            "engineId": 145197,
+            "power": "150 kW / 204 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DGEA"
+          },
+          {
+            "name": "1.4 TSI RS iV",
+            "slug": "1-4-tsi-rs-iv",
+            "engineId": 142234,
+            "power": "180 kW / 245 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DGEA"
+          },
+          {
+            "name": "1.5 eTSI",
+            "slug": "1-5-etsi",
+            "engineId": 158004,
+            "power": "85 kW / 116 HP",
+            "years": "04.2024 - Nyní",
+            "engineCode": "DXDE"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 139764,
+            "power": "110 kW / 150 HP",
+            "years": "01.2020 - Nyní",
+            "engineCode": "DPCA"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 158002,
+            "power": "85 kW / 116 HP",
+            "years": "04.2024 - Nyní",
+            "engineCode": "DXDE"
+          },
+          {
+            "name": "1.5 TSI e-TEC",
+            "slug": "1-5-tsi-e-tec",
+            "engineId": 143425,
+            "power": "110 kW / 150 HP",
+            "years": "11.2020 - Nyní",
+            "engineCode": "DFYA"
+          },
+          {
+            "name": "1.5 TSI G-TEC",
+            "slug": "1-5-tsi-g-tec",
+            "engineId": 142236,
+            "power": "96 kW / 131 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DHFA"
+          },
+          {
+            "name": "2.0 RS",
+            "slug": "2-0-rs",
+            "engineId": 800493,
+            "power": "195 kW / 265 HP",
+            "years": "08.2024 - Nyní",
+            "engineCode": "DNPD"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 139765,
+            "power": "85 kW / 116 HP",
+            "years": "03.2020 - Nyní",
+            "engineCode": "DSUD"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 139766,
+            "power": "110 kW / 150 HP",
+            "years": "01.2020 - Nyní",
+            "engineCode": "DSTB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 141830,
+            "power": "105 kW / 143 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "CRVC"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 144928,
+            "power": "110 kW / 150 HP",
+            "years": "09.2020 - Nyní",
+            "engineCode": "DTTC"
+          },
+          {
+            "name": "2.0 TDI RS",
+            "slug": "2-0-tdi-rs",
+            "engineId": 142464,
+            "power": "147 kW / 200 HP",
+            "years": "07.2020 - Nyní",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TDI RS 4x4",
+            "slug": "2-0-tdi-rs-4x4",
+            "engineId": 142463,
+            "power": "147 kW / 200 HP",
+            "years": "07.2020 - Nyní",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 145013,
+            "power": "140 kW / 190 HP",
+            "years": "07.2020 - Nyní",
+            "engineCode": "DNNA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 801352,
+            "power": "150 kW / 204 HP",
+            "years": "01.2025 - Nyní",
+            "engineCode": "DNNE"
+          },
+          {
+            "name": "2.0 TSI RS",
+            "slug": "2-0-tsi-rs",
+            "engineId": 142233,
+            "power": "180 kW / 245 HP",
+            "years": "03.2020 - Nyní",
+            "engineCode": "DLBA"
+          }
+        ]
+      },
+      {
+        "name": "OCTAVIA IV Combi (NX5, PV5)",
+        "slug": "octavia-iv-combi-nx5-pv5",
+        "modelId": 40412,
+        "years": "11.2019 - Nyní",
+        "engines": [
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 141535,
+            "power": "81 kW / 110 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DLAA"
+          },
+          {
+            "name": "1.0 TSI e-TEC",
+            "slug": "1-0-tsi-e-tec",
+            "engineId": 142241,
+            "power": "81 kW / 110 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DLAA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 144843,
+            "power": "110 kW / 150 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DJKA"
+          },
+          {
+            "name": "1.4 TSI iV",
+            "slug": "1-4-tsi-iv",
+            "engineId": 145198,
+            "power": "150 kW / 204 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DGEA"
+          },
+          {
+            "name": "1.4 TSI RS iV",
+            "slug": "1-4-tsi-rs-iv",
+            "engineId": 142240,
+            "power": "180 kW / 245 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DGEA"
+          },
+          {
+            "name": "1.5 eTSI",
+            "slug": "1-5-etsi",
+            "engineId": 158005,
+            "power": "85 kW / 116 HP",
+            "years": "04.2024 - Nyní",
+            "engineCode": "DXDE"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 158003,
+            "power": "85 kW / 116 HP",
+            "years": "04.2024 - Nyní",
+            "engineCode": "DXDE"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 139248,
+            "power": "110 kW / 150 HP",
+            "years": "11.2019 - Nyní",
+            "engineCode": "DPCA"
+          },
+          {
+            "name": "1.5 TSI e-TEC",
+            "slug": "1-5-tsi-e-tec",
+            "engineId": 143426,
+            "power": "110 kW / 150 HP",
+            "years": "11.2020 - Nyní",
+            "engineCode": "DFYA"
+          },
+          {
+            "name": "1.5 TSI G-TEC",
+            "slug": "1-5-tsi-g-tec",
+            "engineId": 142130,
+            "power": "96 kW / 131 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "DHFA"
+          },
+          {
+            "name": "1.6 SRE",
+            "slug": "1-6-sre",
+            "engineId": 156154,
+            "power": "81 kW / 110 HP",
+            "years": "09.2020 - Nyní",
+            "engineCode": "CWVA"
+          },
+          {
+            "name": "2.0 RS",
+            "slug": "2-0-rs",
+            "engineId": 800480,
+            "power": "195 kW / 265 HP",
+            "years": "08.2024 - Nyní",
+            "engineCode": "DNPD"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 139249,
+            "power": "85 kW / 116 HP",
+            "years": "11.2019 - Nyní",
+            "engineCode": "DSUD"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 139250,
+            "power": "110 kW / 150 HP",
+            "years": "11.2019 - Nyní",
+            "engineCode": "DSTB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 141829,
+            "power": "105 kW / 143 HP",
+            "years": "06.2020 - Nyní",
+            "engineCode": "CRVC"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 143518,
+            "power": "110 kW / 150 HP",
+            "years": "09.2020 - Nyní",
+            "engineCode": "DTTA"
+          },
+          {
+            "name": "2.0 TDI RS",
+            "slug": "2-0-tdi-rs",
+            "engineId": 142462,
+            "power": "147 kW / 200 HP",
+            "years": "07.2020 - Nyní",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TDI RS 4x4",
+            "slug": "2-0-tdi-rs-4x4",
+            "engineId": 142460,
+            "power": "147 kW / 200 HP",
+            "years": "07.2020 - Nyní",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 143519,
+            "power": "140 kW / 190 HP",
+            "years": "09.2020 - Nyní",
+            "engineCode": "CZPB"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 801353,
+            "power": "150 kW / 204 HP",
+            "years": "01.2025 - Nyní",
+            "engineCode": "DNNE"
+          },
+          {
+            "name": "2.0 TSI RS",
+            "slug": "2-0-tsi-rs",
+            "engineId": 142238,
+            "power": "180 kW / 245 HP",
+            "years": "03.2020 - Nyní",
+            "engineCode": "DLBA"
+          }
+        ]
+      },
+      {
+        "name": "RAPID (120G, 130G, 135G)",
+        "slug": "rapid-120g-130g-135g",
+        "modelId": 23,
+        "years": "02.1983 - 10.1991",
+        "engines": [
+          {
+            "name": "1.2 (120G)",
+            "slug": "1-2-120g",
+            "engineId": 7216,
+            "power": "43 kW / 58 HP",
+            "years": "02.1983 - 12.1990",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 (130G)",
+            "slug": "1-3-130g",
+            "engineId": 3020,
+            "power": "45 kW / 61 HP",
+            "years": "03.1985 - 08.1988",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 (130G)",
+            "slug": "1-3-130g",
+            "engineId": 7218,
+            "power": "39 kW / 53 HP",
+            "years": "08.1987 - 10.1991",
+            "engineCode": ""
+          },
+          {
+            "name": "1.3 S (135GL)",
+            "slug": "1-3-s-135gl",
+            "engineId": 5073,
+            "power": "43 kW / 58 HP",
+            "years": "09.1984 - 12.1990",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "RAPID (NH3, NK3, NK6)",
+        "slug": "rapid-nh3-nk3-nk6",
+        "modelId": 10587,
+        "years": "07.2012 - 03.2022",
+        "engines": [
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 128465,
+            "power": "70 kW / 95 HP",
+            "years": "06.2017 - 12.2019",
+            "engineCode": "CHZB"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 128467,
+            "power": "81 kW / 110 HP",
+            "years": "06.2017 - 12.2019",
+            "engineCode": "CHZC"
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 56161,
+            "power": "55 kW / 75 HP",
+            "years": "07.2012 - 06.2015",
+            "engineCode": "CGPC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 115178,
+            "power": "66 kW / 90 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CJZC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 115179,
+            "power": "81 kW / 110 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CJZD"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 56162,
+            "power": "63 kW / 86 HP",
+            "years": "07.2012 - 05.2015",
+            "engineCode": "CBZA"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 56165,
+            "power": "77 kW / 105 HP",
+            "years": "07.2012 - 05.2015",
+            "engineCode": "CBZB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 115181,
+            "power": "66 kW / 90 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CUSB"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 115180,
+            "power": "92 kW / 125 HP",
+            "years": "05.2015 - 03.2022",
+            "engineCode": "CZCA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 56167,
+            "power": "90 kW / 122 HP",
+            "years": "07.2012 - 06.2015",
+            "engineCode": "CAXA"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 59064,
+            "power": "77 kW / 105 HP",
+            "years": "07.2012 - 06.2015",
+            "engineCode": "CFNA"
+          },
+          {
+            "name": "1.6 SRE",
+            "slug": "1-6-sre",
+            "engineId": 132280,
+            "power": "66 kW / 90 HP",
+            "years": "06.2015 - 03.2022",
+            "engineCode": "CWVB"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 115186,
+            "power": "85 kW / 115 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CXMA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 56170,
+            "power": "77 kW / 105 HP",
+            "years": "07.2012 - 12.2019",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 59062,
+            "power": "66 kW / 90 HP",
+            "years": "08.2013 - 05.2015",
+            "engineCode": "CAYB"
+          }
+        ]
+      },
+      {
+        "name": "RAPID Spaceback (NH1)",
+        "slug": "rapid-spaceback-nh1",
+        "modelId": 11519,
+        "years": "07.2012 - 12.2019",
+        "engines": [
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 128469,
+            "power": "70 kW / 95 HP",
+            "years": "06.2017 - 12.2019",
+            "engineCode": "CHZB"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 128470,
+            "power": "81 kW / 110 HP",
+            "years": "06.2017 - 12.2019",
+            "engineCode": "CHZC"
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 107504,
+            "power": "55 kW / 75 HP",
+            "years": "07.2012 - 06.2015",
+            "engineCode": "CGPC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 115182,
+            "power": "66 kW / 90 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CJZC"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 115183,
+            "power": "81 kW / 110 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CJZD"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 39229,
+            "power": "63 kW / 86 HP",
+            "years": "07.2012 - 05.2015",
+            "engineCode": "CBZA"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 39231,
+            "power": "77 kW / 105 HP",
+            "years": "07.2012 - 05.2015",
+            "engineCode": "CBZB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 115185,
+            "power": "66 kW / 90 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CUSB"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 115184,
+            "power": "92 kW / 125 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CZCA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 52392,
+            "power": "90 kW / 122 HP",
+            "years": "07.2012 - 06.2015",
+            "engineCode": "CAXA"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 105755,
+            "power": "77 kW / 105 HP",
+            "years": "07.2012 - 06.2015",
+            "engineCode": "CFNA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 52395,
+            "power": "66 kW / 90 HP",
+            "years": "08.2013 - 05.2015",
+            "engineCode": "CAYB"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 39271,
+            "power": "77 kW / 105 HP",
+            "years": "07.2012 - 12.2019",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 115187,
+            "power": "85 kW / 115 HP",
+            "years": "05.2015 - 12.2019",
+            "engineCode": "CXMA"
+          }
+        ]
+      },
+      {
+        "name": "ROOMSTER (5J7)",
+        "slug": "roomster-5j7",
+        "modelId": 5507,
+        "years": "03.2006 - 05.2015",
+        "engines": [
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 23292,
+            "power": "51 kW / 70 HP",
+            "years": "01.2007 - 05.2015",
+            "engineCode": "CGPA"
+          },
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 19273,
+            "power": "47 kW / 64 HP",
+            "years": "05.2006 - 01.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.2 TDI",
+            "slug": "1-2-tdi",
+            "engineId": 5950,
+            "power": "55 kW / 75 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CFWA"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 33313,
+            "power": "63 kW / 86 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CBZA"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 33247,
+            "power": "77 kW / 105 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CBZB"
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 19274,
+            "power": "63 kW / 86 HP",
+            "years": "09.2006 - 05.2015",
+            "engineCode": "CGGB"
+          },
+          {
+            "name": "1.4 LPG",
+            "slug": "1-4-lpg",
+            "engineId": 133130,
+            "power": "63 kW / 86 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CGGB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19276,
+            "power": "51 kW / 70 HP",
+            "years": "07.2006 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 19277,
+            "power": "59 kW / 80 HP",
+            "years": "09.2006 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 19275,
+            "power": "77 kW / 105 HP",
+            "years": "09.2006 - 05.2015",
+            "engineCode": "CFNA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 33320,
+            "power": "66 kW / 90 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CAYB"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 33321,
+            "power": "77 kW / 105 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 10996,
+            "power": "74 kW / 101 HP",
+            "years": "03.2006 - 05.2006",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 19278,
+            "power": "77 kW / 105 HP",
+            "years": "09.2006 - 03.2010",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "ROOMSTER Praktik (5J)",
+        "slug": "roomster-praktik-5j",
+        "modelId": 6412,
+        "years": "03.2007 - 05.2015",
+        "engines": [
+          {
+            "name": "1.2",
+            "slug": "1-2",
+            "engineId": 23240,
+            "power": "51 kW / 70 HP",
+            "years": "03.2007 - 05.2015",
+            "engineCode": "CGPA"
+          },
+          {
+            "name": "1.2 TDI",
+            "slug": "1-2-tdi",
+            "engineId": 9961,
+            "power": "55 kW / 75 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CFWA"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 9958,
+            "power": "63 kW / 86 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CBZA"
+          },
+          {
+            "name": "1.4",
+            "slug": "1-4",
+            "engineId": 23243,
+            "power": "63 kW / 86 HP",
+            "years": "03.2007 - 05.2015",
+            "engineCode": "CGGB"
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 23245,
+            "power": "59 kW / 80 HP",
+            "years": "03.2007 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.4 TDI",
+            "slug": "1-4-tdi",
+            "engineId": 23247,
+            "power": "51 kW / 70 HP",
+            "years": "03.2007 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 10998,
+            "power": "66 kW / 90 HP",
+            "years": "03.2010 - 05.2015",
+            "engineCode": "CAYB"
+          }
+        ]
+      },
+      {
+        "name": "SCALA (NW1)",
+        "slug": "scala-nw1",
+        "modelId": 39378,
+        "years": "02.2019 - Nyní",
+        "engines": [
+          {
+            "name": "1.0 TGI CNG",
+            "slug": "1-0-tgi-cng",
+            "engineId": 139310,
+            "power": "66 kW / 90 HP",
+            "years": "11.2019 - Nyní",
+            "engineCode": "DBYA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 136159,
+            "power": "70 kW / 95 HP",
+            "years": "02.2019 - Nyní",
+            "engineCode": "DKLA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 135341,
+            "power": "85 kW / 116 HP",
+            "years": "02.2019 - Nyní",
+            "engineCode": "DKJA"
+          },
+          {
+            "name": "1.0 TSI",
+            "slug": "1-0-tsi",
+            "engineId": 142441,
+            "power": "81 kW / 110 HP",
+            "years": "08.2020 - Nyní",
+            "engineCode": "DLAA"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 135342,
+            "power": "110 kW / 150 HP",
+            "years": "02.2019 - Nyní",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 144116,
+            "power": "70 kW / 95 HP",
+            "years": "09.2019 - Nyní",
+            "engineCode": "DGTD"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 135343,
+            "power": "85 kW / 116 HP",
+            "years": "02.2019 - Nyní",
+            "engineCode": "DGTA"
+          }
+        ]
+      },
+      {
+        "name": "SUPERB I (3U4)",
+        "slug": "superb-i-3u4",
+        "modelId": 4837,
+        "years": "12.2001 - 03.2008",
+        "engines": [
+          {
+            "name": "1.8 T",
+            "slug": "1-8-t",
+            "engineId": 16291,
+            "power": "110 kW / 150 HP",
+            "years": "12.2001 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 23293,
+            "power": "85 kW / 115 HP",
+            "years": "01.2007 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 23294,
+            "power": "77 kW / 105 HP",
+            "years": "10.2005 - 05.2007",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 16294,
+            "power": "96 kW / 130 HP",
+            "years": "12.2001 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 17008,
+            "power": "74 kW / 101 HP",
+            "years": "08.2002 - 10.2005",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0",
+            "slug": "2-0",
+            "engineId": 16292,
+            "power": "85 kW / 115 HP",
+            "years": "12.2001 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 20003,
+            "power": "103 kW / 140 HP",
+            "years": "10.2005 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "2.5 TDI",
+            "slug": "2-5-tdi",
+            "engineId": 16295,
+            "power": "114 kW / 155 HP",
+            "years": "12.2001 - 08.2003",
+            "engineCode": ""
+          },
+          {
+            "name": "2.5 TDI",
+            "slug": "2-5-tdi",
+            "engineId": 18005,
+            "power": "120 kW / 163 HP",
+            "years": "06.2003 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "2.8 V6",
+            "slug": "2-8-v6",
+            "engineId": 16293,
+            "power": "142 kW / 193 HP",
+            "years": "12.2001 - 03.2008",
+            "engineCode": ""
+          },
+          {
+            "name": "2.8 V6",
+            "slug": "2-8-v6",
+            "engineId": 57689,
+            "power": "140 kW / 190 HP",
+            "years": "06.2002 - 03.2008",
+            "engineCode": ""
+          }
+        ]
+      },
+      {
+        "name": "SUPERB II (3T4)",
+        "slug": "superb-ii-3t4",
+        "modelId": 7588,
+        "years": "03.2008 - 05.2015",
+        "engines": [
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 28252,
+            "power": "92 kW / 125 HP",
+            "years": "07.2008 - 05.2015",
+            "engineCode": "CAXC"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 6314,
+            "power": "77 kW / 105 HP",
+            "years": "09.2010 - 05.2015",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 28253,
+            "power": "118 kW / 160 HP",
+            "years": "03.2008 - 05.2015",
+            "engineCode": "CDAA"
+          },
+          {
+            "name": "1.8 TSI 4x4",
+            "slug": "1-8-tsi-4x4",
+            "engineId": 28254,
+            "power": "118 kW / 160 HP",
+            "years": "11.2008 - 05.2015",
+            "engineCode": "CDAA"
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 28255,
+            "power": "77 kW / 105 HP",
+            "years": "03.2008 - 11.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 28256,
+            "power": "103 kW / 140 HP",
+            "years": "03.2008 - 05.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 28257,
+            "power": "125 kW / 170 HP",
+            "years": "07.2008 - 05.2015",
+            "engineCode": "CBBB"
+          },
+          {
+            "name": "2.0 TDI 16V",
+            "slug": "2-0-tdi-16v",
+            "engineId": 31965,
+            "power": "103 kW / 140 HP",
+            "years": "01.2009 - 05.2015",
+            "engineCode": "CFFB"
+          },
+          {
+            "name": "2.0 TDI 16V 4x4",
+            "slug": "2-0-tdi-16v-4x4",
+            "engineId": 10574,
+            "power": "103 kW / 140 HP",
+            "years": "11.2010 - 05.2015",
+            "engineCode": "CFFB"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 28282,
+            "power": "125 kW / 170 HP",
+            "years": "09.2008 - 05.2015",
+            "engineCode": "CBBB"
+          },
+          {
+            "name": "2.0 TFSI",
+            "slug": "2-0-tfsi",
+            "engineId": 6306,
+            "power": "147 kW / 200 HP",
+            "years": "05.2010 - 05.2015",
+            "engineCode": "CCZA"
+          },
+          {
+            "name": "3.6 FSI 4x4",
+            "slug": "3-6-fsi-4x4",
+            "engineId": 28258,
+            "power": "191 kW / 260 HP",
+            "years": "11.2008 - 05.2015",
+            "engineCode": "CDVA"
+          }
+        ]
+      },
+      {
+        "name": "SUPERB II kombi (3T5)",
+        "slug": "superb-ii-kombi-3t5",
+        "modelId": 8495,
+        "years": "10.2009 - 05.2015",
+        "engines": [
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 32783,
+            "power": "92 kW / 125 HP",
+            "years": "10.2009 - 05.2015",
+            "engineCode": "CAXC"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 6339,
+            "power": "77 kW / 105 HP",
+            "years": "09.2010 - 05.2015",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 32784,
+            "power": "118 kW / 160 HP",
+            "years": "10.2009 - 05.2015",
+            "engineCode": "CDAA"
+          },
+          {
+            "name": "1.8 TSI 4x4",
+            "slug": "1-8-tsi-4x4",
+            "engineId": 32785,
+            "power": "118 kW / 160 HP",
+            "years": "10.2009 - 05.2015",
+            "engineCode": "CDAA"
+          },
+          {
+            "name": "1.9 TDI",
+            "slug": "1-9-tdi",
+            "engineId": 11006,
+            "power": "77 kW / 105 HP",
+            "years": "10.2009 - 11.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 33322,
+            "power": "103 kW / 140 HP",
+            "years": "10.2009 - 03.2010",
+            "engineCode": ""
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 32788,
+            "power": "125 kW / 170 HP",
+            "years": "10.2009 - 05.2015",
+            "engineCode": "CBBB"
+          },
+          {
+            "name": "2.0 TDI 16V",
+            "slug": "2-0-tdi-16v",
+            "engineId": 32787,
+            "power": "103 kW / 140 HP",
+            "years": "10.2009 - 05.2015",
+            "engineCode": "CFFB"
+          },
+          {
+            "name": "2.0 TDI 16V 4x4",
+            "slug": "2-0-tdi-16v-4x4",
+            "engineId": 10573,
+            "power": "103 kW / 140 HP",
+            "years": "11.2010 - 05.2015",
+            "engineCode": "CFFB"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 32789,
+            "power": "125 kW / 170 HP",
+            "years": "10.2009 - 05.2015",
+            "engineCode": "CBBB"
+          },
+          {
+            "name": "2.0 TFSI",
+            "slug": "2-0-tfsi",
+            "engineId": 6326,
+            "power": "147 kW / 200 HP",
+            "years": "05.2010 - 05.2015",
+            "engineCode": "CCZA"
+          },
+          {
+            "name": "3.6 V6 4x4",
+            "slug": "3-6-v6-4x4",
+            "engineId": 32786,
+            "power": "191 kW / 260 HP",
+            "years": "10.2009 - 05.2015",
+            "engineCode": "CDVA"
+          }
+        ]
+      },
+      {
+        "name": "SUPERB III (3V3)",
+        "slug": "superb-iii-3v3",
+        "modelId": 14018,
+        "years": "03.2015 - 06.2024",
+        "engines": [
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 113304,
+            "power": "92 kW / 125 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CZCA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 112398,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CZDA"
+          },
+          {
+            "name": "1.4 TSI 4x4",
+            "slug": "1-4-tsi-4x4",
+            "engineId": 115233,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CZEA"
+          },
+          {
+            "name": "1.4 TSI iV",
+            "slug": "1-4-tsi-iv",
+            "engineId": 140451,
+            "power": "160 kW / 218 HP",
+            "years": "08.2019 - 06.2024",
+            "engineCode": "DGEB"
+          },
+          {
+            "name": "1.5 TSI",
+            "slug": "1-5-tsi",
+            "engineId": 133731,
+            "power": "110 kW / 150 HP",
+            "years": "02.2017 - 06.2024",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 113310,
+            "power": "88 kW / 120 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DCXA"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 115235,
+            "power": "132 kW / 180 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CJSA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 142397,
+            "power": "147 kW / 200 HP",
+            "years": "09.2020 - 06.2024",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 142870,
+            "power": "90 kW / 122 HP",
+            "years": "07.2020 - 06.2024",
+            "engineCode": "DTRA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 112394,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CRLB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 112397,
+            "power": "140 kW / 190 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DDAA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 113313,
+            "power": "140 kW / 190 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DDAA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 142124,
+            "power": "147 kW / 200 HP",
+            "years": "09.2020 - 06.2024",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 115237,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CRLB"
+          },
+          {
+            "name": "2.0 TSI",
+            "slug": "2-0-tsi",
+            "engineId": 113308,
+            "power": "162 kW / 220 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CHHB"
+          },
+          {
+            "name": "2.0 TSI",
+            "slug": "2-0-tsi",
+            "engineId": 801674,
+            "power": "140 kW / 190 HP",
+            "years": "11.2020 - 06.2024",
+            "engineCode": "DNNA"
+          },
+          {
+            "name": "2.0 TSI",
+            "slug": "2-0-tsi",
+            "engineId": 137131,
+            "power": "140 kW / 190 HP",
+            "years": "07.2019 - 06.2024",
+            "engineCode": "CZPB"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 112399,
+            "power": "206 kW / 280 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CJXA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 133859,
+            "power": "200 kW / 272 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DNUA"
+          }
+        ]
+      },
+      {
+        "name": "SUPERB III kombi (3V5)",
+        "slug": "superb-iii-kombi-3v5",
+        "modelId": 14382,
+        "years": "03.2015 - 06.2024",
+        "engines": [
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 115163,
+            "power": "92 kW / 125 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CZCA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 115164,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CZDA"
+          },
+          {
+            "name": "1.4 TSI 4x4",
+            "slug": "1-4-tsi-4x4",
+            "engineId": 115232,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CZEA"
+          },
+          {
+            "name": "1.4 TSI iV",
+            "slug": "1-4-tsi-iv",
+            "engineId": 140452,
+            "power": "160 kW / 218 HP",
+            "years": "08.2019 - 06.2024",
+            "engineCode": "DGEB"
+          },
+          {
+            "name": "1.5 TSi",
+            "slug": "1-5-tsi",
+            "engineId": 133732,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DADA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 115166,
+            "power": "88 kW / 120 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DCXA"
+          },
+          {
+            "name": "1.8 TSI",
+            "slug": "1-8-tsi",
+            "engineId": 115236,
+            "power": "132 kW / 180 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CJSA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 142398,
+            "power": "147 kW / 200 HP",
+            "years": "09.2020 - 06.2024",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 142871,
+            "power": "90 kW / 122 HP",
+            "years": "07.2020 - 06.2024",
+            "engineCode": "DTRA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 115167,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CRLB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 115168,
+            "power": "140 kW / 190 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DDAA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 142250,
+            "power": "147 kW / 200 HP",
+            "years": "09.2020 - 06.2024",
+            "engineCode": "DTUA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 115169,
+            "power": "140 kW / 190 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DDAA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 115238,
+            "power": "110 kW / 150 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CRLB"
+          },
+          {
+            "name": "2.0 TSI",
+            "slug": "2-0-tsi",
+            "engineId": 801681,
+            "power": "140 kW / 190 HP",
+            "years": "11.2020 - 06.2024",
+            "engineCode": "DNNA"
+          },
+          {
+            "name": "2.0 TSI",
+            "slug": "2-0-tsi",
+            "engineId": 137129,
+            "power": "140 kW / 190 HP",
+            "years": "07.2019 - 06.2024",
+            "engineCode": "CZPB"
+          },
+          {
+            "name": "2.0 TSI",
+            "slug": "2-0-tsi",
+            "engineId": 115165,
+            "power": "162 kW / 220 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CHHB"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 133863,
+            "power": "200 kW / 272 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "DNUA"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 115239,
+            "power": "206 kW / 280 HP",
+            "years": "03.2015 - 06.2024",
+            "engineCode": "CJXA"
+          }
+        ]
+      },
+      {
+        "name": "SUPERB IV (NZ3)",
+        "slug": "superb-iv-nz3",
+        "modelId": 45132,
+        "years": "11.2023 - Nyní",
+        "engines": [
+          {
+            "name": "1.5 TSI iV",
+            "slug": "1-5-tsi-iv",
+            "engineId": 801378,
+            "power": "150 kW / 204 HP",
+            "years": "01.2025 - Nyní",
+            "engineCode": "DUCB"
+          },
+          {
+            "name": "1.5 TSi mHEV",
+            "slug": "1-5-tsi-mhev",
+            "engineId": 157413,
+            "power": "110 kW / 150 HP",
+            "years": "11.2023 - Nyní",
+            "engineCode": "DXDB"
+          },
+          {
+            "name": "2.0 TDi",
+            "slug": "2-0-tdi",
+            "engineId": 157414,
+            "power": "110 kW / 150 HP",
+            "years": "11.2023 - Nyní",
+            "engineCode": "DXPA"
+          },
+          {
+            "name": "2.0 TDi 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 158105,
+            "power": "142 kW / 193 HP",
+            "years": "03.2024 - Nyní",
+            "engineCode": "DXNB"
+          },
+          {
+            "name": "2.0 TSi",
+            "slug": "2-0-tsi",
+            "engineId": 801044,
+            "power": "150 kW / 204 HP",
+            "years": "11.2024 - Nyní",
+            "engineCode": "DNNE"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 158530,
+            "power": "195 kW / 265 HP",
+            "years": "02.2024 - Nyní",
+            "engineCode": "DNPB"
+          }
+        ]
+      },
+      {
+        "name": "SUPERB IV kombi (NZ5)",
+        "slug": "superb-iv-kombi-nz5",
+        "modelId": 45010,
+        "years": "11.2023 - Nyní",
+        "engines": [
+          {
+            "name": "1.5 TSI iV PHEV",
+            "slug": "1-5-tsi-iv-phev",
+            "engineId": 158499,
+            "power": "150 kW / 204 HP",
+            "years": "04.2024 - Nyní",
+            "engineCode": "DUCB"
+          },
+          {
+            "name": "1.5 TSI mHEV",
+            "slug": "1-5-tsi-mhev",
+            "engineId": 156862,
+            "power": "110 kW / 150 HP",
+            "years": "11.2023 - Nyní",
+            "engineCode": "DXDB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 156864,
+            "power": "110 kW / 150 HP",
+            "years": "11.2023 - Nyní",
+            "engineCode": "DXPA"
+          },
+          {
+            "name": "2.0 TDi 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 158106,
+            "power": "142 kW / 193 HP",
+            "years": "02.2024 - Nyní",
+            "engineCode": "DXNB"
+          },
+          {
+            "name": "2.0 TSi",
+            "slug": "2-0-tsi",
+            "engineId": 801045,
+            "power": "150 kW / 204 HP",
+            "years": "11.2024 - Nyní",
+            "engineCode": "DNNE"
+          },
+          {
+            "name": "2.0 TSI 4x4",
+            "slug": "2-0-tsi-4x4",
+            "engineId": 158342,
+            "power": "195 kW / 265 HP",
+            "years": "05.2024 - Nyní",
+            "engineCode": "DNPB"
+          }
+        ]
+      },
+      {
+        "name": "YETI (5L)",
+        "slug": "yeti-5l",
+        "modelId": 8486,
+        "years": "05.2009 - 12.2017",
+        "engines": [
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 115188,
+            "power": "81 kW / 110 HP",
+            "years": "05.2015 - 12.2017",
+            "engineCode": "CYVB"
+          },
+          {
+            "name": "1.2 TSI",
+            "slug": "1-2-tsi",
+            "engineId": 32750,
+            "power": "77 kW / 105 HP",
+            "years": "09.2009 - 05.2015",
+            "engineCode": "CBZB"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 115189,
+            "power": "92 kW / 125 HP",
+            "years": "05.2015 - 12.2017",
+            "engineCode": "CZCA"
+          },
+          {
+            "name": "1.4 TSI",
+            "slug": "1-4-tsi",
+            "engineId": 33683,
+            "power": "90 kW / 122 HP",
+            "years": "06.2010 - 05.2015",
+            "engineCode": "CAXA"
+          },
+          {
+            "name": "1.4 TSI 4x4",
+            "slug": "1-4-tsi-4x4",
+            "engineId": 115190,
+            "power": "110 kW / 150 HP",
+            "years": "05.2015 - 12.2017",
+            "engineCode": "CZDA"
+          },
+          {
+            "name": "1.6",
+            "slug": "1-6",
+            "engineId": 107942,
+            "power": "81 kW / 110 HP",
+            "years": "04.2014 - 12.2017",
+            "engineCode": "CWVA"
+          },
+          {
+            "name": "1.6 TDI",
+            "slug": "1-6-tdi",
+            "engineId": 6345,
+            "power": "77 kW / 105 HP",
+            "years": "11.2010 - 05.2015",
+            "engineCode": "CAYC"
+          },
+          {
+            "name": "1.8 TSI 4x4",
+            "slug": "1-8-tsi-4x4",
+            "engineId": 9491,
+            "power": "112 kW / 152 HP",
+            "years": "11.2009 - 12.2017",
+            "engineCode": "CDAB"
+          },
+          {
+            "name": "1.8 TSI 4x4",
+            "slug": "1-8-tsi-4x4",
+            "engineId": 32751,
+            "power": "118 kW / 160 HP",
+            "years": "05.2009 - 12.2017",
+            "engineCode": "CDAA"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 115191,
+            "power": "110 kW / 150 HP",
+            "years": "05.2015 - 12.2017",
+            "engineCode": "CUUB"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 10974,
+            "power": "103 kW / 140 HP",
+            "years": "11.2011 - 12.2017",
+            "engineCode": "CFHC"
+          },
+          {
+            "name": "2.0 TDI",
+            "slug": "2-0-tdi",
+            "engineId": 32752,
+            "power": "81 kW / 110 HP",
+            "years": "11.2009 - 12.2017",
+            "engineCode": "CFHA"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 115192,
+            "power": "110 kW / 150 HP",
+            "years": "05.2015 - 12.2017",
+            "engineCode": "CUUB"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 32753,
+            "power": "81 kW / 110 HP",
+            "years": "11.2009 - 12.2017",
+            "engineCode": "CFHF"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 32754,
+            "power": "103 kW / 140 HP",
+            "years": "05.2009 - 12.2017",
+            "engineCode": "CBDB"
+          },
+          {
+            "name": "2.0 TDI 4x4",
+            "slug": "2-0-tdi-4x4",
+            "engineId": 32755,
+            "power": "125 kW / 170 HP",
+            "years": "11.2009 - 05.2015",
+            "engineCode": "CEGA"
+          }
+        ]
+      }
+    ]
+  }
+]

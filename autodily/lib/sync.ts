@@ -27,14 +27,27 @@ export async function syncProductsFromCSV(limit?: number): Promise<void> {
 
   const csvContent = await fetchFileFromFTP(getProductsPath());
 
-  const records: Record<string, string>[] = parse(csvContent, {
+  // Strip surrounding quotes from all values — the CSV has nested quote issues
+  // in EshopDescription, so we disable quote parsing and clean manually
+  const raw: Record<string, string>[] = parse(csvContent, {
     delimiter: ";",
     columns: true,
     skip_empty_lines: true,
-    quote: '"',
+    quote: false,
     trim: true,
     bom: true,
     relax_column_count: true,
+  });
+
+  const stripQuotes = (s: string) =>
+    s && s.startsWith('"') && s.endsWith('"') ? s.slice(1, -1) : s;
+
+  const records = raw.map((row) => {
+    const clean: Record<string, string> = {};
+    for (const [k, v] of Object.entries(row)) {
+      clean[stripQuotes(k)] = stripQuotes(v);
+    }
+    return clean;
   });
 
   const items = limit ? records.slice(0, limit) : records;

@@ -72,6 +72,22 @@ export async function getPartnerInfo() {
   return res.data;
 }
 
+// Find parts by vehicle (TecDoc engine ID + optional genArt category)
+export async function findByVehicle(engineId: number, genArtId?: number) {
+  const token = await getToken();
+  const body: Record<string, unknown> = {
+    ...baseRequest(),
+    token,
+    engineID: engineId,
+    getEANCodes: true,
+    getOECodes: true,
+  };
+  if (genArtId) body.genArtID = genArtId;
+
+  const res = await axios.post(`${BASE_URL}/catalogs/items-finding-by-vehicle`, body);
+  return res.data.items || [];
+}
+
 interface OrderItem {
   code: string;
   brand: string;

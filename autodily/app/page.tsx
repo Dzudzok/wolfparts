@@ -1,4 +1,6 @@
 import SearchBox from "@/components/SearchBox";
+import SyncButton from "@/components/SyncButton";
+import VehicleSelector from "@/components/VehicleSelector";
 
 export default function Home() {
   return (
@@ -8,10 +10,13 @@ export default function Home() {
           <a href="/" className="text-2xl font-bold text-gray-900">
             Auto<span className="text-blue-600">Dily</span>
           </a>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
-            <a href="/search?q=*" className="hover:text-blue-600">Katalog</a>
-            <a href="/search?q=*&is_sale=true" className="hover:text-blue-600">Akce</a>
-          </nav>
+          <div className="flex items-center gap-4">
+            <SyncButton />
+            <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
+              <a href="/search?q=*" className="hover:text-blue-600">Katalog</a>
+              <a href="/search?q=*&is_sale=true" className="hover:text-blue-600">Akce</a>
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -23,6 +28,11 @@ export default function Home() {
           Prohledejte katalog autodilu — nazev, kod OEM, EAN nebo krizove reference
         </p>
         <SearchBox large />
+
+        <div className="mt-8 w-full flex flex-col items-center">
+          <p className="text-sm text-gray-500 mb-3">nebo hledejte podle vozidla</p>
+          <VehicleSelector />
+        </div>
       </section>
 
       <section className="max-w-5xl mx-auto px-4 pb-20">
