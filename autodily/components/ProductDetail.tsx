@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import OrderButton from "./OrderButton";
+import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
 
 interface LiveData {
   price: number;
@@ -53,17 +54,17 @@ export default function ProductDetail({ product }: { product: Product }) {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Breadcrumb */}
-      <nav className="text-sm text-gray-500 mb-6">
-        <a href="/" className="hover:text-blue-600">Katalog</a>
+      <nav className="text-sm text-mltext-light mb-6">
+        <a href="/" className="hover:text-primary transition-colors">Katalog</a>
         <span className="mx-2">&gt;</span>
         <span>{product.category}</span>
         <span className="mx-2">&gt;</span>
-        <span className="text-gray-900">{product.name}</span>
+        <span className="text-mltext-dark">{product.name}</span>
       </nav>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Image */}
-        <div className="bg-gray-100 rounded-lg aspect-square flex items-center justify-center overflow-hidden">
+        <div className="bg-white rounded border border-mlborder-light aspect-square flex items-center justify-center overflow-hidden">
           {product.image_url ? (
             <img
               src={product.image_url}
@@ -71,7 +72,7 @@ export default function ProductDetail({ product }: { product: Product }) {
               className="w-full h-full object-contain p-8"
             />
           ) : (
-            <div className="text-gray-300">
+            <div className="text-mlborder">
               <svg className="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -83,21 +84,24 @@ export default function ProductDetail({ product }: { product: Product }) {
         {/* Info */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded">
+            <span className="inline-flex items-center gap-1.5 bg-primary/[0.06] text-primary text-sm font-semibold px-3 py-1.5 rounded-lg">
+              {hasManufacturerLogo(product.brand) && (
+                <img src={getManufacturerLogoUrl(product.brand)} alt="" className="h-5 w-auto object-contain" loading="lazy" />
+              )}
               {product.brand}
             </span>
             {product.is_sale && (
-              <span className="inline-block bg-red-500 text-white text-sm font-bold px-3 py-1 rounded">
+              <span className="inline-block bg-primary-badge text-white text-sm font-bold px-3 py-1 rounded">
                 Akce
               </span>
             )}
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h1>
-          <p className="text-gray-500 mb-4">Kod: {product.product_code}</p>
+          <h1 className="text-2xl font-bold text-mltext-dark mb-2">{product.name}</h1>
+          <p className="text-mltext-light mb-4">Kód: {product.product_code}</p>
 
           {/* Live price */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-4">
+          <div className="bg-gray-50 border border-mlborder-light rounded p-4 mb-4">
             {liveLoading ? (
               <div className="animate-pulse">
                 <div className="h-8 bg-gray-200 rounded w-32 mb-2" />
@@ -105,23 +109,23 @@ export default function ProductDetail({ product }: { product: Product }) {
               </div>
             ) : live ? (
               <>
-                <p className="text-3xl font-bold text-gray-900">
-                  {live.priceRetail > 0 ? `${formatPrice(live.priceRetail)} Kc` : "Cena na dotaz"}
+                <p className="text-3xl font-bold text-mltext-dark">
+                  {live.priceRetail > 0 ? `${formatPrice(live.priceRetail)} Kč` : "Cena na dotaz"}
                 </p>
                 {live.discount > 0 && (
-                  <p className="text-sm text-green-600 mt-1">Sleva {live.discount}%</p>
+                  <p className="text-sm text-mlgreen mt-1 font-semibold">Sleva {live.discount}%</p>
                 )}
               </>
             ) : (
               <div>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-mltext-dark">
                   {product.price_min > 0
                     ? product.price_min !== product.price_max
-                      ? `od ${formatPrice(product.price_min)} Kc`
-                      : `${formatPrice(product.price_min)} Kc`
+                      ? `od ${formatPrice(product.price_min)} Kč`
+                      : `${formatPrice(product.price_min)} Kč`
                     : "Cena na dotaz"}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">* orientacni cena</p>
+                <p className="text-xs text-mltext-light mt-1">* orientační cena</p>
               </div>
             )}
           </div>
@@ -131,12 +135,12 @@ export default function ProductDetail({ product }: { product: Product }) {
             {liveLoading ? (
               <div className="h-5 bg-gray-200 rounded w-32 animate-pulse" />
             ) : live ? (
-              <p className={`text-sm font-medium ${live.inStock ? "text-green-600" : "text-orange-500"}`}>
-                {live.inStock ? `Skladem — ${Math.floor(live.qty)} ks` : "Na objednavku"}
+              <p className={`text-sm font-semibold ${live.inStock ? "text-mlgreen" : "text-mlorange"}`}>
+                {live.inStock ? `Skladem — ${Math.floor(live.qty)} ks` : "Na objednávku"}
               </p>
             ) : (
-              <p className={`text-sm font-medium ${product.in_stock ? "text-green-600" : "text-gray-400"}`}>
-                {product.in_stock ? `Skladem (${Math.floor(product.stock_qty)} ks)` : "Na objednavku"}
+              <p className={`text-sm font-semibold ${product.in_stock ? "text-mlgreen" : "text-mltext-light"}`}>
+                {product.in_stock ? `Skladem (${Math.floor(product.stock_qty)} ks)` : "Na objednávku"}
               </p>
             )}
           </div>
@@ -147,8 +151,8 @@ export default function ProductDetail({ product }: { product: Product }) {
           {/* Description */}
           {product.description && (
             <div className="mt-6">
-              <h2 className="font-semibold text-gray-900 mb-2">Popis</h2>
-              <p className="text-gray-600 text-sm leading-relaxed">{product.description}</p>
+              <h2 className="font-bold text-mltext-dark mb-2">Popis</h2>
+              <p className="text-mltext text-sm leading-relaxed">{product.description}</p>
             </div>
           )}
         </div>
@@ -156,49 +160,49 @@ export default function ProductDetail({ product }: { product: Product }) {
 
       {/* Technical info */}
       <div className="mt-10">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Technicke informace</h2>
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <h2 className="text-lg font-bold text-mltext-dark mb-4">Technické informace</h2>
+        <div className="bg-white rounded border border-mlborder overflow-hidden">
           <table className="w-full text-sm">
             <tbody>
-              <tr className="border-b border-gray-100">
-                <td className="px-4 py-3 font-medium text-gray-500 bg-gray-50 w-40">Znacka</td>
-                <td className="px-4 py-3 text-gray-900">{product.brand}</td>
+              <tr className="border-b border-mlborder-light">
+                <td className="px-4 py-3 font-semibold text-mltext-light bg-gray-50 w-40">Značka</td>
+                <td className="px-4 py-3 text-mltext-dark">{product.brand}</td>
               </tr>
               {product.brand_group && (
-                <tr className="border-b border-gray-100">
-                  <td className="px-4 py-3 font-medium text-gray-500 bg-gray-50">Skupina</td>
-                  <td className="px-4 py-3 text-gray-900">{product.brand_group}</td>
+                <tr className="border-b border-mlborder-light">
+                  <td className="px-4 py-3 font-semibold text-mltext-light bg-gray-50">Skupina</td>
+                  <td className="px-4 py-3 text-mltext-dark">{product.brand_group}</td>
                 </tr>
               )}
-              <tr className="border-b border-gray-100">
-                <td className="px-4 py-3 font-medium text-gray-500 bg-gray-50">Kategorie</td>
-                <td className="px-4 py-3 text-gray-900">{product.category}</td>
+              <tr className="border-b border-mlborder-light">
+                <td className="px-4 py-3 font-semibold text-mltext-light bg-gray-50">Kategorie</td>
+                <td className="px-4 py-3 text-mltext-dark">{product.category}</td>
               </tr>
               {product.assortment && (
-                <tr className="border-b border-gray-100">
-                  <td className="px-4 py-3 font-medium text-gray-500 bg-gray-50">Sortiment</td>
-                  <td className="px-4 py-3 text-gray-900">{product.assortment}</td>
+                <tr className="border-b border-mlborder-light">
+                  <td className="px-4 py-3 font-semibold text-mltext-light bg-gray-50">Sortiment</td>
+                  <td className="px-4 py-3 text-mltext-dark">{product.assortment}</td>
                 </tr>
               )}
               {product.oem_numbers.length > 0 && (
-                <tr className="border-b border-gray-100">
-                  <td className="px-4 py-3 font-medium text-gray-500 bg-gray-50 align-top">OEM cisla</td>
+                <tr className="border-b border-mlborder-light">
+                  <td className="px-4 py-3 font-semibold text-mltext-light bg-gray-50 align-top">OEM čísla</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {product.oem_numbers.map((n, i) => (
-                        <span key={i} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{n}</span>
+                        <span key={i} className="inline-block bg-gray-100 text-mltext text-xs px-2 py-1 rounded">{n}</span>
                       ))}
                     </div>
                   </td>
                 </tr>
               )}
               {product.ean_codes.length > 0 && (
-                <tr className="border-b border-gray-100">
-                  <td className="px-4 py-3 font-medium text-gray-500 bg-gray-50 align-top">EAN kody</td>
+                <tr className="border-b border-mlborder-light">
+                  <td className="px-4 py-3 font-semibold text-mltext-light bg-gray-50 align-top">EAN kódy</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {product.ean_codes.map((n, i) => (
-                        <span key={i} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{n}</span>
+                        <span key={i} className="inline-block bg-gray-100 text-mltext text-xs px-2 py-1 rounded">{n}</span>
                       ))}
                     </div>
                   </td>
@@ -206,11 +210,11 @@ export default function ProductDetail({ product }: { product: Product }) {
               )}
               {product.cross_numbers.length > 0 && (
                 <tr>
-                  <td className="px-4 py-3 font-medium text-gray-500 bg-gray-50 align-top">Krizove ref.</td>
+                  <td className="px-4 py-3 font-semibold text-mltext-light bg-gray-50 align-top">Křížové ref.</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {product.cross_numbers.map((n, i) => (
-                        <span key={i} className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{n}</span>
+                        <span key={i} className="inline-block bg-gray-100 text-mltext text-xs px-2 py-1 rounded">{n}</span>
                       ))}
                     </div>
                   </td>

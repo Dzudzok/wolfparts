@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import SearchBox from "@/components/SearchBox";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface Category {
   nodeId: string;
@@ -34,7 +35,6 @@ export default function VehiclePartsPage() {
   const searchParams = useSearchParams();
   const engineId = params.engineId as string;
 
-  // URL params for vehicle context
   const brandSlug = searchParams.get("bs") || "";
   const modelSlug = searchParams.get("ms") || "";
   const engineSlug = searchParams.get("es") || "";
@@ -53,7 +53,6 @@ export default function VehiclePartsPage() {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [tecdocCount, setTecdocCount] = useState(0);
 
-  // Load root categories on mount
   useEffect(() => {
     if (!brandSlug) return;
     loadCategories();
@@ -76,10 +75,8 @@ export default function VehiclePartsPage() {
 
   function handleCategoryClick(cat: Category) {
     if (cat.isEndNode) {
-      // Load products from this leaf category
       loadProducts(cat.href, cat.name);
     } else {
-      // Drill into subcategory
       setBreadcrumb((prev) => [...prev, { name: cat.name, categoryId: cat.nodeId }]);
       loadCategories(cat.nodeId);
     }
@@ -87,7 +84,6 @@ export default function VehiclePartsPage() {
 
   function handleBreadcrumbClick(index: number) {
     if (index < 0) {
-      // Go to root
       setBreadcrumb([]);
       loadCategories();
     } else {
@@ -118,167 +114,163 @@ export default function VehiclePartsPage() {
   const vehicleLabel = [brandName, modelName, engineName].filter(Boolean).join(" / ") || `Motor ${engineId}`;
 
   return (
-    <main className="min-h-screen bg-white">
-      <header className="border-b border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <a href="/" className="text-2xl font-bold text-gray-900 shrink-0">
-            Auto<span className="text-blue-600">Dily</span>
-          </a>
-          <SearchBox />
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col bg-mlbg">
+      <Header />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Vehicle info */}
-        <div className="mb-6">
-          <a href="/" className="text-sm text-blue-600 hover:underline">
-            &larr; Zpet na vyhledavani
-          </a>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">
-            Dily pro {vehicleLabel}
-          </h1>
-        </div>
-
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-1 text-sm mb-6 flex-wrap">
-          <button
-            onClick={() => handleBreadcrumbClick(-1)}
-            className="text-blue-600 hover:underline"
-          >
-            Kategorie
-          </button>
-          {breadcrumb.map((item, i) => (
-            <span key={i} className="flex items-center gap-1">
-              <span className="text-gray-400">/</span>
-              {i < breadcrumb.length - 1 ? (
-                <button
-                  onClick={() => handleBreadcrumbClick(i)}
-                  className="text-blue-600 hover:underline"
-                >
-                  {item.name}
-                </button>
-              ) : (
-                <span className="text-gray-700 font-medium">{item.name}</span>
-              )}
-            </span>
-          ))}
-        </nav>
-
-        {/* Loading */}
-        {(loading || loadingProducts) && (
-          <div className="flex items-center gap-3 py-12 justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
-            <span className="text-gray-500">
-              {loadingProducts ? "Nacitam dily..." : "Nacitam kategorie..."}
-            </span>
+      <div className="flex-1 bg-white">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8">
+          {/* Vehicle info */}
+          <div className="mb-6">
+            <a href="/" className="text-sm text-primary hover:text-primary-dark font-semibold">
+              &larr; Zpět na vyhledávání
+            </a>
+            <h1 className="text-2xl font-bold text-mltext-dark mt-2">
+              Díly pro {vehicleLabel}
+            </h1>
           </div>
-        )}
 
-        {/* Categories grid */}
-        {!loading && categories.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {categories.map((cat) => (
-              <button
-                key={cat.nodeId}
-                onClick={() => handleCategoryClick(cat)}
-                className="text-left bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 rounded-lg px-4 py-4 transition-colors group"
-              >
-                <span className="text-sm font-medium text-gray-900 group-hover:text-blue-700">
-                  {cat.name}
-                </span>
-                {!cat.isEndNode && (
-                  <span className="text-gray-400 ml-1">&rsaquo;</span>
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1 text-sm mb-6 flex-wrap">
+            <button
+              onClick={() => handleBreadcrumbClick(-1)}
+              className="text-primary hover:text-primary-dark font-semibold"
+            >
+              Kategorie
+            </button>
+            {breadcrumb.map((item, i) => (
+              <span key={i} className="flex items-center gap-1">
+                <span className="text-mltext-light">/</span>
+                {i < breadcrumb.length - 1 ? (
+                  <button
+                    onClick={() => handleBreadcrumbClick(i)}
+                    className="text-primary hover:text-primary-dark font-semibold"
+                  >
+                    {item.name}
+                  </button>
+                ) : (
+                  <span className="text-mltext-dark font-semibold">{item.name}</span>
                 )}
-              </button>
+              </span>
             ))}
-          </div>
-        )}
+          </nav>
 
-        {/* No categories */}
-        {!loading && categories.length === 0 && products.length === 0 && !loadingProducts && (
-          <div className="text-center py-12 text-gray-500">
-            {!brandSlug
-              ? "Chybi parametry vozidla. Vyberte vozidlo na hlavni strance."
-              : "Zadne kategorie nenalezeny."}
-          </div>
-        )}
+          {/* Loading */}
+          {(loading || loadingProducts) && (
+            <div className="flex items-center gap-3 py-12 justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+              <span className="text-mltext-light">
+                {loadingProducts ? "Načítám díly..." : "Načítám kategorie..."}
+              </span>
+            </div>
+          )}
 
-        {/* Products table */}
-        {!loadingProducts && products.length > 0 && (
-          <>
-            <p className="text-sm text-gray-500 mb-4">
-              Nalezeno {tecdocCount} dilu v TecDoc katalogu
-              {products.filter((p) => p.product).length > 0 &&
-                ` — ${products.filter((p) => p.product).length} v nasem skladu`}
-            </p>
-            <div className="space-y-3">
-              {products.map((item, i) => (
-                <div
-                  key={i}
-                  className={`border rounded-lg p-4 flex gap-4 items-start ${
-                    item.product ? "border-gray-200 bg-white" : "border-gray-100 bg-gray-50 opacity-60"
-                  }`}
+          {/* Categories grid */}
+          {!loading && categories.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {categories.map((cat) => (
+                <button
+                  key={cat.nodeId}
+                  onClick={() => handleCategoryClick(cat)}
+                  className="text-left bg-white hover:bg-gray-50 border border-mlborder hover:border-primary/30 rounded px-4 py-4 transition-all group"
                 >
-                  {/* Image */}
-                  {item.product?.image_url && (
-                    <img
-                      src={item.product.image_url}
-                      alt=""
-                      className="w-16 h-16 object-contain rounded bg-gray-100 shrink-0"
-                      loading="lazy"
-                    />
+                  <span className="text-sm font-semibold text-mltext group-hover:text-primary transition-colors">
+                    {cat.name}
+                  </span>
+                  {!cat.isEndNode && (
+                    <span className="text-mltext-light ml-1">&rsaquo;</span>
                   )}
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
-                        {item.product?.brand || item.tecdocBrand}
-                      </span>
-                      <span className="text-xs font-mono text-gray-400">
-                        {item.tecdocCode}
-                      </span>
-                    </div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {item.product?.name || item.tecdocName || item.tecdocCode}
-                    </p>
-                    {item.product ? (
-                      <a
-                        href={`/product/${item.product.id}`}
-                        className="text-xs text-blue-600 hover:underline mt-1 inline-block"
-                      >
-                        Zobrazit detail
-                      </a>
-                    ) : (
-                      <p className="text-xs text-gray-400 mt-1">Neni v nasem skladu</p>
-                    )}
-                  </div>
-
-                  {/* Price & stock */}
-                  {item.product && (
-                    <div className="text-right shrink-0">
-                      <p className="text-base font-bold text-gray-900">
-                        {item.product.price_min
-                          ? `${item.product.price_min.toFixed(0)} Kc`
-                          : "—"}
-                      </p>
-                      <p
-                        className={`text-xs font-medium ${
-                          item.product.in_stock ? "text-green-600" : "text-gray-400"
-                        }`}
-                      >
-                        {item.product.in_stock
-                          ? `Skladem (${item.product.stock_qty?.toFixed(0)} ks)`
-                          : "Na objednavku"}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                </button>
               ))}
             </div>
-          </>
-        )}
+          )}
+
+          {/* No categories */}
+          {!loading && categories.length === 0 && products.length === 0 && !loadingProducts && (
+            <div className="text-center py-12 text-mltext-light">
+              {!brandSlug
+                ? "Chybí parametry vozidla. Vyberte vozidlo na hlavní stránce."
+                : "Žádné kategorie nenalezeny."}
+            </div>
+          )}
+
+          {/* Products table */}
+          {!loadingProducts && products.length > 0 && (
+            <>
+              <p className="text-sm text-mltext-light mb-4">
+                Nalezeno {tecdocCount} dílů v TecDoc katalogu
+                {products.filter((p) => p.product).length > 0 &&
+                  ` — ${products.filter((p) => p.product).length} v našem skladu`}
+              </p>
+              <div className="space-y-3">
+                {products.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`border rounded px-4 py-3 flex gap-4 items-start transition-colors ${
+                      item.product
+                        ? "border-mlborder bg-white hover:border-primary/20"
+                        : "border-mlborder-light bg-gray-50 opacity-60"
+                    }`}
+                  >
+                    {item.product?.image_url && (
+                      <img
+                        src={item.product.image_url}
+                        alt=""
+                        className="w-16 h-16 object-contain rounded bg-gray-50 shrink-0"
+                        loading="lazy"
+                      />
+                    )}
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-semibold">
+                          {item.product?.brand || item.tecdocBrand}
+                        </span>
+                        <span className="text-xs font-mono text-mltext-light">
+                          {item.tecdocCode}
+                        </span>
+                      </div>
+                      <p className="text-sm font-semibold text-mltext-dark">
+                        {item.product?.name || item.tecdocName || item.tecdocCode}
+                      </p>
+                      {item.product ? (
+                        <a
+                          href={`/product/${item.product.id}`}
+                          className="text-xs text-primary hover:text-primary-dark font-semibold mt-1 inline-block"
+                        >
+                          Zobrazit detail
+                        </a>
+                      ) : (
+                        <p className="text-xs text-mltext-light mt-1">Není v našem skladu</p>
+                      )}
+                    </div>
+
+                    {item.product && (
+                      <div className="text-right shrink-0">
+                        <p className="text-base font-bold text-mltext-dark">
+                          {item.product.price_min
+                            ? `${item.product.price_min.toFixed(0)} Kč`
+                            : "—"}
+                        </p>
+                        <p
+                          className={`text-xs font-semibold ${
+                            item.product.in_stock ? "text-mlgreen" : "text-mltext-light"
+                          }`}
+                        >
+                          {item.product.in_stock
+                            ? `Skladem (${item.product.stock_qty?.toFixed(0)} ks)`
+                            : "Na objednávku"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </main>
+
+      <Footer />
+    </div>
   );
 }

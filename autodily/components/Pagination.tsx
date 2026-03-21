@@ -11,29 +11,27 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
 
   const maxVisible = 7;
   const pages: number[] = [];
-
   let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
   const end = Math.min(totalPages, start + maxVisible - 1);
   start = Math.max(1, end - maxVisible + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
 
-  for (let i = start; i <= end; i++) {
-    pages.push(i);
-  }
+  const btn = "px-3.5 py-2 text-sm rounded-lg font-semibold transition-all";
 
   return (
-    <nav className="flex items-center justify-center gap-1 mt-8">
+    <nav className="flex items-center justify-center gap-1.5 mt-10">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        className="px-3 py-2 text-sm rounded border border-gray-300 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+        className={`${btn} ${currentPage <= 1 ? "text-mltext-light/40 cursor-not-allowed" : "text-mltext hover:bg-gray-100 border border-mlborder-light hover:border-mlborder"}`}
       >
-        Predchozi
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
       </button>
 
       {start > 1 && (
         <>
-          <button onClick={() => onPageChange(1)} className="px-3 py-2 text-sm rounded border border-gray-300 hover:bg-gray-50">1</button>
-          {start > 2 && <span className="px-2 text-gray-400">...</span>}
+          <button onClick={() => onPageChange(1)} className={`${btn} text-mltext hover:bg-gray-100`}>1</button>
+          {start > 2 && <span className="px-1 text-mltext-light">···</span>}
         </>
       )}
 
@@ -41,11 +39,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
         <button
           key={page}
           onClick={() => onPageChange(page)}
-          className={`px-3 py-2 text-sm rounded border ${
-            page === currentPage
-              ? "bg-blue-600 text-white border-blue-600"
-              : "border-gray-300 hover:bg-gray-50"
-          }`}
+          className={`${btn} ${page === currentPage ? "bg-primary text-white shadow-md shadow-primary/20" : "text-mltext hover:bg-gray-100"}`}
         >
           {page}
         </button>
@@ -53,17 +47,17 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
 
       {end < totalPages && (
         <>
-          {end < totalPages - 1 && <span className="px-2 text-gray-400">...</span>}
-          <button onClick={() => onPageChange(totalPages)} className="px-3 py-2 text-sm rounded border border-gray-300 hover:bg-gray-50">{totalPages}</button>
+          {end < totalPages - 1 && <span className="px-1 text-mltext-light">···</span>}
+          <button onClick={() => onPageChange(totalPages)} className={`${btn} text-mltext hover:bg-gray-100`}>{totalPages}</button>
         </>
       )}
 
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        className="px-3 py-2 text-sm rounded border border-gray-300 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+        className={`${btn} ${currentPage >= totalPages ? "text-mltext-light/40 cursor-not-allowed" : "text-mltext hover:bg-gray-100 border border-mlborder-light hover:border-mlborder"}`}
       >
-        Dalsi
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
       </button>
     </nav>
   );

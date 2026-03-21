@@ -198,10 +198,64 @@ async function scrapeEngines(
   return engines;
 }
 
+function loadExistingData(filePath: string): Brand[] {
+  if (!fs.existsSync(filePath)) return [];
+  try {
+    const raw = fs.readFileSync(filePath, "utf-8");
+    return JSON.parse(raw) as Brand[];
+  } catch {
+    console.warn("Could not parse existing data, starting fresh");
+    return [];
+  }
+}
+
+function mergeEngines(existing: Engine[], scraped: Engine[]): Engine[] {
+  const map = new Map<number, Engine>();
+  for (const e of existing) map.set(e.engineId, e);
+  for (const e of scraped) map.set(e.engineId, e); // new data wins
+  return Array.from(map.values());
+}
+
+function mergeModels(existing: Model[], scraped: Model[]): Model[] {
+  const map = new Map<number, Model>();
+  for (const m of existing) map.set(m.modelId, m);
+  for (const m of scraped) {
+    const prev = map.get(m.modelId);
+    if (prev) {
+      map.set(m.modelId, { ...m, engines: mergeEngines(prev.engines, m.engines) });
+    } else {
+      map.set(m.modelId, m);
+    }
+  }
+  return Array.from(map.values());
+}
+
+function mergeBrands(existing: Brand[], scraped: Brand): Brand[] {
+  const idx = existing.findIndex((b) => b.brandId === scraped.brandId);
+  if (idx >= 0) {
+    existing[idx] = {
+      ...scraped,
+      models: mergeModels(existing[idx].models, scraped.models),
+    };
+  } else {
+    existing.push(scraped);
+  }
+  return existing;
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const scrapeAll = args.includes("--all");
   const brandOnly = args.includes("--brand") ? args[args.indexOf("--brand") + 1] : null;
+
+  const outputPath = path.join(__dirname, "..", "data", "tecdoc-vehicles.json");
+  const dataDir = path.dirname(outputPath);
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
+  // Load existing data to merge into
+  const result: Brand[] = loadExistingData(outputPath);
+  const existingBrandIds = new Set(result.map((b) => b.brandId));
+  console.log(`Loaded ${result.length} existing brands from JSON`);
 
   const allBrands = await scrapeBrands();
 
@@ -218,18 +272,14 @@ async function main() {
     brandsToScrape = allBrands.filter((b) => POPULAR_BRAND_SLUGS.has(b.slug));
   }
 
-  console.log(`\nScraping ${brandsToScrape.length} brands...\n`);
+  console.log(`\nScraping ${brandsToScrape.length} brands (merging with ${result.length} existing)...\n`);
 
-  const result: Brand[] = [];
-  const outputPath = path.join(__dirname, "..", "data", "tecdoc-vehicles.json");
-
-  // Ensure data dir exists
-  const dataDir = path.dirname(outputPath);
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  let added = { brands: 0, models: 0, engines: 0 };
 
   for (let bi = 0; bi < brandsToScrape.length; bi++) {
     const brand = brandsToScrape[bi];
-    console.log(`[${bi + 1}/${brandsToScrape.length}] ${brand.name} (${brand.brandId})...`);
+    const isNew = !existingBrandIds.has(brand.brandId);
+    console.log(`[${bi + 1}/${brandsToScrape.length}] ${brand.name} (${brand.brandId})${isNew ? " [NEW]" : ""}...`);
 
     await sleep(DELAY_MS);
     let models: Awaited<ReturnType<typeof scrapeModels>>;
@@ -271,7 +321,26 @@ async function main() {
       }
     }
 
-    result.push(brandEntry);
+    // Count what's new before merging
+    const prevBrand = result.find((b) => b.brandId === brand.brandId);
+    if (!prevBrand) {
+      added.brands++;
+      added.models += brandEntry.models.length;
+      added.engines += brandEntry.models.reduce((s, m) => s + m.engines.length, 0);
+    } else {
+      for (const m of brandEntry.models) {
+        const prevModel = prevBrand.models.find((pm) => pm.modelId === m.modelId);
+        if (!prevModel) {
+          added.models++;
+          added.engines += m.engines.length;
+        } else {
+          const prevEngineIds = new Set(prevModel.engines.map((e) => e.engineId));
+          added.engines += m.engines.filter((e) => !prevEngineIds.has(e.engineId)).length;
+        }
+      }
+    }
+
+    mergeBrands(result, brandEntry);
 
     // Save progress after each brand
     fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
@@ -284,6 +353,7 @@ async function main() {
     0
   );
   console.log(`\nDone! ${result.length} brands, ${totalModels} models, ${totalEngines} engines`);
+  console.log(`New: +${added.brands} brands, +${added.models} models, +${added.engines} engines`);
   console.log(`Saved to ${outputPath}`);
 }
 

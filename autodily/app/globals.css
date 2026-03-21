@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #E8192C;
+  --color-primary-dark: #C4121F;
+  --color-primary-light: #FF4D5E;
+  --color-accent: #FF6B35;
+  --color-text: #374151;
+  --color-text-light: #6B7280;
+  --color-heading: #111827;
+  --color-bg-dark: #0F1117;
+  --color-bg-card: #1A1D27;
+  --color-border: #E5E7EB;
+  --color-border-light: #F3F4F6;
+  --color-green: #10B981;
+  --color-orange: #F59E0B;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: #E8192C;
+  --color-primary-dark: #C4121F;
+  --color-primary-light: #FF4D5E;
+  --color-accent: #FF6B35;
+  --color-mltext: #374151;
+  --color-mltext-light: #6B7280;
+  --color-mltext-dark: #111827;
+  --color-mlbg: #0F1117;
+  --color-mlcard: #1A1D27;
+  --color-mlborder: #E5E7EB;
+  --color-mlborder-light: #F3F4F6;
+  --color-mlgreen: #10B981;
+  --color-mlorange: #F59E0B;
+  --color-mlhelp: #1A1D27;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #F9FAFB;
+  color: var(--color-text);
+  font-family: 'Source Sans 3', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-heading);
+}
+
+.ml-input {
+  background: #fff;
+  border: 2px solid #E5E7EB;
+  border-radius: 10px;
+  height: 48px;
+  font-weight: 600;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.ml-input:focus {
+  box-shadow: 0 0 0 4px rgba(232, 25, 44, 0.1);
+  border-color: #E8192C;
+  outline: none;
+}
+
+.ml-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+html { scroll-behavior: smooth; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, #E8192C, #FF6B35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

@@ -1,3 +1,5 @@
+import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
+
 interface ProductCardProps {
   hit: {
     id: string;
@@ -22,65 +24,87 @@ export default function ProductCard({ hit, highlight }: ProductCardProps) {
 
   return (
     <a href={`/product/${hit.id}`} className="block group">
-      <div className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow bg-white">
-        {/* Image */}
-        <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden relative">
+      <div className="bg-white rounded-xl border border-mlborder-light overflow-hidden hover:border-transparent hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 h-full flex flex-col">
+        {/* Image area */}
+        <div className="aspect-[4/3] bg-gradient-to-br from-gray-50 to-white flex items-center justify-center overflow-hidden relative p-4">
           {hasImage ? (
             <img
               src={hit.image_url}
               alt={hit.name}
-              className="object-contain w-full h-full p-2 group-hover:scale-105 transition-transform"
+              className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-300"
               loading="lazy"
             />
           ) : (
-            <div className="text-gray-300">
-              <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <div className="text-gray-200">
+              <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={0.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
           )}
-          {hit.is_sale && (
-            <span className="absolute top-2 left-2 text-xs bg-red-500 text-white font-bold px-2 py-1 rounded">
-              Akce
-            </span>
-          )}
+
+          {/* Badges */}
+          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1">
+            {hit.is_sale && (
+              <span className="text-[10px] bg-primary text-white font-bold px-2 py-0.5 rounded-md uppercase tracking-wide shadow-sm">
+                Akce
+              </span>
+            )}
+            {hit.in_stock && (
+              <span className="text-[10px] bg-mlgreen text-white font-bold px-2 py-0.5 rounded-md shadow-sm">
+                Skladem
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Info */}
-        <div className="p-3">
-          <div className="flex gap-1 mb-1 flex-wrap">
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
+        <div className="p-3.5 flex flex-col flex-1">
+          {/* Brand */}
+          <div className="flex items-center gap-1.5 mb-1">
+            {hasManufacturerLogo(hit.brand) && (
+              <img src={getManufacturerLogoUrl(hit.brand)} alt="" className="h-4 w-auto object-contain" loading="lazy" />
+            )}
+            <span className="text-[11px] text-mltext-light font-semibold uppercase tracking-wider">
               {hit.brand}
             </span>
           </div>
 
+          {/* Name */}
           <h3
-            className="text-sm font-medium text-gray-900 line-clamp-2 mb-1 min-h-[2.5rem]"
+            className="text-[14px] font-semibold text-mltext-dark line-clamp-2 mb-1 min-h-10 leading-snug group-hover:text-primary transition-colors"
             dangerouslySetInnerHTML={{ __html: displayName }}
           />
 
+          {/* Code */}
           <p
-            className="text-xs text-gray-400 mb-2"
+            className="text-[11px] text-mltext-light font-mono mb-3"
             dangerouslySetInnerHTML={{ __html: displayCode }}
           />
 
-          <p className="text-base font-bold text-gray-900">
-            {hit.price_min > 0 ? (
-              <>
-                {hit.price_min !== hit.price_max ? "od " : ""}
-                {hit.price_min.toFixed(0)} Kc
-              </>
-            ) : (
-              <span className="text-gray-400 text-sm">Cena na dotaz</span>
-            )}
-          </p>
-
-          <p className={`text-xs mt-1 font-medium ${hit.in_stock ? "text-green-600" : "text-gray-400"}`}>
-            {hit.in_stock
-              ? `Skladem (${hit.stock_qty.toFixed(0)} ks)`
-              : "Na objednavku"}
-          </p>
+          {/* Price + stock — pushed to bottom */}
+          <div className="mt-auto pt-3 border-t border-mlborder-light">
+            <div className="flex items-end justify-between">
+              <div>
+                {hit.price_min > 0 ? (
+                  <>
+                    <span className="text-lg font-extrabold text-mltext-dark leading-none">
+                      {hit.price_min.toFixed(0)}
+                    </span>
+                    <span className="text-sm font-bold text-mltext-light ml-0.5">Kč</span>
+                    {hit.price_min !== hit.price_max && (
+                      <span className="text-[11px] text-mltext-light ml-1">od</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-mltext-light text-sm font-medium">Na dotaz</span>
+                )}
+              </div>
+              <div className={`text-[11px] font-bold ${hit.in_stock ? "text-mlgreen" : "text-mltext-light"}`}>
+                {hit.in_stock ? `${hit.stock_qty.toFixed(0)} ks` : "Na obj."}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </a>
