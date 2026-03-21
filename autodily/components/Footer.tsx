@@ -48,7 +48,7 @@ export default function Footer() {
             <h4 className="text-white/70 font-bold text-xs uppercase tracking-widest mb-4">Proč my</h4>
             <div className="space-y-3">
               {[
-                { icon: "M5 13l4 4L19 7", text: "200 000+ dílů" },
+                { icon: "M5 13l4 4L19 7", text: "4 000 000+ dílů" },
                 { icon: "M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z", text: "Doručení do 24h" },
                 { icon: "M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z", text: "Ověřené díly" },
                 { icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15", text: "14 dnů na vrácení" },

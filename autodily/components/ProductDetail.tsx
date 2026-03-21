@@ -35,18 +35,29 @@ interface Product {
   cross_numbers: string[];
 }
 
+interface TecDocAttr { key: string; value: string; }
+
 export default function ProductDetail({ product }: { product: Product }) {
   const [live, setLive] = useState<LiveData | null>(null);
   const [liveLoading, setLiveLoading] = useState(true);
+  const [tecdocAttrs, setTecdocAttrs] = useState<TecDocAttr[]>([]);
+  const [tecdocVehicles, setTecdocVehicles] = useState("");
 
   useEffect(() => {
     fetch(`/api/product-live?id=${product.id}`)
       .then((r) => r.json())
-      .then((d) => {
-        if (!d.error) setLive(d);
-      })
+      .then((d) => { if (!d.error) setLive(d); })
       .catch(() => {})
       .finally(() => setLiveLoading(false));
+
+    // Fetch TecDoc attributes (from product-image API which also scrapes attributes)
+    fetch(`/api/product-image?id=${product.id}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.attributes?.length) setTecdocAttrs(d.attributes);
+        if (d.vehicles) setTecdocVehicles(d.vehicles);
+      })
+      .catch(() => {});
   }, [product.id]);
 
   const formatPrice = (p: number) =>
@@ -225,6 +236,44 @@ export default function ProductDetail({ product }: { product: Product }) {
           </table>
         </div>
       </div>
+      {/* TecDoc specifications */}
+      {tecdocAttrs.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-bold text-mltext-dark mb-4 flex items-center gap-2">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 24 12c0 6.627-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0c1.21 0 2.382.18 3.482.516" />
+            </svg>
+            TecDoc specifikace
+          </h2>
+          <div className="bg-white rounded-xl border border-mlborder overflow-hidden">
+            <table className="w-full text-sm">
+              <tbody>
+                {tecdocAttrs.map((attr, i) => (
+                  <tr key={i} className={i < tecdocAttrs.length - 1 ? "border-b border-mlborder-light" : ""}>
+                    <td className="px-4 py-2.5 font-semibold text-mltext-light bg-gray-50 w-52 text-[13px]">{attr.key}</td>
+                    <td className="px-4 py-2.5 text-mltext-dark text-[13px]">{attr.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Vehicle compatibility */}
+      {tecdocVehicles && (
+        <div className="mt-8">
+          <h2 className="text-lg font-bold text-mltext-dark mb-4 flex items-center gap-2">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9" />
+            </svg>
+            Vhodné pro vozidla
+          </h2>
+          <div className="bg-gray-50 rounded-xl border border-mlborder-light p-4">
+            <p className="text-sm text-mltext leading-relaxed">{tecdocVehicles}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
