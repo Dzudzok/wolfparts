@@ -9,24 +9,18 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-[#F9FAFB]">
       {/* Dark hero area with header */}
       <div className="bg-mlbg relative overflow-hidden">
-        {/* Background effects */}
+        {/* Background image + overlay */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/[0.06] rounded-full blur-[120px]" />
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-accent/[0.04] rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary/[0.03] rounded-full blur-[80px]" />
-          {/* Grid pattern */}
-          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
+          <img src="/hero-bg.png" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-linear-to-b from-mlbg/90 via-mlbg/80 to-mlbg" />
         </div>
 
         <Header />
 
         {/* Hero content */}
-        <div className="relative max-w-[1400px] mx-auto px-4 lg:px-8 pt-8 pb-14">
+        <div className="relative max-w-350 mx-auto px-4 lg:px-8 pt-8 pb-14">
           <div className="max-w-3xl mx-auto text-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/[0.08] rounded-full px-4 py-1.5 mb-5">
-              <span className="w-1.5 h-1.5 bg-mlgreen rounded-full animate-pulse" />
-              <span className="text-white/50 text-xs font-semibold tracking-wide">200 000+ dílů skladem</span>
-            </div>
+
             <h1 className="text-white text-3xl sm:text-4xl lg:text-[44px] font-bold leading-tight mb-4 tracking-tight">
               Najděte správný díl<br />
               <span className="text-gradient">pro vaše auto</span>
@@ -38,7 +32,7 @@ export default function Home() {
 
           {/* Vehicle selector card */}
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 lg:p-8">
+            <div className="bg-white/4 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                   <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary-light" fill="none" stroke="currentColor" strokeWidth="2">

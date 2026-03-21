@@ -25,7 +25,7 @@ export default function BrandGrid() {
       {BRANDS.map((b) => (
         <a
           key={b.name}
-          href={`/search?q=${encodeURIComponent(b.name)}`}
+          href={`/brand/${b.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
           className="group flex flex-col items-center justify-center bg-white rounded-xl border border-mlborder-light hover:border-transparent transition-all p-3 h-[88px] hover:shadow-lg hover:-translate-y-0.5"
         >
           <img

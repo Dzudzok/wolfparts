@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AutoDíly — Váš dodavatel autodílů",
-  description: "Hledejte autodíly podle vozidla, OEM kódu nebo názvu",
+  title: "WolfParts — Váš dodavatel autodílů",
+  description: "Hledejte autodíly podle vozidla, OEM kódu nebo názvu dílu",
 };
 
 export default function RootLayout({

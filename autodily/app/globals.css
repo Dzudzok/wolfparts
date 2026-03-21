@@ -42,9 +42,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-heading);
-}
+/* Headings inherit color by default — set explicitly via Tailwind classes */
 
 .ml-input {
   background: #fff;

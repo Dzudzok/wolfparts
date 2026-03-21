@@ -11,7 +11,9 @@
     "sync:test": "tsx scripts/sync-products.ts --limit 500",
     "sync:dry": "tsx scripts/sync-products.ts --dry-run",
     "scrape:tecdoc": "tsx scripts/scrape-tecdoc.ts",
-    "scrape:tecdoc:all": "tsx scripts/scrape-tecdoc.ts --all"
+    "scrape:tecdoc:all": "tsx scripts/scrape-tecdoc.ts --all",
+    "scrape:images": "tsx scripts/scrape-images.ts",
+    "scrape:images:500": "tsx scripts/scrape-images.ts --limit 500"
   },
   "dependencies": {
     "axios": "^1.13.6",
@@ -20,6 +22,7 @@
     "csv-parse": "^6.2.0",
     "dotenv": "^17.3.1",
     "next": "16.2.0",
+    "puppeteer": "^24.40.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tsx": "^4.21.0",

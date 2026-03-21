@@ -7,13 +7,8 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <circle cx="12" cy="12" r="8" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              </div>
-              <span className="text-white font-bold text-lg tracking-tight">AUTODÍLY</span>
+              <img src="/logo.svg" alt="WolfParts" className="w-8 h-8 rounded-lg" />
+              <span className="text-white font-bold text-lg tracking-tight">WolfParts</span>
             </div>
             <p className="text-white/30 text-sm leading-relaxed mb-5">
               Spolehlivý dodavatel autodílů pro váš vůz. Široký sortiment, rychlé doručení.
@@ -71,7 +66,7 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/[0.06]">
-          <span className="text-white/20 text-sm">© {new Date().getFullYear()} AutoDíly</span>
+          <span className="text-white/20 text-sm">© {new Date().getFullYear()} WolfParts</span>
           <div className="flex items-center gap-2">
             {["VISA", "MC", "GPay"].map((pm) => (
               <span key={pm} className="text-[9px] font-bold text-white/15 bg-white/[0.04] border border-white/[0.06] px-3 py-1.5 rounded-md uppercase tracking-wider">{pm}</span>

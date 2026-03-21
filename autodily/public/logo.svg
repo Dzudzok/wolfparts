@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Wolf head silhouette -->
+  <defs>
+    <linearGradient id="wolfGrad" x1="0" y1="0" x2="48" y2="48">
+      <stop offset="0%" stop-color="#E8192C"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#wolfGrad)"/>
+  <!-- Wolf ears + head -->
+  <path d="M14 12l4 10h-2l-4-7v15a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V15l-4 7h-2l4-10-8 6h-4l-8-6z" fill="white" opacity="0.95"/>
+  <!-- Wolf eyes -->
+  <circle cx="19" cy="24" r="2" fill="#E8192C"/>
+  <circle cx="29" cy="24" r="2" fill="#E8192C"/>
+  <!-- Wolf nose -->
+  <path d="M22 29l2 3 2-3" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

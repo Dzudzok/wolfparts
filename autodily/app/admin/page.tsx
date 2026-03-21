@@ -141,7 +141,9 @@ function LogPanel({ title, logs, running, onStop }: {
 export default function AdminPage() {
   const sync = useScriptRunner();
   const scrape = useScriptRunner();
+  const images = useScriptRunner();
   const [brandSlug, setBrandSlug] = useState("");
+  const [imageBrand, setImageBrand] = useState("");
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -227,6 +229,47 @@ export default function AdminPage() {
             </div>
           </div>
           <LogPanel title="Scraper log" logs={scrape.logs} running={scrape.running} onStop={scrape.stop} />
+        </section>
+
+        {/* Scrape Images */}
+        <section className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">Obrázky produktů</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Scrapuje obrázky z mroauto.cz (TecAlliance CDN) pro produkty bez fotek
+          </p>
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <button
+              onClick={() => images.run("scrape:images")}
+              disabled={images.running}
+              className="bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
+            >
+              {images.running ? "Běží..." : "Scrape 100 fotek"}
+            </button>
+            <button
+              onClick={() => images.run("scrape:images:500")}
+              disabled={images.running}
+              className="bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
+            >
+              {images.running ? "Běží..." : "Scrape 500 fotek"}
+            </button>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={imageBrand}
+                onChange={(e) => setImageBrand(e.target.value.toUpperCase().trim())}
+                placeholder="MANN-FILTER, BOSCH..."
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-48 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              />
+              <button
+                onClick={() => imageBrand && images.run("scrape:images:brand", imageBrand)}
+                disabled={images.running || !imageBrand}
+                className="bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
+              >
+                Jedna značka
+              </button>
+            </div>
+          </div>
+          <LogPanel title="Images log" logs={images.logs} running={images.running} onStop={images.stop} />
         </section>
       </div>
     </main>

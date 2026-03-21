@@ -7,6 +7,9 @@ const ALLOWED_SCRIPTS: Record<string, { cmd: string; args: string[] }> = {
   "scrape:tecdoc": { cmd: "npx", args: ["tsx", "scripts/scrape-tecdoc.ts"] },
   "scrape:tecdoc:all": { cmd: "npx", args: ["tsx", "scripts/scrape-tecdoc.ts", "--all"] },
   "scrape:tecdoc:brand": { cmd: "npx", args: ["tsx", "scripts/scrape-tecdoc.ts", "--brand"] },
+  "scrape:images": { cmd: "npx", args: ["tsx", "scripts/scrape-images.ts", "--limit", "100"] },
+  "scrape:images:500": { cmd: "npx", args: ["tsx", "scripts/scrape-images.ts", "--limit", "500"] },
+  "scrape:images:brand": { cmd: "npx", args: ["tsx", "scripts/scrape-images.ts", "--brand"] },
 };
 
 export async function POST(req: Request) {
