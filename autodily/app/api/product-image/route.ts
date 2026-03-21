@@ -42,9 +42,9 @@ export async function GET(req: NextRequest) {
     const allMatches = html.match(
       /https:\/\/digital-assets\.tecalliance\.services\/images\/\d+\/[a-f0-9]+\.jpg/g
     );
-    const uniqueImages = allMatches ? [...new Set(allMatches)] : [];
+    const uniqueImages: string[] = allMatches ? [...new Set<string>(allMatches)] : [];
 
-    const imageUrl = uniqueImages[0] || null;
+    const imageUrl: string | null = uniqueImages[0] || null;
     imageCache.set(id, { url: imageUrl || "none", ts: Date.now() });
 
     // Evict old entries if cache too large
