@@ -1,0 +1,537 @@
+{
+  "100025": {
+    "seed": "117691",
+    "genArt": 2303,
+    "name": "Posilovač brzd"
+  },
+  "100026": {
+    "seed": "46-0116",
+    "genArt": 258,
+    "name": "Hlavní brzdový válec"
+  },
+  "100034": {
+    "seed": "117691",
+    "genArt": 3418,
+    "name": "Parkovací brzda"
+  },
+  "100051": {
+    "seed": "33-0620",
+    "genArt": 479,
+    "name": "Sada spojky"
+  },
+  "100060": {
+    "seed": "46-0116",
+    "genArt": 620,
+    "name": "Pomocný válec"
+  },
+  "100061": {
+    "seed": "46-0116",
+    "genArt": 2743,
+    "name": "Hlavní válec"
+  },
+  "100071": {
+    "seed": "33-0620",
+    "genArt": 236,
+    "name": "Kloub / sada"
+  },
+  "100121": {
+    "seed": "118736",
+    "genArt": 3365,
+    "name": "Tlumič pérování"
+  },
+  "100134": {
+    "seed": "2706743",
+    "genArt": 295,
+    "name": "Motor stěračů"
+  },
+  "100136": {
+    "seed": "8054044",
+    "genArt": 301,
+    "name": "Raménko stěrače / uložení"
+  },
+  "100165": {
+    "seed": "07907",
+    "genArt": 449,
+    "name": "Podběh kola"
+  },
+  "100199": {
+    "seed": "8054044",
+    "genArt": 12,
+    "name": "Převodovka řízení / čerpadlo"
+  },
+  "100213": {
+    "seed": "07907",
+    "genArt": 658,
+    "name": "Kolo / upevnění kola"
+  },
+  "100224": {
+    "seed": "33-0620",
+    "genArt": 560,
+    "name": "Kompletní sada těsnění"
+  },
+  "100225": {
+    "seed": "2706743",
+    "genArt": 319,
+    "name": "Těsnění pod hlavu motoru"
+  },
+  "100227": {
+    "seed": "46-0116",
+    "genArt": 979,
+    "name": "Těsnění krytu hlav válců"
+  },
+  "100231": {
+    "seed": "118736",
+    "genArt": 28,
+    "name": "Těsnění sběrného výfukového potrubí/těsnicí kroužek"
+  },
+  "100253": {
+    "seed": "HF35381",
+    "genArt": 9,
+    "name": "Palivový filtr / plast"
+  },
+  "100259": {
+    "seed": "HF35381",
+    "genArt": 7,
+    "name": "Olejový filtr"
+  },
+  "100260": {
+    "seed": "HF35381",
+    "genArt": 8,
+    "name": "Vzduchový filtr"
+  },
+  "100261": {
+    "seed": "HF35381",
+    "genArt": 9,
+    "name": "Palivový filtr"
+  },
+  "100263": {
+    "seed": "HF35381",
+    "genArt": 424,
+    "name": "Kabinový vzduchový filtr"
+  },
+  "100314": {
+    "seed": "118736",
+    "genArt": 3435,
+    "name": "Tlumič hluku"
+  },
+  "100316": {
+    "seed": "33-0620",
+    "genArt": 518,
+    "name": "Montážní sada"
+  },
+  "100324": {
+    "seed": "118736",
+    "genArt": 253,
+    "name": "Pryžový kroužek"
+  },
+  "100346": {
+    "seed": "HF35381",
+    "genArt": 424,
+    "name": "Kabinový vzduchový filtr"
+  },
+  "100349": {
+    "seed": "2706743",
+    "genArt": 793,
+    "name": "Motor větráku"
+  },
+  "100354": {
+    "seed": "380086",
+    "genArt": 2914,
+    "name": "Kompresor / jednotlivé díly"
+  },
+  "100374": {
+    "seed": "2706743",
+    "genArt": 319,
+    "name": "Těsnění pod hlavu motoru"
+  },
+  "100376": {
+    "seed": "118736",
+    "genArt": 28,
+    "name": "Těsnění sacího/sběrného výfukového potrubí/těsnicí kroužek"
+  },
+  "100384": {
+    "seed": "HF35381",
+    "genArt": 3358,
+    "name": "Vzduchový filtr"
+  },
+  "100391": {
+    "seed": "380086",
+    "genArt": 2234,
+    "name": "Kompresor/jednotlivé díly"
+  },
+  "100405": {
+    "seed": "33-0620",
+    "genArt": 307,
+    "name": "Sada rozvodového řemene"
+  },
+  "100432": {
+    "seed": "33-0620",
+    "genArt": 542,
+    "name": "Sada žebrovaných klínových řemenů"
+  },
+  "100433": {
+    "seed": "46-0116",
+    "genArt": 259,
+    "name": "Světlomet hlavní"
+  },
+  "100438": {
+    "seed": "510137-2",
+    "genArt": 540,
+    "name": "Napínací rameno"
+  },
+  "100453": {
+    "seed": "33-0620",
+    "genArt": 307,
+    "name": "Sada rozvodového řemene"
+  },
+  "100468": {
+    "seed": "117691",
+    "genArt": 2126,
+    "name": "Parkovací/ obrysové světlo"
+  },
+  "100470": {
+    "seed": "HF35381",
+    "genArt": 7,
+    "name": "Olejový filtr"
+  },
+  "100506": {
+    "seed": "2706743",
+    "genArt": 120,
+    "name": "Osvětlení prostoru motoru"
+  },
+  "100508": {
+    "seed": "510137-2",
+    "genArt": 3000,
+    "name": "Přístroj pro umělé osvětlení / ovládací prvek"
+  },
+  "100521": {
+    "seed": "33-0620",
+    "genArt": 3874,
+    "name": "Radiální těsnicí kroužek/sada"
+  },
+  "100522": {
+    "seed": "46-0116",
+    "genArt": 5017,
+    "name": "Hlavní ložiska klikového hřídele"
+  },
+  "100531": {
+    "seed": "33-0620",
+    "genArt": 444,
+    "name": "Sada pístních kroužků"
+  },
+  "100534": {
+    "seed": "33-0620",
+    "genArt": 4668,
+    "name": "Vložka válce/ - sada"
+  },
+  "100538": {
+    "seed": "2706743",
+    "genArt": 247,
+    "name": "Uložení motoru"
+  },
+  "100545": {
+    "seed": "BCA6188",
+    "genArt": 1137,
+    "name": "EGR řídicí jednotka"
+  },
+  "100566": {
+    "seed": "73911",
+    "genArt": 3393,
+    "name": "Zrcátko"
+  },
+  "100571": {
+    "seed": "510137-2",
+    "genArt": 1597,
+    "name": "Příčné rameno"
+  },
+  "100572": {
+    "seed": "8054044",
+    "genArt": 3238,
+    "name": "Uložení/ upevnění"
+  },
+  "100578": {
+    "seed": "07907",
+    "genArt": 655,
+    "name": "Náboj kola"
+  },
+  "100579": {
+    "seed": "07907",
+    "genArt": 655,
+    "name": "Ložisko kola"
+  },
+  "100587": {
+    "seed": "36949/3-KIT-MSP",
+    "genArt": 1159,
+    "name": "Čep nápravy"
+  },
+  "100589": {
+    "seed": "33-0620",
+    "genArt": 771,
+    "name": "Opravná sada"
+  },
+  "100591": {
+    "seed": "HF35381",
+    "genArt": 417,
+    "name": "Filtr řízení"
+  },
+  "100593": {
+    "seed": "BCA6188",
+    "genArt": 1166,
+    "name": "Zavěšení řízení"
+  },
+  "100602": {
+    "seed": "33-0620",
+    "genArt": 770,
+    "name": "Opravná sada"
+  },
+  "100607": {
+    "seed": "117691",
+    "genArt": 39,
+    "name": "Tažné zařízení"
+  },
+  "100618": {
+    "seed": "117691",
+    "genArt": 7308,
+    "name": "Parkovací senzor"
+  },
+  "100689": {
+    "seed": "33-0620",
+    "genArt": 60986,
+    "name": "Sada zámků"
+  },
+  "100690": {
+    "seed": "33-0620",
+    "genArt": 1379,
+    "name": "Sada bezpečnostních zámků dveří"
+  },
+  "100707": {
+    "seed": "46-0116",
+    "genArt": 1427,
+    "name": "Spojka"
+  },
+  "100725": {
+    "seed": "BCA6188",
+    "genArt": 2975,
+    "name": "Řídicí jednotky"
+  },
+  "100726": {
+    "seed": "510137-2",
+    "genArt": 3000,
+    "name": "Ovládací prvky"
+  },
+  "100727": {
+    "seed": "BCA6188",
+    "genArt": 2975,
+    "name": "Řídicí jednotky"
+  },
+  "100754": {
+    "seed": "2706743",
+    "genArt": 833,
+    "name": "Elektrický systém motoru"
+  },
+  "100761": {
+    "seed": "36949/3-KIT-MSP",
+    "genArt": 2980,
+    "name": "Nosník nápravy / pomocný rám podvozku"
+  },
+  "100776": {
+    "seed": "HF35381",
+    "genArt": 1047,
+    "name": "Řízení / hydraulika"
+  },
+  "100779": {
+    "seed": "510137-2",
+    "genArt": 2085,
+    "name": "Ovládací prvky"
+  },
+  "100780": {
+    "seed": "BCA6188",
+    "genArt": 5745,
+    "name": "Páka / přenosové prvky"
+  },
+  "100789": {
+    "seed": "33-0620",
+    "genArt": 3874,
+    "name": "Radiální těsnicí kroužek/sada"
+  },
+  "100803": {
+    "seed": "36949/3-KIT-MSP",
+    "genArt": 2065,
+    "name": "Čep nápravy"
+  },
+  "100815": {
+    "seed": "BCA6188",
+    "genArt": 1137,
+    "name": "EGR řídicí jednotka"
+  },
+  "101442": {
+    "seed": "117691",
+    "genArt": 2126,
+    "name": "Parkovací/ obrysové světlo"
+  },
+  "101466": {
+    "seed": "46-0116",
+    "genArt": 259,
+    "name": "Světlomet hlavní"
+  },
+  "101652": {
+    "seed": "07907",
+    "genArt": 755,
+    "name": "Podběh kola"
+  },
+  "101657": {
+    "seed": "46-0116",
+    "genArt": 259,
+    "name": "Světlomet hlavní"
+  },
+  "101698": {
+    "seed": "73911",
+    "genArt": 23,
+    "name": "Zrcátko"
+  },
+  "101710": {
+    "seed": "07907",
+    "genArt": 1184,
+    "name": "Podběh kola"
+  },
+  "101767": {
+    "seed": "117691",
+    "genArt": 2126,
+    "name": "Parkovací/ obrysové světlo"
+  },
+  "101786": {
+    "seed": "117691",
+    "genArt": 2126,
+    "name": "Parkovací/ obrysové světlo"
+  },
+  "101833": {
+    "seed": "07907",
+    "genArt": 1066,
+    "name": "Ozubená kola"
+  },
+  "102219": {
+    "seed": "510137-2",
+    "genArt": 3557,
+    "name": "\"Ventily, ovládací prvky\""
+  },
+  "102239": {
+    "seed": "46-0116",
+    "genArt": 1390,
+    "name": "Předstihová spojka"
+  },
+  "102244": {
+    "seed": "117691",
+    "genArt": 3405,
+    "name": "Souprava brzd"
+  },
+  "102250": {
+    "seed": "8054044",
+    "genArt": 3406,
+    "name": "Uložení, ložiska"
+  },
+  "102685": {
+    "seed": "118736",
+    "genArt": 3708,
+    "name": "Synchronizační kroužek"
+  },
+  "102763": {
+    "seed": "117691",
+    "genArt": 3859,
+    "name": "Souprava brzd"
+  },
+  "102784": {
+    "seed": "33-0620",
+    "genArt": 3878,
+    "name": "Těsnění/sada těsnění"
+  },
+  "102910": {
+    "seed": "118736",
+    "genArt": 618,
+    "name": "Ovládání / tlumič"
+  },
+  "102964": {
+    "seed": "117691",
+    "genArt": 3418,
+    "name": "Parkovací brzda"
+  },
+  "103035": {
+    "seed": "2706743",
+    "genArt": 4261,
+    "name": "Kryt motoru"
+  },
+  "103036": {
+    "seed": "2706743",
+    "genArt": 4261,
+    "name": "Kryt motoru"
+  },
+  "103037": {
+    "seed": "2706743",
+    "genArt": 4261,
+    "name": "Kryt motoru"
+  },
+  "103066": {
+    "seed": "33-0620",
+    "genArt": 4321,
+    "name": "Sada kabelů / jednotlivé díly kabelů"
+  },
+  "103103": {
+    "seed": "HF35381",
+    "genArt": 60550,
+    "name": "Řízení / hydraulika"
+  },
+  "103270": {
+    "seed": "33-0620",
+    "genArt": 4668,
+    "name": "Opravná sada"
+  },
+  "103436": {
+    "seed": "117691",
+    "genArt": 4979,
+    "name": "Tažné lano"
+  },
+  "103456": {
+    "seed": "46-0116",
+    "genArt": 5039,
+    "name": "Lamelová spojka (pohon všech kol)"
+  },
+  "104159": {
+    "seed": "73911",
+    "genArt": 2748,
+    "name": "Zrcátko"
+  },
+  "104310": {
+    "seed": "33-0620",
+    "genArt": 542,
+    "name": "Sada žebrovaných klínových řemenů"
+  },
+  "104313": {
+    "seed": "510137-2",
+    "genArt": 540,
+    "name": "Napínací rameno"
+  },
+  "104319": {
+    "seed": "33-0620",
+    "genArt": 307,
+    "name": "Sada rozvodového řemene"
+  },
+  "104330": {
+    "seed": "46-0116",
+    "genArt": 1390,
+    "name": "Předstihová spojka"
+  },
+  "104631": {
+    "seed": "33-0620",
+    "genArt": 6002,
+    "name": "Sada obložení pedálu"
+  },
+  "706381": {
+    "seed": "07907",
+    "genArt": 4566,
+    "name": "Náboj kola/ ložisko"
+  },
+  "706725": {
+    "seed": "HF35381",
+    "genArt": 5039,
+    "name": "Hydraulický filtr"
+  }
+}

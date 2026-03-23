@@ -15,7 +15,7 @@ const BRANDS = [
 ];
 
 export default function BrandGrid() {
-  const [showModal, setShowModal] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
 
   return (
     <>
@@ -23,7 +23,7 @@ export default function BrandGrid() {
         {BRANDS.map((b) => (
           <button
             key={b.name}
-            onClick={() => setShowModal(true)}
+            onClick={() => setSelectedBrand(b.name)}
             className="group flex flex-col items-center justify-center bg-white rounded-xl border border-mlborder-light hover:border-primary/30 transition-all p-3 h-[88px] hover:shadow-lg hover:-translate-y-0.5"
           >
             <img
@@ -38,7 +38,7 @@ export default function BrandGrid() {
           </button>
         ))}
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => setSelectedBrand("")}
           className="group flex flex-col items-center justify-center bg-gradient-to-br from-primary/[0.04] to-accent/[0.06] rounded-xl border border-primary/10 hover:border-primary/30 transition-all p-3 h-[88px] hover:shadow-lg hover:-translate-y-0.5"
         >
           <div className="w-9 h-9 rounded-full flex items-center justify-center bg-primary/10 group-hover:bg-primary/20 transition-colors mb-1.5 group-hover:scale-110">
@@ -50,7 +50,12 @@ export default function BrandGrid() {
         </button>
       </div>
 
-      {showModal && <VehiclePickerModal onClose={() => setShowModal(false)} />}
+      {selectedBrand !== null && (
+        <VehiclePickerModal
+          onClose={() => setSelectedBrand(null)}
+          initialBrandName={selectedBrand || undefined}
+        />
+      )}
     </>
   );
 }

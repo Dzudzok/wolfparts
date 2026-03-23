@@ -13,7 +13,7 @@ interface EngineItem {
 
 type Step = "brand" | "model" | "engine";
 
-export default function VehiclePickerModal({ onClose }: { onClose: () => void }) {
+export default function VehiclePickerModal({ onClose, initialBrandName }: { onClose: () => void; initialBrandName?: string }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("brand");
   const [brands, setBrands] = useState<BrandItem[]>([]);
@@ -29,14 +29,78 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
   const [fuelFilter, setFuelFilter] = useState<string>("");
   const [yearRange, setYearRange] = useState(1970);
   const [hoveredEngine, setHoveredEngine] = useState<EngineItem | null>(null);
+  const [hoveredModel, setHoveredModel] = useState<ModelItem | null>(null);
+  const [modelPreviewCarId, setModelPreviewCarId] = useState<number | null>(null);
 
   const [allBrandsLoaded, setAllBrandsLoaded] = useState(false);
 
+  // Start with hardcoded popular brands — ZERO API calls on open
+  const POPULAR_BRANDS: BrandItem[] = [
+    { name: "ALFA ROMEO", slug: "alfa-romeo", brandId: 2 },
+    { name: "AUDI", slug: "audi", brandId: 5 },
+    { name: "BMW", slug: "bmw", brandId: 16 },
+    { name: "CITROËN", slug: "citroen", brandId: 21 },
+    { name: "DACIA", slug: "dacia", brandId: 1523 },
+    { name: "FIAT", slug: "fiat", brandId: 35 },
+    { name: "FORD", slug: "ford", brandId: 36 },
+    { name: "HONDA", slug: "honda", brandId: 45 },
+    { name: "HYUNDAI", slug: "hyundai", brandId: 183 },
+    { name: "KIA", slug: "kia", brandId: 184 },
+    { name: "MAZDA", slug: "mazda", brandId: 72 },
+    { name: "MERCEDES-BENZ", slug: "mercedes-benz", brandId: 74 },
+    { name: "NISSAN", slug: "nissan", brandId: 80 },
+    { name: "OPEL", slug: "opel", brandId: 84 },
+    { name: "PEUGEOT", slug: "peugeot", brandId: 88 },
+    { name: "RENAULT", slug: "renault", brandId: 93 },
+    { name: "SEAT", slug: "seat", brandId: 104 },
+    { name: "SKODA", slug: "skoda", brandId: 106 },
+    { name: "SUZUKI", slug: "suzuki", brandId: 109 },
+    { name: "TOYOTA", slug: "toyota", brandId: 111 },
+    { name: "VOLVO", slug: "volvo", brandId: 120 },
+    { name: "VW", slug: "vw", brandId: 121 },
+  ];
+
   useEffect(() => {
-    fetch("/api/vehicles?action=brands")
-      .then((r) => r.json()).then((d) => setBrands(Array.isArray(d) ? d : []))
+    setBrands(POPULAR_BRANDS);
+    setLoading(false);
+
+    // If initial brand passed, auto-select it
+    if (initialBrandName) {
+      const match = POPULAR_BRANDS.find((b) => b.name.toUpperCase() === initialBrandName.toUpperCase());
+      if (match) {
+        selectBrandDirect(match);
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function selectBrandDirect(brand: BrandItem) {
+    setSelectedBrand(brand); setSelectedModel(null); setModels([]); setEngines([]);
+    setStep("model"); setLoading(true);
+    fetch(`/api/vehicles?action=models&brandId=${brand.brandId}`)
+      .then((r) => r.json()).then((d) => setModels(Array.isArray(d) ? d : []))
       .catch(() => {}).finally(() => setLoading(false));
-  }, []);
+  }
+
+  // Fetch car photo for hovered model (get first engine ID)
+  const modelCarIdCache = useRef<Record<number, number>>({});
+  function handleModelHover(model: ModelItem) {
+    setHoveredModel(model);
+    if (modelCarIdCache.current[model.modelId]) {
+      setModelPreviewCarId(modelCarIdCache.current[model.modelId]);
+      return;
+    }
+    if (!selectedBrand) return;
+    fetch(`/api/vehicles?action=engines&brandId=${selectedBrand.brandId}&modelId=${model.modelId}`)
+      .then((r) => r.json())
+      .then((d) => {
+        const engines = Array.isArray(d) ? d : [];
+        if (engines[0]?.engineId) {
+          modelCarIdCache.current[model.modelId] = engines[0].engineId;
+          setModelPreviewCarId(engines[0].engineId);
+        }
+      })
+      .catch(() => {});
+  }
 
   // When searching and no match in favoured brands → load ALL brands from TecDoc
   useEffect(() => {
@@ -84,12 +148,15 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
       bi: String(selectedBrand.brandId), mi: String(selectedModel.modelId),
       bn: selectedBrand.name, mn: selectedModel.name, en: `${engine.name} ${engine.power}`,
     });
+    // Prefetch categories before closing modal for smoother transition
+    const url = `/vehicle/${engine.engineId}?${params}`;
+    router.prefetch(url);
     onClose();
-    router.push(`/vehicle/${engine.engineId}?${params}`);
+    router.push(url);
   }
 
   function goBack() {
-    setSearch(""); setHoveredEngine(null);
+    setSearch(""); setHoveredEngine(null); setHoveredModel(null); setModelPreviewCarId(null);
     if (step === "engine") { setStep("model"); setEngines([]); }
     else if (step === "model") { setStep("brand"); setModels([]); setSelectedBrand(null); }
   }
@@ -208,7 +275,7 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
                 <img src={getCarBrandLogoUrl(selectedBrand.slug)} alt="" className="w-6 h-6 object-contain" />
               )}
               {!selectedBrand && <span className="text-mltext-dark font-bold text-[15px]">Vyberte vozidlo</span>}
-              {selectedBrand && <span className={selectedModel ? "text-mltext-light" : "text-mltext-dark font-bold"}>{selectedBrand.name}</span>}
+              {selectedBrand && <span className={selectedModel ? "text-mltext-light text-[13px]" : "text-mltext-dark font-bold"}>{selectedBrand.name}</span>}
               {selectedModel && (
                 <>
                   <span className="text-mltext-light/30">›</span>
@@ -308,25 +375,40 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
                   </div>
                 )}
 
-                {/* Hovered engine preview */}
+                {/* Hovered preview — engine or model */}
                 {step === "engine" && hoveredEngine && (
-                  <div className="mb-4 p-3 bg-white rounded-xl border border-primary/20 shadow-sm">
-                    <div className="w-full aspect-[16/10] rounded-lg bg-gray-50 overflow-hidden mb-3">
+                  <div className="p-3 bg-white rounded-xl border border-primary/20 shadow-sm">
+                    <div className="w-full aspect-video rounded-lg bg-gray-50 overflow-hidden mb-2">
                       <img
                         src={`/api/tecdoc-image?type=car&id=${hoveredEngine.engineId}`}
                         alt=""
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                       />
                     </div>
-                    <p className="text-[13px] font-bold text-mltext-dark">{selectedBrand?.name} {selectedModel?.name}</p>
-                    <p className="text-[14px] font-bold text-primary">{hoveredEngine.name}</p>
-                    <div className="mt-2 space-y-1 text-[11px]">
+                    <p className="text-[12px] text-mltext-light">{selectedBrand?.name} {selectedModel?.name}</p>
+                    <p className="text-[13px] font-bold text-primary">{hoveredEngine.name}</p>
+                    <div className="mt-1.5 space-y-0.5 text-[11px]">
                       {hoveredEngine.power && <div className="flex justify-between"><span className="text-mltext-light">Výkon</span><span className="font-bold text-mltext-dark">{hoveredEngine.power}</span></div>}
                       {hoveredEngine.fuel && <div className="flex justify-between"><span className="text-mltext-light">Palivo</span><span className="font-bold text-mltext-dark">{hoveredEngine.fuel}</span></div>}
                       {hoveredEngine.years && <div className="flex justify-between"><span className="text-mltext-light">Období</span><span className="font-bold text-mltext-dark">{hoveredEngine.years}</span></div>}
-                      {hoveredEngine.engineCode && <div className="flex justify-between"><span className="text-mltext-light">Typ</span><span className="font-bold text-mltext-dark font-mono">{hoveredEngine.engineCode}</span></div>}
                     </div>
+                  </div>
+                )}
+
+                {step === "model" && hoveredModel && modelPreviewCarId && (
+                  <div className="p-3 bg-white rounded-xl border border-primary/20 shadow-sm">
+                    <div className="w-full aspect-video rounded-lg bg-gray-50 overflow-hidden mb-2">
+                      <img
+                        src={`/api/tecdoc-image?type=car&id=${modelPreviewCarId}`}
+                        alt=""
+                        className="w-full h-full object-contain"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                    </div>
+                    <p className="text-[12px] text-mltext-light">{selectedBrand?.name}</p>
+                    <p className="text-[13px] font-bold text-mltext-dark">{hoveredModel.name}</p>
+                    {hoveredModel.years && <p className="text-[11px] text-mltext-light mt-0.5">{hoveredModel.years}</p>}
                   </div>
                 )}
               </div>
@@ -410,6 +492,8 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
                         <button
                           key={model.modelId}
                           onClick={() => selectModel(model)}
+                          onMouseEnter={() => handleModelHover(model)}
+                          onMouseLeave={() => { setHoveredModel(null); setModelPreviewCarId(null); }}
                           className="group flex items-center justify-between p-3.5 rounded-xl border border-gray-100 hover:border-primary hover:bg-primary/[0.02] hover:shadow-sm transition-all text-left bg-white"
                         >
                           <div className="min-w-0">
@@ -422,7 +506,7 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
                     </div>
                   ) : (
                     /* Grouped view — show base names as big buttons, expand on click */
-                    <ModelGroupedView groups={modelGroups} onSelectModel={selectModel} />
+                    <ModelGroupedView groups={modelGroups} onSelectModel={selectModel} onHoverModel={handleModelHover} onLeaveModel={() => { setHoveredModel(null); setModelPreviewCarId(null); }} />
                   )}
                 </div>
               )}
@@ -436,11 +520,17 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
                       onClick={() => selectEngine(engine)}
                       onMouseEnter={() => setHoveredEngine(engine)}
                       onMouseLeave={() => setHoveredEngine(null)}
-                      className="group w-full flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-primary hover:bg-primary/[0.02] hover:shadow-sm transition-all text-left bg-white"
+                      className="group w-full flex items-center gap-5 px-5 py-4 rounded-xl border border-gray-100 hover:border-primary hover:bg-primary/[0.02] hover:shadow-sm transition-all text-left bg-white"
                     >
-                      {/* Fuel icon */}
-                      <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0 group-hover:border-primary/20 group-hover:bg-primary/5 transition-colors">
-                        <FuelIcon type={engine.fuel} />
+                      {/* Car photo */}
+                      <div className="w-24 h-16 rounded-xl bg-gray-50 border border-gray-200 overflow-hidden shrink-0 group-hover:border-primary/20 transition-colors">
+                        <img
+                          src={`/api/tecdoc-image?type=car&id=${engine.engineId}`}
+                          alt=""
+                          className="w-full h-full object-contain p-0.5"
+                          loading="lazy"
+                          onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
+                        />
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -454,9 +544,9 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                           {engine.fuel && (
-                            <span className="text-[11px] font-medium text-mltext bg-gray-100 rounded px-1.5 py-0.5">{engine.fuel}</span>
+                            <span className="text-[11px] font-semibold text-mltext bg-gray-100 rounded-md px-2 py-0.5">{engine.fuel}</span>
                           )}
                           {engine.years && (
                             <span className="text-[11px] text-mltext-light">{engine.years}</span>
@@ -473,6 +563,7 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
                   {filteredEngines.length === 0 && <p className="text-center text-mltext-light text-sm py-12">Žádný motor neodpovídá filtrům</p>}
                 </div>
               )}
+
             </div>
           </div>
         </div>
@@ -484,7 +575,7 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
 /* ─── Grouped model selector — expands inline under clicked group ─── */
 interface ModelGroup { baseName: string; models: ModelItem[]; }
 
-function ModelGroupedView({ groups, onSelectModel }: { groups: ModelGroup[]; onSelectModel: (m: ModelItem) => void }) {
+function ModelGroupedView({ groups, onSelectModel, onHoverModel, onLeaveModel }: { groups: ModelGroup[]; onSelectModel: (m: ModelItem) => void; onHoverModel?: (m: ModelItem) => void; onLeaveModel?: () => void }) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   // Arrange groups in a 4-col grid, but insert expanded panel spanning full width after the clicked row
@@ -556,6 +647,8 @@ function ModelGroupedView({ groups, onSelectModel }: { groups: ModelGroup[]; onS
                     <button
                       key={model.modelId}
                       onClick={() => onSelectModel(model)}
+                      onMouseEnter={() => onHoverModel?.(model)}
+                      onMouseLeave={() => onLeaveModel?.()}
                       className="group flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-white hover:shadow-sm transition-all text-left bg-white"
                     >
                       <div className="min-w-0">

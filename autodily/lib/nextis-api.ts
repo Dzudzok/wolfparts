@@ -24,7 +24,7 @@ function baseRequest() {
   return { language: "cs" };
 }
 
-// Live ceny i stany po ID
+// Live ceny a stavy po ID
 export async function checkItemsByID(ids: number[]) {
   const token = await getToken();
   const res = await axios.post(`${BASE_URL}/catalogs/items-checking-by-id`, {
@@ -37,7 +37,7 @@ export async function checkItemsByID(ids: number[]) {
   return res.data.items || [];
 }
 
-// Walidacja zamowienia
+// Walidace objednávky
 export async function validateOrder(items: OrderItem[]) {
   const token = await getToken();
   const res = await axios.post(`${BASE_URL}/orders/validation`, {
@@ -49,7 +49,7 @@ export async function validateOrder(items: OrderItem[]) {
   return res.data.items || [];
 }
 
-// Zlozenie zamowienia
+// Odeslání objednávky
 export async function sendOrder(items: OrderItem[], userOrder?: string) {
   const token = await getToken();
   const res = await axios.post(`${BASE_URL}/orders/sending`, {
@@ -62,7 +62,7 @@ export async function sendOrder(items: OrderItem[], userOrder?: string) {
   return res.data;
 }
 
-// Dane partnera
+// Údaje o partnerovi
 export async function getPartnerInfo() {
   const token = await getToken();
   const res = await axios.post(`${BASE_URL}/partners/info`, {
@@ -72,7 +72,7 @@ export async function getPartnerInfo() {
   return res.data;
 }
 
-// Find parts by vehicle (TecDoc engine ID + optional genArt category)
+// Hledání dílů podle kódu vozidla (items-finding-by-vehicle — vrací 500, čeká na opravu Nextis)
 export async function findByVehicle(engineId: number, genArtId?: number) {
   const token = await getToken();
   const body: Record<string, unknown> = {
@@ -103,6 +103,24 @@ export async function findByCode(code: string, genArtID: number, target = "P") {
     getEANCodes: true,
     getOECodes: true,
   }, { timeout: 15000 });
+  return res.data.items || [];
+}
+
+/**
+ * Find parts by engineID (K-type) — uses items-finding-by-code with genArtID=0
+ * Returns ALL parts for this engine from Nextis catalog
+ */
+export async function findByEngineId(engineId: number) {
+  const token = await getToken();
+  const res = await axios.post(`${BASE_URL}/catalogs/items-finding-by-code`, {
+    ...baseRequest(),
+    token,
+    code: String(engineId),
+    target: "P",
+    genArtID: 0,
+    getEANCodes: true,
+    getOECodes: true,
+  }, { timeout: 20000 });
   return res.data.items || [];
 }
 

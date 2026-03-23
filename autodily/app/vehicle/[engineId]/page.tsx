@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getCarBrandLogoUrl } from "@/lib/brand-logos";
 import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
 import { getCategoryStyle, getCategoryImage } from "@/lib/category-icons";
+import { useCart } from "@/lib/cart";
 
 interface Category { nodeId: string; name: string; isEndNode: boolean; href: string; }
 interface MatchedProduct {
@@ -21,6 +22,7 @@ interface MatchedProduct {
 export default function VehiclePartsPage() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const engineId = params.engineId as string;
 
   const brandSlug = searchParams.get("bs") || "";
@@ -32,53 +34,101 @@ export default function VehiclePartsPage() {
   const modelName = searchParams.get("mn") || "";
   const engineName = searchParams.get("en") || "";
 
+  const cart = useCart();
   const enginePageUrl = `/cs/katalog/tecdoc/osobni/${brandSlug}/${modelSlug}/${engineSlug}/${brandId}/${modelId}/${engineId}`;
   const brandLogoUrl = getCarBrandLogoUrl(brandSlug);
 
+  // URL-driven state for back/forward navigation
+  const catParam = searchParams.get("cat") || "";
+  const catPathParam = searchParams.get("catPath") || "";
+  const leafParam = searchParams.get("leaf") || "";
+
   const [categories, setCategories] = useState<Category[]>([]);
-  const [breadcrumb, setBreadcrumb] = useState<Array<{ name: string; categoryId?: string }>>([]);
+  const [allRootCategories, setAllRootCategories] = useState<Category[]>([]);
+  const [expandedSidebarCat, setExpandedSidebarCat] = useState<string | null>(null);
+  const [sidebarSubcats, setSidebarSubcats] = useState<Category[]>([]);
   const [products, setProducts] = useState<MatchedProduct[]>([]);
+  const [visibleCount, setVisibleCount] = useState(15);
   const [loading, setLoading] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [tecdocCount, setTecdocCount] = useState(0);
   const [vehicleInfo, setVehicleInfo] = useState<{ imageUrl?: string; power?: string; engineCodes?: string; fuel?: string; years?: string; body?: string } | null>(null);
 
+  // Build breadcrumb from URL
+  const breadcrumb = useMemo(() => {
+    if (!catPathParam) return [];
+    return catPathParam.split("~").filter(Boolean).map((part) => {
+      const [id, ...nameParts] = part.split(":");
+      return { name: nameParts.join(":") || id, categoryId: id };
+    });
+  }, [catPathParam]);
+
+  // Load data based on URL params
   useEffect(() => {
-    loadCategories();
-    // Fetch vehicle photo + specs from TecDoc API
+    // Load root categories for sidebar
+    fetch(`/api/vehicles?action=categories&engineId=${engineId}`)
+      .then((r) => r.json())
+      .then((d) => setAllRootCategories(Array.isArray(d) ? d : []))
+      .catch(() => {});
+    // Vehicle info
     if (engineId) {
       fetch(`/api/vehicle-info?engineId=${engineId}`).then(r => r.json()).then(setVehicleInfo).catch(() => {});
     }
   }, [engineId]);
 
-  async function loadCategories(parentId?: string) {
-    setLoading(true); setProducts([]);
-    try {
-      const url = `/api/vehicles?action=categories&engineId=${engineId}${parentId ? `&parentId=${parentId}` : ""}`;
-      const res = await fetch(url);
-      setCategories(await res.json());
-    } catch { setCategories([]); }
-    finally { setLoading(false); }
+  // React to URL changes (including back/forward)
+  useEffect(() => {
+    if (leafParam) {
+      // Load products for leaf category
+      setLoadingProducts(true); setVisibleCount(15); setCategories([]);
+      fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}`)
+        .then((r) => r.json())
+        .then((data) => { setProducts(data.products || []); setTecdocCount(data.tecdocCount || 0); })
+        .catch(() => setProducts([]))
+        .finally(() => setLoadingProducts(false));
+    } else {
+      // Load categories
+      setProducts([]);
+      setLoading(true);
+      const parentId = catParam || undefined;
+      fetch(`/api/vehicles?action=categories&engineId=${engineId}${parentId ? `&parentId=${parentId}` : ""}`)
+        .then((r) => r.json())
+        .then((d) => setCategories(Array.isArray(d) ? d : []))
+        .catch(() => setCategories([]))
+        .finally(() => setLoading(false));
+    }
+  }, [engineId, catParam, leafParam]);
+
+  // Build URL with vehicle params preserved
+  function vehicleUrl(extra: Record<string, string>) {
+    const base = new URLSearchParams({
+      bs: brandSlug, ms: modelSlug, es: engineSlug,
+      bi: brandId, mi: modelId,
+      bn: brandName, mn: modelName, en: engineName,
+    });
+    for (const [k, v] of Object.entries(extra)) {
+      if (v) base.set(k, v); else base.delete(k);
+    }
+    return `/vehicle/${engineId}?${base}`;
   }
 
   function handleCategoryClick(cat: Category) {
-    if (cat.isEndNode) { loadProducts(cat.nodeId, cat.name); }
-    else { setBreadcrumb((prev) => [...prev, { name: cat.name, categoryId: cat.nodeId }]); loadCategories(cat.nodeId); }
+    const newPath = catPathParam ? `${catPathParam}~${cat.nodeId}:${cat.name}` : `${cat.nodeId}:${cat.name}`;
+    if (cat.isEndNode) {
+      router.push(vehicleUrl({ cat: "", catPath: newPath, leaf: cat.nodeId }));
+    } else {
+      router.push(vehicleUrl({ cat: cat.nodeId, catPath: newPath, leaf: "" }));
+    }
   }
 
   function handleBreadcrumbClick(index: number) {
-    if (index < 0) { setBreadcrumb([]); loadCategories(); }
-    else { const item = breadcrumb[index]; setBreadcrumb(breadcrumb.slice(0, index + 1)); loadCategories(item.categoryId); }
-  }
-
-  async function loadProducts(categoryId: string, categoryName: string) {
-    setLoadingProducts(true); setBreadcrumb((prev) => [...prev, { name: categoryName }]);
-    try {
-      const res = await fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${categoryId}`);
-      const data = await res.json();
-      setProducts(data.products || []); setTecdocCount(data.tecdocCount || 0); setCategories([]);
-    } catch { setProducts([]); }
-    finally { setLoadingProducts(false); }
+    if (index < 0) {
+      router.push(vehicleUrl({ cat: "", catPath: "", leaf: "" }));
+    } else {
+      const item = breadcrumb[index];
+      const newPath = breadcrumb.slice(0, index + 1).map((b) => `${b.categoryId}:${b.name}`).join("~");
+      router.push(vehicleUrl({ cat: item.categoryId || "", catPath: newPath, leaf: "" }));
+    }
   }
 
   const vehicleLabel = [brandName, modelName].filter(Boolean).join(" ");
@@ -87,114 +137,138 @@ export default function VehiclePartsPage() {
     <div className="min-h-screen flex flex-col bg-[#F9FAFB]">
       <Header />
 
-      <div className="flex-1 flex">
-        {/* LEFT SIDEBAR — Vehicle info */}
-        <aside className="hidden lg:block w-72 shrink-0 border-r border-mlborder-light bg-white">
-          <div className="sticky top-16 p-5">
+      {/* ═══ VEHICLE TOP BAR ═══ */}
+      <div className="bg-white border-b border-mlborder-light">
+        <div className="max-w-[1300px] mx-auto px-4 lg:px-8 py-4">
+          <div className="flex items-center gap-5">
             {/* Car photo */}
             {vehicleInfo?.imageUrl && (
-              <div className="rounded-xl overflow-hidden bg-gray-50 border border-mlborder-light mb-4">
-                <img
-                  src={vehicleInfo.imageUrl}
-                  alt={vehicleLabel}
-                  className="w-full h-auto object-contain"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                />
+              <div className="hidden sm:block w-28 h-20 rounded-xl bg-gray-50 border border-mlborder-light overflow-hidden shrink-0">
+                <img src={vehicleInfo.imageUrl} alt="" className="w-full h-full object-contain p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
             )}
 
-            {/* Brand logo + name */}
-            <div className="flex items-center gap-3 mb-4">
+            {/* Brand logo + vehicle name */}
+            <div className="flex items-center gap-3 flex-1 min-w-0">
               {brandLogoUrl && (
-                <div className="w-10 h-10 rounded-lg bg-gray-50 border border-mlborder-light flex items-center justify-center p-1 shrink-0">
-                  <img src={brandLogoUrl} alt="" className="w-full h-full object-contain" />
-                </div>
+                <img src={brandLogoUrl} alt="" className="w-8 h-8 object-contain shrink-0" />
               )}
               <div className="min-w-0">
-                <span className="block text-[15px] font-bold text-mltext-dark leading-tight truncate">{vehicleLabel || `Motor ${engineId}`}</span>
-                {engineName && <span className="block text-[12px] text-primary font-bold mt-0.5">{engineName}</span>}
-              </div>
-            </div>
-
-            {/* TecDoc specs */}
-            {vehicleInfo && (vehicleInfo.power || vehicleInfo.fuel || vehicleInfo.years) && (
-              <div className="space-y-2 text-[13px]">
-                {vehicleInfo.power && (
-                  <div className="flex justify-between">
-                    <span className="text-mltext-light">Výkon</span>
-                    <span className="text-mltext-dark font-semibold">{vehicleInfo.power}</span>
-                  </div>
-                )}
-                {vehicleInfo.engineCodes && (
-                  <div className="flex justify-between">
-                    <span className="text-mltext-light">Motor</span>
-                    <span className="text-mltext-dark font-semibold text-right text-[12px]">{vehicleInfo.engineCodes}</span>
-                  </div>
-                )}
-                {vehicleInfo.fuel && (
-                  <div className="flex justify-between">
-                    <span className="text-mltext-light">Palivo</span>
-                    <span className="text-mltext-dark font-semibold">{vehicleInfo.fuel}</span>
-                  </div>
-                )}
-                {vehicleInfo.years && (
-                  <div className="flex justify-between">
-                    <span className="text-mltext-light">Rok</span>
-                    <span className="text-mltext-dark font-semibold">{vehicleInfo.years}</span>
-                  </div>
-                )}
-                {vehicleInfo.body && (
-                  <div className="flex justify-between">
-                    <span className="text-mltext-light">Karoserie</span>
-                    <span className="text-mltext-dark font-semibold">{vehicleInfo.body}</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Change vehicle link */}
-            <a href="/" className="flex items-center gap-1.5 text-[12px] text-primary hover:text-primary-dark font-semibold mt-5 transition-colors">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
-              Změnit vozidlo
-            </a>
-          </div>
-        </aside>
-
-        {/* MAIN CONTENT */}
-        <div className="flex-1 max-w-[1100px] mx-auto px-4 lg:px-8 py-8">
-          {/* Vehicle header card — mobile only */}
-          <div className="lg:hidden bg-white rounded-2xl border border-mlborder-light p-5 lg:p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-4">
-              <a href={brandSlug ? `/brand/${brandSlug}` : "/"} className="text-primary hover:text-primary-dark transition-colors">
-                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
-              </a>
-              {brandLogoUrl && (
-                <div className="w-12 h-12 rounded-xl bg-gray-50 border border-mlborder-light flex items-center justify-center p-1.5 shrink-0">
-                  <img src={brandLogoUrl} alt="" className="w-full h-full object-contain" />
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-bold text-mltext-dark leading-tight truncate">
+                <h1 className="text-lg font-bold text-mltext-dark leading-tight truncate">
                   {vehicleLabel || `Motor ${engineId}`}
                 </h1>
                 {engineName && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[11px] bg-primary/[0.06] text-primary font-bold px-2 py-0.5 rounded-md">{engineName}</span>
-                  </div>
+                  <span className="text-[12px] text-primary font-bold">{engineName}</span>
                 )}
               </div>
             </div>
+
+            {/* Specs pills */}
+            {vehicleInfo && (
+              <div className="hidden md:flex items-center gap-2 shrink-0">
+                {vehicleInfo.power && (
+                  <span className="text-[11px] font-bold text-white bg-primary rounded-lg px-3 py-1.5">{vehicleInfo.power}</span>
+                )}
+                {vehicleInfo.fuel && (
+                  <span className="text-[11px] font-bold text-mltext bg-gray-100 rounded-lg px-3 py-1.5">{vehicleInfo.fuel}</span>
+                )}
+                {vehicleInfo.years && (
+                  <span className="text-[11px] font-medium text-mltext-light bg-gray-50 rounded-lg px-3 py-1.5">{vehicleInfo.years}</span>
+                )}
+                {vehicleInfo.body && (
+                  <span className="text-[11px] font-medium text-mltext-light bg-gray-50 rounded-lg px-3 py-1.5">{vehicleInfo.body}</span>
+                )}
+              </div>
+            )}
+
+            {/* Change vehicle */}
+            <a href="/" className="flex items-center gap-1.5 text-[12px] text-primary hover:text-primary-dark font-bold shrink-0 bg-primary/[0.06] hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors">
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+              Změnit
+            </a>
           </div>
+        </div>
+      </div>
+
+      {/* ═══ MAIN CONTENT ═══ */}
+      <div className="flex-1 flex">
+        {/* LEFT SIDEBAR — Category tree */}
+        <aside className="hidden lg:block w-64 shrink-0 border-r border-mlborder-light bg-white overflow-y-auto" style={{ maxHeight: "calc(100vh - 120px)", position: "sticky", top: "64px" }}>
+          <div className="py-3">
+            <p className="px-4 text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2">Kategorie dílů</p>
+            {allRootCategories.map((cat) => {
+              const isActive = breadcrumb.some((b) => b.categoryId === cat.nodeId) || categories === allRootCategories;
+              const isExpanded = expandedSidebarCat === cat.nodeId;
+              return (
+                <div key={cat.nodeId}>
+                  <button
+                    onClick={() => {
+                      const path = `${cat.nodeId}:${cat.name}`;
+                      if (cat.isEndNode) {
+                        router.push(vehicleUrl({ cat: "", catPath: path, leaf: cat.nodeId }));
+                      } else {
+                        if (isExpanded) {
+                          setExpandedSidebarCat(null);
+                          setSidebarSubcats([]);
+                        } else {
+                          setExpandedSidebarCat(cat.nodeId);
+                          fetch(`/api/vehicles?action=categories&engineId=${engineId}&parentId=${cat.nodeId}`)
+                            .then((r) => r.json())
+                            .then((d) => setSidebarSubcats(Array.isArray(d) ? d : []))
+                            .catch(() => {});
+                        }
+                        router.push(vehicleUrl({ cat: cat.nodeId, catPath: path, leaf: "" }));
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2 text-left text-[13px] transition-colors ${
+                      isActive ? "text-primary font-bold bg-primary/[0.04]" : "text-mltext hover:bg-gray-50 font-medium"
+                    }`}
+                  >
+                    <span className="truncate">{cat.name}</span>
+                    {!cat.isEndNode && (
+                      <svg viewBox="0 0 24 24" className={`w-3 h-3 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""} ${isActive ? "text-primary" : "text-mltext-light/40"}`} fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                    )}
+                  </button>
+                  {/* Expanded subcategories */}
+                  {isExpanded && sidebarSubcats.length > 0 && (
+                    <div className="bg-gray-50/50">
+                      {sidebarSubcats.map((sub) => (
+                        <button
+                          key={sub.nodeId}
+                          onClick={() => {
+                            const path = `${cat.nodeId}:${cat.name}~${sub.nodeId}:${sub.name}`;
+                            if (sub.isEndNode) {
+                              router.push(vehicleUrl({ cat: "", catPath: path, leaf: sub.nodeId }));
+                            } else {
+                              router.push(vehicleUrl({ cat: sub.nodeId, catPath: path, leaf: "" }));
+                            }
+                          }}
+                          className="w-full flex items-center justify-between pl-8 pr-4 py-1.5 text-left text-[12px] text-mltext-light hover:text-primary hover:bg-gray-50 transition-colors"
+                        >
+                          <span className="truncate">{sub.name}</span>
+                          <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 shrink-0 text-mltext-light/30" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </aside>
+
+        {/* RIGHT — Main content */}
+        <div className="flex-1 px-4 lg:px-8 py-6 min-w-0">
 
           {/* Breadcrumb */}
           {breadcrumb.length > 0 && (
-            <nav className="flex items-center gap-1 text-sm mb-5 flex-wrap bg-white rounded-xl border border-mlborder-light px-4 py-2.5 shadow-sm">
+            <nav className="flex items-center gap-1.5 text-sm mb-5 flex-wrap">
               <button onClick={() => handleBreadcrumbClick(-1)} className="text-primary hover:text-primary-dark font-semibold flex items-center gap-1">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
                 Kategorie
               </button>
               {breadcrumb.map((item, i) => (
-                <span key={i} className="flex items-center gap-1">
+                <span key={i} className="flex items-center gap-1.5">
                   <svg viewBox="0 0 24 24" className="w-3 h-3 text-mlborder" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
                   {i < breadcrumb.length - 1 ? (
                     <button onClick={() => handleBreadcrumbClick(i)} className="text-primary hover:text-primary-dark font-semibold">{item.name}</button>
@@ -218,7 +292,7 @@ export default function VehiclePartsPage() {
 
           {/* Categories grid */}
           {!loading && categories.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {categories.map((cat) => {
                 const style = getCategoryStyle(cat.name);
                 const image = getCategoryImage(cat.name);
@@ -280,59 +354,77 @@ export default function VehiclePartsPage() {
                 </p>
               </div>
 
-              <div className="space-y-2.5">
-                {products.map((item, i) => (
+              <div className="space-y-3">
+                {products.slice(0, visibleCount).map((item, i) => (
                   <div
                     key={i}
-                    className={`bg-white rounded-xl border p-4 flex gap-4 items-center transition-all ${
-                      item.product ? "border-mlborder-light hover:border-transparent hover:shadow-lg hover:-translate-y-0.5" : "border-mlborder-light/50 opacity-50"
+                    className={`bg-white rounded-xl border p-5 flex gap-5 items-start transition-all ${
+                      item.product ? "border-mlborder-light hover:shadow-lg" : "border-mlborder-light/50 opacity-40"
                     }`}
                   >
-                    {/* Image or brand logo */}
-                    <div className="w-14 h-14 rounded-xl bg-gray-50 border border-mlborder-light flex items-center justify-center shrink-0 overflow-hidden">
-                      {item.product?.image_url ? (
-                        <img src={item.product.image_url} alt="" className="w-full h-full object-contain p-1" loading="lazy" />
-                      ) : hasManufacturerLogo(item.product?.brand || item.tecdocBrand) ? (
-                        <img src={getManufacturerLogoUrl(item.product?.brand || item.tecdocBrand)} alt="" className="h-6 w-auto object-contain" loading="lazy" />
-                      ) : (
-                        <span className="text-[10px] font-bold text-mltext-light uppercase">{(item.product?.brand || item.tecdocBrand).slice(0, 3)}</span>
-                      )}
-                    </div>
+                    {/* Product image */}
+                    <a href={item.product ? `/product/${item.product.id}` : "#"} className="w-20 h-20 rounded-xl bg-gray-50 border border-mlborder-light flex items-center justify-center shrink-0 overflow-hidden hover:border-primary/20 transition-colors">
+                      <ProductThumb
+                        imageUrl={item.product?.image_url as string}
+                        productId={item.product?.id as string}
+                        brand={item.tecdocBrand}
+                      />
+                    </a>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
+                      <div className="flex items-center gap-2 mb-1">
+                        {hasManufacturerLogo(item.tecdocBrand) && (
+                          <img src={getManufacturerLogoUrl(item.tecdocBrand)} alt="" className="h-3.5 w-auto object-contain" loading="lazy" />
+                        )}
                         <span className="text-[11px] text-mltext-light font-bold uppercase tracking-wider">
-                          {item.product?.brand || item.tecdocBrand}
+                          {item.tecdocBrand}
                         </span>
-                        <span className="text-[11px] font-mono text-mltext-light/60">{item.tecdocCode}</span>
+                        <span className="text-[11px] font-mono text-primary/60 bg-primary/[0.04] px-1.5 py-0.5 rounded">{item.tecdocCode}</span>
                       </div>
-                      <p className="text-[14px] font-semibold text-mltext-dark leading-tight truncate">
+                      <p className="text-[15px] font-bold text-mltext-dark leading-tight truncate">
                         {item.product?.name || item.tecdocName || item.tecdocCode}
                       </p>
-                      {item.product ? (
-                        <a href={`/product/${item.product.id}`} className="text-[12px] text-primary hover:text-primary-dark font-semibold mt-0.5 inline-block">
-                          Detail →
-                        </a>
-                      ) : (
-                        <p className="text-[12px] text-mltext-light mt-0.5">Není v našem skladu</p>
-                      )}
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <p className={`text-[12px] font-bold ${(item.nextisQty || 0) > 0 ? "text-mlgreen" : "text-mltext-light"}`}>
+                          {(item.nextisQty || 0) > 0 ? `Skladem ${item.nextisQty} ks` : "Na objednávku"}
+                        </p>
+                        {item.product && (
+                          <a href={`/product/${item.product.id}`} className="text-[12px] text-primary hover:text-primary-dark font-semibold transition-colors">
+                            Detail →
+                          </a>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Price from Nextis API */}
-                    <div className="text-right shrink-0">
+                    {/* Price + Cart */}
+                    <div className="flex flex-col items-end gap-2 shrink-0">
                       {item.nextisPrice ? (
                         <>
-                          <p className="text-lg font-extrabold text-mltext-dark leading-none">
-                            {item.nextisPrice.toFixed(0)}
-                            <span className="text-sm font-bold text-mltext-light ml-0.5">Kč</span>
-                          </p>
-                          {item.nextisDiscount ? (
-                            <p className="text-[11px] text-primary font-bold mt-0.5">-{item.nextisDiscount}%</p>
-                          ) : null}
-                          <p className={`text-[11px] font-bold mt-0.5 ${(item.nextisQty || 0) > 0 ? "text-mlgreen" : "text-mltext-light"}`}>
-                            {(item.nextisQty || 0) > 0 ? `Skladem ${item.nextisQty} ks` : "Na obj."}
-                          </p>
+                          <div className="text-right">
+                            <p className="text-xl font-extrabold text-mltext-dark leading-none">
+                              {item.nextisPrice.toFixed(0)}
+                              <span className="text-sm font-bold text-mltext-light ml-0.5">Kč</span>
+                            </p>
+                            {item.nextisPriceVAT && (
+                              <p className="text-[11px] text-mltext-light mt-0.5">{item.nextisPriceVAT.toFixed(0)} Kč s DPH</p>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => cart.addItem({
+                              id: item.product?.id as string || item.tecdocCode,
+                              productCode: item.tecdocCode,
+                              brand: item.tecdocBrand,
+                              name: item.product?.name as string || item.tecdocName,
+                              price: item.nextisPrice || 0,
+                              imageUrl: item.product?.image_url as string || "",
+                              qty: 1,
+                            })}
+                            className="flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-[12px] font-bold px-4 py-2 rounded-lg transition-colors shadow-sm"
+                          >
+                            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
+                            Do košíku
+                          </button>
                         </>
                       ) : (
                         <p className="text-sm text-mltext-light">Na dotaz</p>
@@ -341,6 +433,19 @@ export default function VehiclePartsPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Show more button */}
+              {visibleCount < products.length && (
+                <div className="text-center mt-6">
+                  <button
+                    onClick={() => setVisibleCount((v) => v + 15)}
+                    className="inline-flex items-center gap-2 bg-white border-2 border-mlborder hover:border-primary/30 text-mltext-dark font-bold text-sm px-8 py-3 rounded-xl transition-all hover:shadow-md"
+                  >
+                    Zobrazit další ({products.length - visibleCount} zbývá)
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9" /></svg>
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -349,4 +454,27 @@ export default function VehiclePartsPage() {
       <Footer />
     </div>
   );
+}
+
+/** Lazy-loads product image from TecDoc if not in Typesense */
+function ProductThumb({ imageUrl, productId, brand }: { imageUrl?: string; productId?: string; brand: string }) {
+  const [src, setSrc] = useState(imageUrl || "");
+  const [tried, setTried] = useState(false);
+
+  useEffect(() => {
+    if (src || tried || !productId) return;
+    setTried(true);
+    fetch(`/api/product-image?id=${productId}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.imageUrl) setSrc(d.imageUrl); })
+      .catch(() => {});
+  }, [src, tried, productId]);
+
+  if (src) {
+    return <img src={src} alt="" className="w-full h-full object-contain p-1.5" loading="lazy" />;
+  }
+  if (hasManufacturerLogo(brand)) {
+    return <img src={getManufacturerLogoUrl(brand)} alt="" className="h-7 w-auto object-contain opacity-30" loading="lazy" />;
+  }
+  return <span className="text-[11px] font-bold text-mltext-light/30 uppercase">{brand.slice(0, 3)}</span>;
 }
