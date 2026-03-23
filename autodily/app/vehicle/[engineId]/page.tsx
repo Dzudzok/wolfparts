@@ -8,6 +8,8 @@ import { getCarBrandLogoUrl } from "@/lib/brand-logos";
 import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
 import { getCategoryStyle, getCategoryImage } from "@/lib/category-icons";
 import { useCart } from "@/lib/cart";
+import BrakeSchematic from "@/components/BrakeSchematic";
+import FilterSchematic from "@/components/FilterSchematic";
 
 interface Category { nodeId: string; name: string; isEndNode: boolean; href: string; }
 interface MatchedProduct {
@@ -149,6 +151,9 @@ export default function VehiclePartsPage() {
       .finally(() => setLoadingMore(false));
   }
 
+  const showBrakeSchematic = !loading && categories.length > 0 && breadcrumb.some((b) => b.name.toLowerCase().includes("brzd"));
+  const showFilterSchematic = !loading && categories.length > 0 && breadcrumb.some((b) => b.name.toLowerCase().includes("filtr"));
+  const showRightSchematic = showBrakeSchematic || showFilterSchematic;
   const vehicleLabel = [brandName, modelName].filter(Boolean).join(" ");
 
   return (
@@ -296,46 +301,10 @@ export default function VehiclePartsPage() {
             </div>
           )}
 
+
           {/* Categories */}
           {!loading && categories.length > 0 && (() => {
-            const isSubcategory = breadcrumb.length > 0;
-
-            // Inside a category → clean subcategory layout (no repeated photos)
-            if (isSubcategory) {
-              return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {categories.map((cat) => {
-                    const style = getCategoryStyle(cat.name);
-                    return (
-                      <button
-                        key={cat.nodeId}
-                        onClick={() => handleCategoryClick(cat)}
-                        className="group text-left bg-white rounded-xl border-2 border-mlborder-light hover:border-primary/30 transition-all px-4 py-3.5 flex items-center gap-3"
-                      >
-                        <div className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center" style={{ backgroundColor: style.color + "10" }}>
-                          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d={style.icon} />
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="block text-[14px] font-bold text-mltext-dark group-hover:text-primary transition-colors truncate">
-                            {cat.name}
-                          </span>
-                          <span className="block text-[11px] text-mltext-light">
-                            {cat.isEndNode ? "Zobrazit díly" : "Podkategorie"}
-                          </span>
-                        </div>
-                        <svg viewBox="0 0 24 24" className="w-4 h-4 text-mlborder group-hover:text-primary shrink-0 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            }
-
-            // Root level → split popular (with photos) + rest (compact)
+            // Split popular + rest
             const POPULAR_KEYS = ["brzd", "filtr", "motor", "odpruž", "tlumen", "řízen", "rizen", "chlaz", "spojk", "výfuk", "vyfuk", "paliv", "řemen", "elektro", "zapalov", "klima", "servis", "kontrol"];
             const isPopular = (name: string) => {
               const l = name.toLowerCase();
@@ -553,6 +522,26 @@ export default function VehiclePartsPage() {
           )}
           </div>
         </div>
+
+        {/* RIGHT SIDEBAR — Interactive schematic */}
+        {showRightSchematic && (
+          <aside className="hidden xl:block w-[300px] shrink-0 border-l border-mlborder-light bg-white overflow-y-auto" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: "64px" }}>
+            <div className="p-3">
+              {showBrakeSchematic && (
+                <>
+                  <p className="text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2 px-1">Schéma brzd</p>
+                  <BrakeSchematic categories={categories} onSelect={handleCategoryClick} />
+                </>
+              )}
+              {showFilterSchematic && (
+                <>
+                  <p className="text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2 px-1">Schéma filtrů</p>
+                  <FilterSchematic categories={categories} onSelect={handleCategoryClick} />
+                </>
+              )}
+            </div>
+          </aside>
+        )}
       </div>
 
       <Footer />
@@ -598,3 +587,4 @@ function ProductThumb({ imageUrl, productId, productCode, brand }: { imageUrl?: 
   }
   return <span className="text-[11px] font-bold text-mltext-light/30 uppercase">{brand.slice(0, 3)}</span>;
 }
+

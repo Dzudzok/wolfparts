@@ -78,6 +78,12 @@ html { scroll-behavior: smooth; }
   to { opacity: 1; }
 }
 
+/* Slide-in from right for drawers */
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
 /* Gradient text utility */
 .text-gradient {
   background: linear-gradient(135deg, #E8192C, #FF6B35);
