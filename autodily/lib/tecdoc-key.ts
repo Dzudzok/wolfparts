@@ -28,7 +28,7 @@ export async function getTecDocApiKey(): Promise<string> {
     if (match) {
       cachedKey = match[1];
       cachedAt = Date.now();
-      return cachedKey;
+      return cachedKey!;
     }
   } catch {
     // mroauto fetch failed
