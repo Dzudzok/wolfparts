@@ -3,7 +3,7 @@
  * Used for car photos and product images
  */
 
-const API_KEY = "2BeBXg67wzbzFCs4QjwPEUsEm5Xq3Hq37sDNBnUG71QY2AKCkwBv";
+const API_KEY = "2BeBXg67wzbzFCs4QjwPEUsEm5Xq3Hq37sNWymUuuMXDp2BQU3Tc";
 const BASE = "https://webservice.tecalliance.services/pegasus-3-0/documents/415";
 
 /**
