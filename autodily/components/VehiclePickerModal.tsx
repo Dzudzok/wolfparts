@@ -30,11 +30,25 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
   const [yearRange, setYearRange] = useState(1970);
   const [hoveredEngine, setHoveredEngine] = useState<EngineItem | null>(null);
 
+  const [allBrandsLoaded, setAllBrandsLoaded] = useState(false);
+
   useEffect(() => {
     fetch("/api/vehicles?action=brands")
       .then((r) => r.json()).then((d) => setBrands(Array.isArray(d) ? d : []))
       .catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  // When searching and no match in favoured brands → load ALL brands from TecDoc
+  useEffect(() => {
+    if (step !== "brand" || !search || search.length < 2 || allBrandsLoaded) return;
+    const hasMatch = brands.some((b) => b.name.toLowerCase().includes(search.toLowerCase()));
+    if (hasMatch) return;
+    // No match — fetch all brands
+    fetch("/api/vehicles?action=brands&all=1")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d) && d.length > brands.length) { setBrands(d); setAllBrandsLoaded(true); } })
+      .catch(() => {});
+  }, [search, step, brands, allBrandsLoaded]);
 
   useEffect(() => {
     setSearch(""); setFuelFilter(""); setYearRange(1970);
@@ -99,19 +113,17 @@ export default function VehiclePickerModal({ onClose }: { onClose: () => void })
   interface ModelGroup { baseName: string; models: ModelItem[]; }
 
   const modelGroups = useMemo((): ModelGroup[] => {
-    // Extract base name: "A3 (8L1)" → "A3", "GOLF VII (5G1)" → "GOLF"
+    // Extract base model name: "Q5 (8RB)" → "Q5", "Q5 Sportback (FYT)" → "Q5"
+    // "GOLF VII (5G1)" → "GOLF", "100 C3 Avant (445, 446)" → "100"
     function getBaseName(name: string): string {
-      // Remove parenthetical codes
-      const clean = name.replace(/\s*\([^)]*\)\s*/g, " ").trim();
-      // Split by space and take meaningful parts
+      // Remove everything in parentheses
+      const clean = name.replace(/\s*\([^)]*\)/g, "").trim();
       const parts = clean.split(/\s+/);
-      // Model base is usually first 1-2 parts before roman numerals or generation info
+      // First part is always the base: "Q5", "GOLF", "A3", "100", "OCTAVIA"
       let base = parts[0];
-      // Include second part if it's a number or short word (e.g. "C4", "100", "A3")
-      if (parts[1] && (parts[1].match(/^[IVX]+$/) || parts[1].match(/^\d/) || parts[1].length <= 2)) {
-        // Don't include roman numerals in base — they differentiate generations
-      } else if (parts[1] && !["Avant", "Break", "Turnier", "Kombi", "Sportback", "Kabriolet", "Limousine", "kupé", "Coupé", "limuzína", "pick-up", "Multispace", "Pluriel"].includes(parts[1])) {
-        base = parts[0] + " " + parts[1];
+      // If second part is a number like "C3", "C4" — include it (Audi 100 C3, 80 B2)
+      if (parts[1] && /^[A-Z]\d/.test(parts[1])) {
+        // skip — it's a generation code, not part of base name
       }
       return base;
     }

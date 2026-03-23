@@ -158,10 +158,10 @@ export interface TecDocLinkedArticle {
 /**
  * Get car brands (manufacturers)
  */
-export async function getManufacturers(): Promise<TecDocManufacturer[]> {
+export async function getManufacturers(all = false): Promise<TecDocManufacturer[]> {
   const data = await call<{ data: { array: TecDocManufacturer[] } }>(
     "getManufacturers2",
-    { country: "cz", lang: "cs", linkingTargetType: "V", favouredList: 1 }
+    { country: "cz", lang: "cs", linkingTargetType: "V", ...(all ? {} : { favouredList: 1 }) }
   );
   return data.data?.array || [];
 }

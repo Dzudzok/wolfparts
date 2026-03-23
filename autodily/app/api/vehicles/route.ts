@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
   try {
     // ─── BRANDS ───────────────────────────────────────
     if (action === "brands") {
-      const brands = await getManufacturers();
+      const all = req.nextUrl.searchParams.get("all") === "1";
+      const brands = await getManufacturers(all);
       return Response.json(
         brands.map((b) => ({
           name: b.manuName,
