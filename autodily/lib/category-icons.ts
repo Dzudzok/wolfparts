@@ -84,3 +84,50 @@ export function getCategoryStyle(name: string): CategoryStyle {
   }
   return DEFAULT_STYLE;
 }
+
+// Maps category names to real product photos
+const CATEGORY_IMAGES: Record<string, string> = {
+  "brzd": "/categories/brzdy.jpg",
+  "spojk": "/categories/spojka.jpg",
+  "zavěšen": "/categories/zaveseni.jpg",
+  "náprav": "/categories/zaveseni.jpg",
+  "řízen": "/categories/rizeni.jpg",
+  "rizen": "/categories/rizeni.jpg",
+  "filtr": "/categories/filtry.jpg",
+  "řemen": "/categories/remeny.jpg",
+  "chlaz": "/categories/chlazeni.jpg",
+  "paliv": "/categories/palivo.jpg",
+  "příprava paliv": "/categories/palivo.jpg",
+  "těsn": "/categories/tesneni.jpg",
+  "sací": "/categories/sani.jpg",
+  "sani": "/categories/sani.jpg",
+  "výfuk": "/categories/vyfuk.jpg",
+  "vyfuk": "/categories/vyfuk.jpg",
+  "klima": "/categories/klima.jpg",
+  "stěrač": "/categories/sterace.jpg",
+  "karos": "/categories/brzdy.jpg",
+  "elektro": "/categories/elektro.jpg",
+  "zapalov": "/categories/elektro.jpg",
+  "lambd": "/categories/lambda.jpg",
+  "olej": "/categories/oleje.jpg",
+  "osvětl": "/categories/osvetleni.jpg",
+  "světl": "/categories/osvetleni.jpg",
+  "motor": "/categories/oleje.jpg",
+  "odpruž": "/categories/tlumic.jpg",
+  "tlumen": "/categories/tlumic.jpg",
+  "pohon": "/categories/remeny.jpg",
+  "převod": "/categories/spojka.jpg",
+  "kola": "/categories/brzdy.jpg",
+  "pneu": "/categories/brzdy.jpg",
+  "hybrid": "/categories/elektro.jpg",
+  "topen": "/categories/klima.jpg",
+  "ventil": "/categories/klima.jpg",
+};
+
+export function getCategoryImage(name: string): string | null {
+  const lower = name.toLowerCase();
+  for (const [key, img] of Object.entries(CATEGORY_IMAGES)) {
+    if (lower.includes(key)) return img;
+  }
+  return null;
+}

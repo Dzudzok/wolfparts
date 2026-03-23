@@ -18,19 +18,19 @@ export default function VehicleSelector() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/vehicles?action=brands").then((r) => r.json()).then(setBrands).catch(() => {});
+    fetch("/api/vehicles?action=brands").then((r) => r.json()).then((d) => setBrands(Array.isArray(d) ? d : [])).catch(() => {});
   }, []);
 
   useEffect(() => {
     if (!selectedBrand) { setModels([]); setSelectedModel(null); return; }
     setLoading(true); setModels([]); setSelectedModel(null); setEngines([]); setSelectedEngine(null);
-    fetch(`/api/vehicles?action=models&brandId=${selectedBrand.brandId}`).then((r) => r.json()).then(setModels).catch(() => {}).finally(() => setLoading(false));
+    fetch(`/api/vehicles?action=models&brandId=${selectedBrand.brandId}`).then((r) => r.json()).then((d) => setModels(Array.isArray(d) ? d : [])).catch(() => {}).finally(() => setLoading(false));
   }, [selectedBrand]);
 
   useEffect(() => {
     if (!selectedModel || !selectedBrand) { setEngines([]); setSelectedEngine(null); return; }
     setLoading(true); setEngines([]); setSelectedEngine(null);
-    fetch(`/api/vehicles?action=engines&brandId=${selectedBrand.brandId}&modelId=${selectedModel.modelId}`).then((r) => r.json()).then(setEngines).catch(() => {}).finally(() => setLoading(false));
+    fetch(`/api/vehicles?action=engines&brandId=${selectedBrand.brandId}&modelId=${selectedModel.modelId}`).then((r) => r.json()).then((d) => setEngines(Array.isArray(d) ? d : [])).catch(() => {}).finally(() => setLoading(false));
   }, [selectedBrand, selectedModel]);
 
   const handleSearch = () => {

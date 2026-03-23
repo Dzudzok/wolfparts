@@ -4,7 +4,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import VinInput from "@/components/VinInput";
-import { getCategoryStyle } from "@/lib/category-icons";
+import { getCategoryStyle, getCategoryImage } from "@/lib/category-icons";
 import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
 
 interface Vehicle {
@@ -197,10 +197,15 @@ export default function VinPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {categories.filter(c => !c.isGroup && c.url).map((cat, i) => {
                   const style = getCategoryStyle(cat.name);
+                  const image = getCategoryImage(cat.name);
                   return (
                     <button key={i} onClick={() => handleSelectCategory(cat)} className="group text-left bg-white rounded-xl border border-mlborder-light hover:border-transparent hover:shadow-lg transition-all p-4 flex items-center gap-4 hover:-translate-y-0.5">
-                      <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform" style={{ backgroundColor: style.color + "0C" }}>
-                        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d={style.icon} /></svg>
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 border border-mlborder-light shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        {image ? (
+                          <img src={image} alt="" className="w-full h-full object-contain p-1" loading="lazy" />
+                        ) : (
+                          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d={style.icon} /></svg>
+                        )}
                       </div>
                       <span className="text-[14px] font-bold text-mltext-dark group-hover:text-primary transition-colors flex-1">{cat.name}</span>
                       <svg viewBox="0 0 24 24" className="w-4 h-4 text-mlborder group-hover:text-primary shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>

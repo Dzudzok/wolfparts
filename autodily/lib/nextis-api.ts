@@ -88,6 +88,24 @@ export async function findByVehicle(engineId: number, genArtId?: number) {
   return res.data.items || [];
 }
 
+/**
+ * Find compatible parts by product code + genArtID
+ * Returns all replacements/alternatives from Nextis full catalog with live prices
+ */
+export async function findByCode(code: string, genArtID: number, target = "P") {
+  const token = await getToken();
+  const res = await axios.post(`${BASE_URL}/catalogs/items-finding-by-code`, {
+    ...baseRequest(),
+    token,
+    code,
+    target,
+    genArtID,
+    getEANCodes: true,
+    getOECodes: true,
+  }, { timeout: 15000 });
+  return res.data.items || [];
+}
+
 interface OrderItem {
   code: string;
   brand: string;

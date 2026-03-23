@@ -6,12 +6,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getCarBrandLogoUrl } from "@/lib/brand-logos";
 import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
-import { getCategoryStyle } from "@/lib/category-icons";
+import { getCategoryStyle, getCategoryImage } from "@/lib/category-icons";
 
 interface Category { nodeId: string; name: string; isEndNode: boolean; href: string; }
 interface MatchedProduct {
   tecdocCode: string; tecdocBrand: string; tecdocName: string; genArtID: number | null;
-  product: { id?: string; name?: string; product_code?: string; brand?: string; price_min?: number; price_max?: number; in_stock?: boolean; stock_qty?: number; image_url?: string; } | null;
+  product: { id?: string; name?: string; product_code?: string; brand?: string; image_url?: string; } | null;
+  nextisPrice: number | null;
+  nextisPriceVAT: number | null;
+  nextisQty: number | null;
+  nextisDiscount: number | null;
 }
 
 export default function VehiclePartsPage() {
@@ -37,13 +41,20 @@ export default function VehiclePartsPage() {
   const [loading, setLoading] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [tecdocCount, setTecdocCount] = useState(0);
+  const [vehicleInfo, setVehicleInfo] = useState<{ imageUrl?: string; power?: string; engineCodes?: string; fuel?: string; years?: string; body?: string } | null>(null);
 
-  useEffect(() => { if (brandSlug) loadCategories(); }, [engineId]);
+  useEffect(() => {
+    loadCategories();
+    // Fetch vehicle photo + specs from TecDoc API
+    if (engineId) {
+      fetch(`/api/vehicle-info?engineId=${engineId}`).then(r => r.json()).then(setVehicleInfo).catch(() => {});
+    }
+  }, [engineId]);
 
-  async function loadCategories(categoryId?: string) {
+  async function loadCategories(parentId?: string) {
     setLoading(true); setProducts([]);
     try {
-      const url = `/api/vehicles?action=categories&url=${encodeURIComponent(enginePageUrl)}${categoryId ? `&categoryId=${categoryId}` : ""}`;
+      const url = `/api/vehicles?action=categories&engineId=${engineId}${parentId ? `&parentId=${parentId}` : ""}`;
       const res = await fetch(url);
       setCategories(await res.json());
     } catch { setCategories([]); }
@@ -51,7 +62,7 @@ export default function VehiclePartsPage() {
   }
 
   function handleCategoryClick(cat: Category) {
-    if (cat.isEndNode) { loadProducts(cat.href, cat.name); }
+    if (cat.isEndNode) { loadProducts(cat.nodeId, cat.name); }
     else { setBreadcrumb((prev) => [...prev, { name: cat.name, categoryId: cat.nodeId }]); loadCategories(cat.nodeId); }
   }
 
@@ -60,10 +71,10 @@ export default function VehiclePartsPage() {
     else { const item = breadcrumb[index]; setBreadcrumb(breadcrumb.slice(0, index + 1)); loadCategories(item.categoryId); }
   }
 
-  async function loadProducts(leafHref: string, categoryName: string) {
+  async function loadProducts(categoryId: string, categoryName: string) {
     setLoadingProducts(true); setBreadcrumb((prev) => [...prev, { name: categoryName }]);
     try {
-      const res = await fetch(`/api/vehicles?action=products&leafHref=${encodeURIComponent(leafHref)}`);
+      const res = await fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${categoryId}`);
       const data = await res.json();
       setProducts(data.products || []); setTecdocCount(data.tecdocCount || 0); setCategories([]);
     } catch { setProducts([]); }
@@ -76,10 +87,83 @@ export default function VehiclePartsPage() {
     <div className="min-h-screen flex flex-col bg-[#F9FAFB]">
       <Header />
 
-      <div className="flex-1">
-        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-8">
-          {/* Vehicle header card */}
-          <div className="bg-white rounded-2xl border border-mlborder-light p-5 lg:p-6 mb-6 shadow-sm">
+      <div className="flex-1 flex">
+        {/* LEFT SIDEBAR — Vehicle info */}
+        <aside className="hidden lg:block w-72 shrink-0 border-r border-mlborder-light bg-white">
+          <div className="sticky top-16 p-5">
+            {/* Car photo */}
+            {vehicleInfo?.imageUrl && (
+              <div className="rounded-xl overflow-hidden bg-gray-50 border border-mlborder-light mb-4">
+                <img
+                  src={vehicleInfo.imageUrl}
+                  alt={vehicleLabel}
+                  className="w-full h-auto object-contain"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                />
+              </div>
+            )}
+
+            {/* Brand logo + name */}
+            <div className="flex items-center gap-3 mb-4">
+              {brandLogoUrl && (
+                <div className="w-10 h-10 rounded-lg bg-gray-50 border border-mlborder-light flex items-center justify-center p-1 shrink-0">
+                  <img src={brandLogoUrl} alt="" className="w-full h-full object-contain" />
+                </div>
+              )}
+              <div className="min-w-0">
+                <span className="block text-[15px] font-bold text-mltext-dark leading-tight truncate">{vehicleLabel || `Motor ${engineId}`}</span>
+                {engineName && <span className="block text-[12px] text-primary font-bold mt-0.5">{engineName}</span>}
+              </div>
+            </div>
+
+            {/* TecDoc specs */}
+            {vehicleInfo && (vehicleInfo.power || vehicleInfo.fuel || vehicleInfo.years) && (
+              <div className="space-y-2 text-[13px]">
+                {vehicleInfo.power && (
+                  <div className="flex justify-between">
+                    <span className="text-mltext-light">Výkon</span>
+                    <span className="text-mltext-dark font-semibold">{vehicleInfo.power}</span>
+                  </div>
+                )}
+                {vehicleInfo.engineCodes && (
+                  <div className="flex justify-between">
+                    <span className="text-mltext-light">Motor</span>
+                    <span className="text-mltext-dark font-semibold text-right text-[12px]">{vehicleInfo.engineCodes}</span>
+                  </div>
+                )}
+                {vehicleInfo.fuel && (
+                  <div className="flex justify-between">
+                    <span className="text-mltext-light">Palivo</span>
+                    <span className="text-mltext-dark font-semibold">{vehicleInfo.fuel}</span>
+                  </div>
+                )}
+                {vehicleInfo.years && (
+                  <div className="flex justify-between">
+                    <span className="text-mltext-light">Rok</span>
+                    <span className="text-mltext-dark font-semibold">{vehicleInfo.years}</span>
+                  </div>
+                )}
+                {vehicleInfo.body && (
+                  <div className="flex justify-between">
+                    <span className="text-mltext-light">Karoserie</span>
+                    <span className="text-mltext-dark font-semibold">{vehicleInfo.body}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Change vehicle link */}
+            <a href="/" className="flex items-center gap-1.5 text-[12px] text-primary hover:text-primary-dark font-semibold mt-5 transition-colors">
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+              Změnit vozidlo
+            </a>
+          </div>
+        </aside>
+
+        {/* MAIN CONTENT */}
+        <div className="flex-1 max-w-[1100px] mx-auto px-4 lg:px-8 py-8">
+          {/* Vehicle header card — mobile only */}
+          <div className="lg:hidden bg-white rounded-2xl border border-mlborder-light p-5 lg:p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-4">
               <a href={brandSlug ? `/brand/${brandSlug}` : "/"} className="text-primary hover:text-primary-dark transition-colors">
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
@@ -134,32 +218,34 @@ export default function VehiclePartsPage() {
 
           {/* Categories grid */}
           {!loading && categories.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {categories.map((cat) => {
                 const style = getCategoryStyle(cat.name);
+                const image = getCategoryImage(cat.name);
                 return (
                   <button
                     key={cat.nodeId}
                     onClick={() => handleCategoryClick(cat)}
-                    className="group text-left bg-white rounded-xl border border-mlborder-light hover:border-transparent hover:shadow-lg transition-all p-4 flex items-center gap-4 hover:-translate-y-0.5"
+                    className="group text-left bg-white rounded-2xl border border-mlborder-light hover:border-transparent hover:shadow-xl transition-all p-5 flex items-center gap-5 hover:-translate-y-1"
                   >
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"
-                      style={{ backgroundColor: style.color + "0C" }}
-                    >
-                      <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d={style.icon} />
-                      </svg>
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-50 border border-mlborder-light shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      {image ? (
+                        <img src={image} alt="" className="w-full h-full object-contain p-1.5" loading="lazy" />
+                      ) : (
+                        <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d={style.icon} />
+                        </svg>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="block text-[14px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight">
+                      <span className="block text-[15px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight">
                         {cat.name}
                       </span>
-                      <span className="block text-[11px] text-mltext-light mt-0.5">
+                      <span className="block text-[12px] text-mltext-light mt-1">
                         {cat.isEndNode ? "Zobrazit díly" : "Podkategorie"}
                       </span>
                     </div>
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-mlborder group-hover:text-primary shrink-0 transition-all group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-mlborder group-hover:text-primary shrink-0 transition-all group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
                   </button>
@@ -233,18 +319,25 @@ export default function VehiclePartsPage() {
                       )}
                     </div>
 
-                    {/* Price */}
-                    {item.product && (
-                      <div className="text-right shrink-0">
-                        <p className="text-lg font-extrabold text-mltext-dark leading-none">
-                          {item.product.price_min ? `${item.product.price_min.toFixed(0)}` : "—"}
-                          <span className="text-sm font-bold text-mltext-light ml-0.5">Kč</span>
-                        </p>
-                        <p className={`text-[11px] font-bold mt-1 ${item.product.in_stock ? "text-mlgreen" : "text-mltext-light"}`}>
-                          {item.product.in_stock ? `${item.product.stock_qty?.toFixed(0)} ks` : "Na obj."}
-                        </p>
-                      </div>
-                    )}
+                    {/* Price from Nextis API */}
+                    <div className="text-right shrink-0">
+                      {item.nextisPrice ? (
+                        <>
+                          <p className="text-lg font-extrabold text-mltext-dark leading-none">
+                            {item.nextisPrice.toFixed(0)}
+                            <span className="text-sm font-bold text-mltext-light ml-0.5">Kč</span>
+                          </p>
+                          {item.nextisDiscount ? (
+                            <p className="text-[11px] text-primary font-bold mt-0.5">-{item.nextisDiscount}%</p>
+                          ) : null}
+                          <p className={`text-[11px] font-bold mt-0.5 ${(item.nextisQty || 0) > 0 ? "text-mlgreen" : "text-mltext-light"}`}>
+                            {(item.nextisQty || 0) > 0 ? `Skladem ${item.nextisQty} ks` : "Na obj."}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-mltext-light">Na dotaz</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
