@@ -25,6 +25,16 @@ export const productsSchema = {
   default_sorting_field: "stock_qty",
 };
 
+export const carThumbnailsSchema = {
+  name: "car_thumbnails",
+  fields: [
+    { name: "id", type: "string" as const },
+    { name: "image_b64", type: "string" as const, index: false },
+    { name: "content_type", type: "string" as const, index: false },
+    { name: "created_at", type: "int64" as const },
+  ],
+};
+
 export function getTypesenseAdminClient() {
   return new Typesense.Client({
     nodes: [{ host: process.env.TYPESENSE_HOST!, port: 443, protocol: "https" }],

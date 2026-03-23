@@ -4,32 +4,10 @@ import {
   getModelSeries,
   getVehicles,
   getCategoriesForVehicle,
-  getBrandsForVehicleCategory,
 } from "@/lib/tecdoc-api";
 import { getTypesenseAdminClient } from "@/lib/typesense";
-import { findByCode, findByEngineId } from "@/lib/nextis-api";
-
-// Cache: categoryId → { seed, genArt } — loaded from JSON + enriched at runtime
-const seedCache = new Map<number, { seed: string; genArt: number }>();
-let seedCacheLoaded = false;
-
-function loadSeedCache() {
-  if (seedCacheLoaded) return;
-  seedCacheLoaded = true;
-  try {
-    const fs = require("fs");
-    const path = require("path");
-    const filePath = path.join(process.cwd(), "data", "category-seeds.json");
-    if (fs.existsSync(filePath)) {
-      const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-      for (const [id, val] of Object.entries(data)) {
-        const v = val as { seed: string; genArt: number };
-        seedCache.set(parseInt(id), { seed: v.seed, genArt: v.genArt });
-      }
-      console.log(`[vehicles] Loaded ${seedCache.size} category seeds from JSON`);
-    }
-  } catch {}
-}
+import { checkItemsByID } from "@/lib/nextis-api";
+import axios from "axios";
 
 /**
  * GET /api/vehicles?action=brands|models|engines|categories|products
@@ -117,9 +95,14 @@ export async function GET(req: NextRequest) {
     if (action === "products") {
       const engineId = parseInt(req.nextUrl.searchParams.get("engineId") || "0");
       const categoryId = parseInt(req.nextUrl.searchParams.get("categoryId") || "0");
-      if (!engineId || !categoryId) return Response.json({ products: [], tecdocCount: 0 });
+      const page = parseInt(req.nextUrl.searchParams.get("page") || "1");
+      if (!engineId || !categoryId) return Response.json({ products: [], tecdocCount: 0, hasMore: false });
 
-      loadSeedCache();
+      const bs = req.nextUrl.searchParams.get("bs") || "";
+      const ms = req.nextUrl.searchParams.get("ms") || "";
+      const es = req.nextUrl.searchParams.get("es") || "";
+      const bi = req.nextUrl.searchParams.get("bi") || "";
+      const mi = req.nextUrl.searchParams.get("mi") || "";
 
       // Get category name from TecDoc
       let categoryName = "";
@@ -138,96 +121,54 @@ export async function GET(req: NextRequest) {
       }
 
       let items: NextisItem[] = [];
-      let strategy = "";
+      let genArtID = 0;
+      let hasMore = false;
 
-      // === STRATEGY 1: Nextis findByEngineId ===
-      // Gets ALL parts for this engine, then filter by category name
-      try {
-        const allParts = await findByEngineId(engineId);
-        if (allParts.length > 0 && categoryName) {
-          const catWords = categoryName.toLowerCase().split(/[\s/]+/).filter((w: string) => w.length > 2);
-          items = allParts.filter((item: NextisItem) => {
-            const name = (item.responseItem?.productName || "").toLowerCase();
-            return catWords.some((w: string) => name.includes(w));
-          });
-          strategy = "engineId";
-        }
-      } catch {}
-
-      // === STRATEGY 2: TecDoc brands + Nextis findByCode ===
-      if (items.length === 0) {
+      // ── Scrape mroauto.cz → guaranteed vehicle-compatible products ──
+      // Fetches only the requested page (16 products per page on mroauto).
+      if (bs && ms && es) {
         try {
-          const tecdocBrands = await getBrandsForVehicleCategory(engineId, categoryId);
-          const genericArticleId = tecdocBrands[0]?.genericArticleId || 0;
-          if (genericArticleId) {
-            const popularBrands = ["MANN-FILTER", "BOSCH", "FILTRON", "HENGST FILTER", "MAHLE", "TRW", "VALEO"];
-            const brandsToTry = [
-              ...popularBrands.filter((b) => tecdocBrands.some((tb) => tb.brandName === b)),
-              ...tecdocBrands.map((b) => b.brandName).filter((b) => !popularBrands.includes(b)),
-            ];
+          const mroBase = `https://www.mroauto.cz/cs/katalog/tecdoc/osobni/${bs}/${ms}/${es}/x/${bi}/${mi}/${engineId}/${categoryId}/`;
+          const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+          const url = page === 1 ? mroBase : `${mroBase}?page=${page}`;
 
-            const client = getTypesenseAdminClient();
-            for (const brand of brandsToTry.slice(0, 8)) {
+          const { data: html } = await axios.get(url, {
+            headers: { "User-Agent": UA },
+            timeout: 15000,
+          });
+
+          // Extract genArtID from TecDoc widget
+          const genArtMatch = html.match(/data-flex-tecdoc-generic-article-id="(\d+)"/);
+          if (genArtMatch) genArtID = parseInt(genArtMatch[1]);
+
+          // Extract total count (e.g. "43 položek")
+          const totalMatch = html.match(/(\d+)\s*polož/);
+          const totalProducts = totalMatch ? parseInt(totalMatch[1]) : 0;
+          hasMore = totalProducts > page * 16;
+
+          // Extract Nextis product IDs from addToBasket() calls
+          const re = /addToBasket\(this,\s*'#ProductItem_(\d+)',\s*'([^']*)',\s*(\d+)/g;
+          const nextisIds: number[] = [];
+          let m;
+          while ((m = re.exec(html)) !== null) {
+            nextisIds.push(parseInt(m[1]));
+          }
+
+          // Get live prices and stock from Nextis
+          if (nextisIds.length > 0) {
+            for (let i = 0; i < nextisIds.length; i += 50) {
               try {
-                const res = await client.collections("products").documents().search({
-                  q: categoryName, query_by: "assortment,name", query_by_weights: "5,1",
-                  filter_by: `brand:=${brand}`, per_page: 1,
-                });
-                const code = (res.hits?.[0]?.document as Record<string, unknown> | undefined)?.product_code as string;
-                if (code) {
-                  items = await findByCode(code, genericArticleId);
-                  if (items.length > 0) {
-                    strategy = "seedCode:" + code;
-                    seedCache.set(categoryId, { seed: code, genArt: genericArticleId });
-                    break;
-                  }
+                const checked = await checkItemsByID(nextisIds.slice(i, i + 50));
+                for (const item of checked) {
+                  const ri = item.responseItem || item;
+                  if (ri?.productCode) items.push({ responseItem: ri } as NextisItem);
                 }
               } catch {}
             }
           }
-        } catch {}
-      }
-
-      // === STRATEGY 3: Scrape mroauto.cz (your own site) → get Nextis product IDs ===
-      if (items.length === 0) {
-        try {
-          const bs = req.nextUrl.searchParams.get("bs") || "";
-          const ms = req.nextUrl.searchParams.get("ms") || "";
-          const es = req.nextUrl.searchParams.get("es") || "";
-          const bi = req.nextUrl.searchParams.get("bi") || "";
-          const mi = req.nextUrl.searchParams.get("mi") || "";
-
-          if (bs && ms && es) {
-            const { default: axios } = await import("axios");
-            const mroUrl = `https://www.mroauto.cz/cs/katalog/tecdoc/osobni/${bs}/${ms}/${es}/x/${bi}/${mi}/${engineId}/${categoryId}/`;
-            const { data: html } = await axios.get(mroUrl, {
-              headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
-              timeout: 12000,
-            });
-
-            // Extract Nextis product IDs from addToBasket() calls
-            const re = /addToBasket\([^,]*,\s*'[^']*',\s*'([^']*)',\s*(\d+)/g;
-            const nextisIds: number[] = [];
-            let m;
-            while ((m = re.exec(html)) !== null) {
-              nextisIds.push(parseInt(m[2]));
-            }
-
-            if (nextisIds.length > 0) {
-              strategy = "mroauto";
-              const { checkItemsByID } = await import("@/lib/nextis-api");
-              for (let i = 0; i < nextisIds.length; i += 50) {
-                try {
-                  const checked = await checkItemsByID(nextisIds.slice(i, i + 50));
-                  for (const item of checked) {
-                    const ri = item.responseItem || item;
-                    if (ri?.productCode) items.push({ responseItem: ri } as NextisItem);
-                  }
-                } catch {}
-              }
-            }
-          }
-        } catch {}
+        } catch (err) {
+          console.error("[vehicles] mroauto scrape failed:", err instanceof Error ? err.message : err);
+        }
       }
 
       // Deduplicate
@@ -241,10 +182,10 @@ export async function GET(req: NextRequest) {
         return true;
       });
 
-      // Batch Typesense lookup for IDs + images (optional enrichment)
+      // Batch Typesense lookup for IDs + images
       const client = getTypesenseAdminClient();
       const tsMap = new Map<string, Record<string, unknown>>();
-      for (let i = 0; i < Math.min(uniqueItems.length, 60); i += 20) {
+      for (let i = 0; i < Math.min(uniqueItems.length, 100); i += 20) {
         const batch = uniqueItems.slice(i, i + 20);
         try {
           const searches = batch.map((ni) => ({
@@ -261,12 +202,12 @@ export async function GET(req: NextRequest) {
         } catch {}
       }
 
-      // Build + sort
+      // Build + sort: in-stock first, then by price
       const products = uniqueItems.map((ni) => {
         const ri = ni.responseItem;
         return {
           tecdocCode: ri.productCode, tecdocBrand: ri.productBrand,
-          tecdocName: ri.productName || categoryName, genArtID: null,
+          tecdocName: ri.productName || categoryName, genArtID,
           product: tsMap.get(`${ri.productCode}|${ri.productBrand}`) || null,
           nextisPrice: ri.price?.unitPrice ?? null, nextisPriceVAT: ri.price?.unitPriceIncVAT ?? null,
           nextisQty: ri.qtyAvailableMain ?? null, nextisDiscount: ri.price?.discount ?? null,
@@ -277,7 +218,7 @@ export async function GET(req: NextRequest) {
         return (a.nextisPrice || 9999) - (b.nextisPrice || 9999);
       });
 
-      return Response.json({ products, tecdocCount: uniqueItems.length, categoryName, strategy });
+      return Response.json({ products, tecdocCount: uniqueItems.length, categoryName, genArtID, hasMore, page });
     }
 
     return Response.json({ error: "Unknown action" }, { status: 400 });

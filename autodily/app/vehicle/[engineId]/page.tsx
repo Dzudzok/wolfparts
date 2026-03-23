@@ -48,7 +48,9 @@ export default function VehiclePartsPage() {
   const [expandedSidebarCat, setExpandedSidebarCat] = useState<string | null>(null);
   const [sidebarSubcats, setSidebarSubcats] = useState<Category[]>([]);
   const [products, setProducts] = useState<MatchedProduct[]>([]);
-  const [visibleCount, setVisibleCount] = useState(15);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [tecdocCount, setTecdocCount] = useState(0);
@@ -79,11 +81,11 @@ export default function VehiclePartsPage() {
   // React to URL changes (including back/forward)
   useEffect(() => {
     if (leafParam) {
-      // Load products for leaf category
-      setLoadingProducts(true); setVisibleCount(15); setCategories([]);
-      fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}`)
+      // Load first page of products for leaf category
+      setLoadingProducts(true); setCurrentPage(1); setHasMore(false); setProducts([]); setCategories([]);
+      fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}&page=1`)
         .then((r) => r.json())
-        .then((data) => { setProducts(data.products || []); setTecdocCount(data.tecdocCount || 0); })
+        .then((data) => { setProducts(data.products || []); setTecdocCount(data.tecdocCount || 0); setHasMore(!!data.hasMore); setCurrentPage(1); })
         .catch(() => setProducts([]))
         .finally(() => setLoadingProducts(false));
     } else {
@@ -129,6 +131,22 @@ export default function VehiclePartsPage() {
       const newPath = breadcrumb.slice(0, index + 1).map((b) => `${b.categoryId}:${b.name}`).join("~");
       router.push(vehicleUrl({ cat: item.categoryId || "", catPath: newPath, leaf: "" }));
     }
+  }
+
+  function loadMoreProducts() {
+    if (loadingMore || !hasMore || !leafParam) return;
+    const nextPage = currentPage + 1;
+    setLoadingMore(true);
+    fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}&page=${nextPage}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setProducts((prev) => [...prev, ...(data.products || [])]);
+        setTecdocCount((prev) => prev + (data.tecdocCount || 0));
+        setHasMore(!!data.hasMore);
+        setCurrentPage(nextPage);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingMore(false));
   }
 
   const vehicleLabel = [brandName, modelName].filter(Boolean).join(" ");
@@ -343,7 +361,7 @@ export default function VehiclePartsPage() {
               </div>
 
               <div className="space-y-3">
-                {products.slice(0, visibleCount).map((item, i) => (
+                {products.map((item, i) => (
                   <div
                     key={i}
                     className="bg-white rounded-xl border border-mlborder-light p-5 flex gap-5 items-start transition-all hover:shadow-lg"
@@ -426,15 +444,25 @@ export default function VehiclePartsPage() {
                 ))}
               </div>
 
-              {/* Show more button */}
-              {visibleCount < products.length && (
+              {/* Show more button — fetches next page from API */}
+              {hasMore && (
                 <div className="text-center mt-6">
                   <button
-                    onClick={() => setVisibleCount((v) => v + 15)}
-                    className="inline-flex items-center gap-2 bg-white border-2 border-mlborder hover:border-primary/30 text-mltext-dark font-bold text-sm px-8 py-3 rounded-xl transition-all hover:shadow-md"
+                    onClick={loadMoreProducts}
+                    disabled={loadingMore}
+                    className="inline-flex items-center gap-2 bg-white border-2 border-mlborder hover:border-primary/30 text-mltext-dark font-bold text-sm px-8 py-3 rounded-xl transition-all hover:shadow-md disabled:opacity-60"
                   >
-                    Zobrazit další ({products.length - visibleCount} zbývá)
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9" /></svg>
+                    {loadingMore ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-mlborder-light border-t-primary" />
+                        Načítám...
+                      </>
+                    ) : (
+                      <>
+                        Zobrazit další
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9" /></svg>
+                      </>
+                    )}
                   </button>
                 </div>
               )}
