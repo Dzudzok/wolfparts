@@ -137,10 +137,65 @@ export default function VehiclePartsPage() {
     <div className="min-h-screen flex flex-col bg-[#F9FAFB]">
       <Header />
 
-      {/* ═══ VEHICLE TOP BAR ═══ */}
-      <div className="bg-white border-b border-mlborder-light">
-        <div className="max-w-[1300px] mx-auto px-4 lg:px-8 py-4">
-          <div className="flex items-center gap-5">
+      {/* ═══ CONTENT WITH SIDEBAR ═══ */}
+      <div className="flex-1 flex">
+        {/* LEFT SIDEBAR */}
+        <aside className="hidden lg:block w-64 shrink-0 border-r border-mlborder-light bg-white overflow-y-auto" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: "64px" }}>
+          <div className="py-3">
+            <p className="px-4 text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2">Kategorie dílů</p>
+            {allRootCategories.map((cat) => {
+              const isActive = breadcrumb.some((b) => b.categoryId === cat.nodeId);
+              const isExpanded = expandedSidebarCat === cat.nodeId;
+              return (
+                <div key={cat.nodeId}>
+                  <button
+                    onClick={() => {
+                      const path = `${cat.nodeId}:${cat.name}`;
+                      if (cat.isEndNode) {
+                        router.push(vehicleUrl({ cat: "", catPath: path, leaf: cat.nodeId }));
+                      } else {
+                        if (isExpanded) { setExpandedSidebarCat(null); setSidebarSubcats([]); }
+                        else {
+                          setExpandedSidebarCat(cat.nodeId);
+                          fetch(`/api/vehicles?action=categories&engineId=${engineId}&parentId=${cat.nodeId}`)
+                            .then((r) => r.json()).then((d) => setSidebarSubcats(Array.isArray(d) ? d : [])).catch(() => {});
+                        }
+                        router.push(vehicleUrl({ cat: cat.nodeId, catPath: path, leaf: "" }));
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2 text-left text-[13px] transition-colors ${isActive ? "text-primary font-bold bg-primary/[0.04]" : "text-mltext hover:bg-gray-50 font-medium"}`}
+                  >
+                    <span className="truncate">{cat.name}</span>
+                    {!cat.isEndNode && (
+                      <svg viewBox="0 0 24 24" className={`w-3 h-3 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""} ${isActive ? "text-primary" : "text-mltext-light/40"}`} fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                    )}
+                  </button>
+                  {isExpanded && sidebarSubcats.length > 0 && (
+                    <div className="bg-gray-50/50">
+                      {sidebarSubcats.map((sub) => (
+                        <button key={sub.nodeId} onClick={() => {
+                          const path = `${cat.nodeId}:${cat.name}~${sub.nodeId}:${sub.name}`;
+                          if (sub.isEndNode) router.push(vehicleUrl({ cat: "", catPath: path, leaf: sub.nodeId }));
+                          else router.push(vehicleUrl({ cat: sub.nodeId, catPath: path, leaf: "" }));
+                        }} className="w-full flex items-center justify-between pl-8 pr-4 py-1.5 text-left text-[12px] text-mltext-light hover:text-primary hover:bg-gray-50 transition-colors">
+                          <span className="truncate">{sub.name}</span>
+                          <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 shrink-0 text-mltext-light/30" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </aside>
+
+        {/* RIGHT SIDE — vehicle bar + content */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* Vehicle top bar */}
+          <div className="bg-white border-b border-mlborder-light">
+            <div className="px-4 lg:px-8 py-4">
+              <div className="flex items-center gap-5">
             {/* Car photo */}
             {vehicleInfo?.imageUrl && (
               <div className="hidden sm:block w-28 h-20 rounded-xl bg-gray-50 border border-mlborder-light overflow-hidden shrink-0">
@@ -190,75 +245,8 @@ export default function VehiclePartsPage() {
         </div>
       </div>
 
-      {/* ═══ MAIN CONTENT ═══ */}
-      <div className="flex-1 flex">
-        {/* LEFT SIDEBAR — Category tree */}
-        <aside className="hidden lg:block w-64 shrink-0 border-r border-mlborder-light bg-white overflow-y-auto" style={{ maxHeight: "calc(100vh - 120px)", position: "sticky", top: "64px" }}>
-          <div className="py-3">
-            <p className="px-4 text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2">Kategorie dílů</p>
-            {allRootCategories.map((cat) => {
-              const isActive = breadcrumb.some((b) => b.categoryId === cat.nodeId) || categories === allRootCategories;
-              const isExpanded = expandedSidebarCat === cat.nodeId;
-              return (
-                <div key={cat.nodeId}>
-                  <button
-                    onClick={() => {
-                      const path = `${cat.nodeId}:${cat.name}`;
-                      if (cat.isEndNode) {
-                        router.push(vehicleUrl({ cat: "", catPath: path, leaf: cat.nodeId }));
-                      } else {
-                        if (isExpanded) {
-                          setExpandedSidebarCat(null);
-                          setSidebarSubcats([]);
-                        } else {
-                          setExpandedSidebarCat(cat.nodeId);
-                          fetch(`/api/vehicles?action=categories&engineId=${engineId}&parentId=${cat.nodeId}`)
-                            .then((r) => r.json())
-                            .then((d) => setSidebarSubcats(Array.isArray(d) ? d : []))
-                            .catch(() => {});
-                        }
-                        router.push(vehicleUrl({ cat: cat.nodeId, catPath: path, leaf: "" }));
-                      }
-                    }}
-                    className={`w-full flex items-center justify-between px-4 py-2 text-left text-[13px] transition-colors ${
-                      isActive ? "text-primary font-bold bg-primary/[0.04]" : "text-mltext hover:bg-gray-50 font-medium"
-                    }`}
-                  >
-                    <span className="truncate">{cat.name}</span>
-                    {!cat.isEndNode && (
-                      <svg viewBox="0 0 24 24" className={`w-3 h-3 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""} ${isActive ? "text-primary" : "text-mltext-light/40"}`} fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
-                    )}
-                  </button>
-                  {/* Expanded subcategories */}
-                  {isExpanded && sidebarSubcats.length > 0 && (
-                    <div className="bg-gray-50/50">
-                      {sidebarSubcats.map((sub) => (
-                        <button
-                          key={sub.nodeId}
-                          onClick={() => {
-                            const path = `${cat.nodeId}:${cat.name}~${sub.nodeId}:${sub.name}`;
-                            if (sub.isEndNode) {
-                              router.push(vehicleUrl({ cat: "", catPath: path, leaf: sub.nodeId }));
-                            } else {
-                              router.push(vehicleUrl({ cat: sub.nodeId, catPath: path, leaf: "" }));
-                            }
-                          }}
-                          className="w-full flex items-center justify-between pl-8 pr-4 py-1.5 text-left text-[12px] text-mltext-light hover:text-primary hover:bg-gray-50 transition-colors"
-                        >
-                          <span className="truncate">{sub.name}</span>
-                          <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 shrink-0 text-mltext-light/30" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </aside>
-
-        {/* RIGHT — Main content */}
-        <div className="flex-1 px-4 lg:px-8 py-6 min-w-0">
+          {/* Main content area */}
+          <div className="px-4 lg:px-8 py-6">
 
           {/* Breadcrumb */}
           {breadcrumb.length > 0 && (
@@ -452,6 +440,7 @@ export default function VehiclePartsPage() {
               )}
             </>
           )}
+          </div>
         </div>
       </div>
 
