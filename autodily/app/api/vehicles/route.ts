@@ -231,7 +231,7 @@ export async function GET(req: NextRequest) {
 
       return Response.json({
         products,
-        tecdocCount: nextisItems.length || tecdocBrands.length,
+        tecdocCount: nextisItems.length || tecdocBrandNames.length,
         categoryName,
         seedCode,
       });
