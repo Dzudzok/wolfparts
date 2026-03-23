@@ -1,8 +1,92 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, Fragment } from "react";
+import { useState, useEffect, useRef, useMemo, Fragment, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getCarBrandLogoUrl } from "@/lib/brand-logos";
+
+/* ─── Tiny car thumbnail with localStorage cache ─── */
+const engineIdCache: Record<number, number | null> = {};
+const IMG_CACHE_PREFIX = "wp_car_";
+
+function getImgFromStorage(engineId: number): string | null {
+  try { return localStorage.getItem(IMG_CACHE_PREFIX + engineId); } catch { return null; }
+}
+
+function saveImgToStorage(engineId: number, dataUrl: string) {
+  try { localStorage.setItem(IMG_CACHE_PREFIX + engineId, dataUrl); } catch { /* quota */ }
+}
+
+const CarSilhouette = () => (
+  <svg viewBox="0 0 200 80" className="w-24 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M60 28c4-10 12-16 22-16h36c10 0 18 4 24 12l20 12c8 2 14 6 16 12v8c0 4-3 7-7 7h-10a14 14 0 1 1-28 0H67a14 14 0 1 1-28 0H27c-4 0-7-3-7-7v-6c0-6 4-10 10-12l30-10z" stroke="#cbd5e1" strokeWidth="2"/>
+    <line x1="82" y1="12" x2="82" y2="36" stroke="#cbd5e1" strokeWidth="1.5" opacity=".6"/>
+    <line x1="118" y1="16" x2="130" y2="36" stroke="#cbd5e1" strokeWidth="1.5" opacity=".6"/>
+    <circle cx="53" cy="63" r="9" stroke="#cbd5e1" strokeWidth="2.5"/>
+    <circle cx="53" cy="63" r="3" fill="#cbd5e1" opacity=".4"/>
+    <circle cx="147" cy="63" r="9" stroke="#cbd5e1" strokeWidth="2.5"/>
+    <circle cx="147" cy="63" r="3" fill="#cbd5e1" opacity=".4"/>
+  </svg>
+);
+
+function ModelCardImage({ modelId, brandId, modelName }: { modelId: number; brandId: number; modelName?: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      // 1. Resolve engineId for this model
+      let eid = engineIdCache[modelId] ?? null;
+      if (engineIdCache[modelId] === undefined) {
+        try {
+          const r = await fetch(`/api/vehicles?action=engines&brandId=${brandId}&modelId=${modelId}`);
+          const d = await r.json();
+          eid = Array.isArray(d) && d[0]?.engineId ? d[0].engineId : null;
+        } catch { eid = null; }
+        engineIdCache[modelId] = eid;
+      }
+      if (!eid || cancelled) return;
+
+      // 2. Check localStorage cache
+      const cached = getImgFromStorage(eid);
+      if (cached) { if (!cancelled) setSrc(cached); return; }
+
+      // 3. Fetch and cache as data URL
+      try {
+        const res = await fetch(`/api/tecdoc-image?type=car&id=${eid}`);
+        if (!res.ok) { if (!cancelled) setHidden(true); return; }
+        const blob = await res.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          saveImgToStorage(eid!, dataUrl);
+          if (!cancelled) setSrc(dataUrl);
+        };
+        reader.readAsDataURL(blob);
+      } catch { if (!cancelled) setHidden(true); }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [modelId, brandId]);
+
+  if (hidden) return (
+    <div className="w-full h-full bg-white rounded flex flex-col items-center justify-center">
+      <CarSilhouette />
+      {modelName && <span className="text-[11px] font-bold text-gray-300 uppercase tracking-wide">{modelName}</span>}
+    </div>
+  );
+  if (!src) return <div className="w-full h-full bg-white rounded animate-pulse" />;
+
+  return (
+    <img
+      src={src}
+      alt=""
+      className="w-full h-full object-contain"
+    />
+  );
+}
 
 interface BrandItem { name: string; slug: string; brandId: number; }
 interface ModelItem { name: string; slug: string; modelId: number; years?: string; }
@@ -27,7 +111,7 @@ export default function VehiclePickerModal({ onClose, initialBrandName }: { onCl
 
   // Filters
   const [fuelFilter, setFuelFilter] = useState<string>("");
-  const [yearRange, setYearRange] = useState(1970);
+  const [yearRange, setYearRange] = useState(2000);
   const [hoveredEngine, setHoveredEngine] = useState<EngineItem | null>(null);
   const [hoveredModel, setHoveredModel] = useState<ModelItem | null>(null);
   const [modelPreviewCarId, setModelPreviewCarId] = useState<number | null>(null);
@@ -115,7 +199,7 @@ export default function VehiclePickerModal({ onClose, initialBrandName }: { onCl
   }, [search, step, brands, allBrandsLoaded]);
 
   useEffect(() => {
-    setSearch(""); setFuelFilter(""); setYearRange(1970);
+    setSearch(""); setFuelFilter(""); setYearRange(2000);
     setTimeout(() => searchRef.current?.focus(), 150);
   }, [step]);
 
@@ -487,26 +571,26 @@ export default function VehiclePickerModal({ onClose, initialBrandName }: { onCl
 
                   {/* If few groups or searching, show flat */}
                   {(search || modelGroups.length <= 8) ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                       {filteredModels.map((model) => (
                         <button
                           key={model.modelId}
                           onClick={() => selectModel(model)}
                           onMouseEnter={() => handleModelHover(model)}
                           onMouseLeave={() => { setHoveredModel(null); setModelPreviewCarId(null); }}
-                          className="group flex items-center justify-between p-3.5 rounded-xl border border-gray-100 hover:border-primary hover:bg-primary/[0.02] hover:shadow-sm transition-all text-left bg-white"
+                          className="group flex flex-col p-3 rounded-xl border border-gray-100 hover:border-primary hover:bg-primary/[0.02] hover:shadow-sm transition-all text-left bg-white"
                         >
-                          <div className="min-w-0">
-                            <span className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary truncate transition-colors">{model.name}</span>
-                            {model.years && <span className="text-[11px] text-mltext-light block">{model.years}</span>}
+                          <div className="w-full h-16 mb-2 rounded overflow-hidden bg-white">
+                            {selectedBrand && <ModelCardImage modelId={model.modelId} brandId={selectedBrand.brandId} modelName={model.name} />}
                           </div>
-                          <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-200 group-hover:text-primary shrink-0 ml-2" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                          <span className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary truncate transition-colors">{model.name}</span>
+                          {model.years && <span className="text-[11px] text-mltext-light block">{model.years}</span>}
                         </button>
                       ))}
                     </div>
                   ) : (
                     /* Grouped view — show base names as big buttons, expand on click */
-                    <ModelGroupedView groups={modelGroups} onSelectModel={selectModel} onHoverModel={handleModelHover} onLeaveModel={() => { setHoveredModel(null); setModelPreviewCarId(null); }} />
+                    <ModelGroupedView groups={modelGroups} onSelectModel={selectModel} onHoverModel={handleModelHover} onLeaveModel={() => { setHoveredModel(null); setModelPreviewCarId(null); }} brandId={selectedBrand?.brandId} />
                   )}
                 </div>
               )}
@@ -575,7 +659,7 @@ export default function VehiclePickerModal({ onClose, initialBrandName }: { onCl
 /* ─── Grouped model selector — expands inline under clicked group ─── */
 interface ModelGroup { baseName: string; models: ModelItem[]; }
 
-function ModelGroupedView({ groups, onSelectModel, onHoverModel, onLeaveModel }: { groups: ModelGroup[]; onSelectModel: (m: ModelItem) => void; onHoverModel?: (m: ModelItem) => void; onLeaveModel?: () => void }) {
+function ModelGroupedView({ groups, onSelectModel, onHoverModel, onLeaveModel, brandId }: { groups: ModelGroup[]; onSelectModel: (m: ModelItem) => void; onHoverModel?: (m: ModelItem) => void; onLeaveModel?: () => void; brandId?: number }) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   // Arrange groups in a 4-col grid, but insert expanded panel spanning full width after the clicked row
@@ -615,13 +699,18 @@ function ModelGroupedView({ groups, onSelectModel, onHoverModel, onLeaveModel }:
                   setExpanded(isExpanded ? null : group.baseName);
                 }
               }}
-              className={`group flex flex-col p-4 rounded-xl border text-left transition-all ${
+              className={`group flex flex-col p-3 rounded-xl border text-left transition-all ${
                 isExpanded
                   ? "border-primary bg-primary/[0.04] shadow-sm ring-1 ring-primary/20"
                   : "border-gray-100 hover:border-primary/40 hover:shadow-sm bg-white"
               }`}
             >
-              <span className={`text-[16px] font-bold transition-colors ${isExpanded ? "text-primary" : "text-mltext-dark group-hover:text-primary"}`}>
+              {brandId && (
+                <div className="w-full h-16 mb-2 rounded overflow-hidden bg-white">
+                  <ModelCardImage modelId={group.models[0].modelId} brandId={brandId} modelName={group.baseName} />
+                </div>
+              )}
+              <span className={`text-[14px] font-bold transition-colors ${isExpanded ? "text-primary" : "text-mltext-dark group-hover:text-primary"}`}>
                 {group.baseName}
               </span>
               <div className="flex items-center gap-2 mt-1">
