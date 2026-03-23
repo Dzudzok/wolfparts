@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import VehicleSelector from "@/components/VehicleSelector";
+import VehiclePickerButton from "@/components/VehiclePickerButton";
 import BrandGrid from "@/components/BrandGrid";
 import CategoryGrid from "@/components/CategoryGrid";
 import Footer from "@/components/Footer";
@@ -30,22 +30,9 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Vehicle selector card */}
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white/4 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 lg:p-8">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary-light" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 className="text-white font-bold text-[15px]">Vyberte vaše vozidlo</h2>
-                  <p className="text-white/30 text-xs">Značka → Model → Motorizace</p>
-                </div>
-              </div>
-              <VehicleSelector />
-            </div>
+          {/* Vehicle picker button */}
+          <div className="max-w-2xl mx-auto">
+            <VehiclePickerButton />
           </div>
         </div>
       </div>

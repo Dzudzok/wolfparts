@@ -17,7 +17,7 @@ export async function getTecDocApiKey(): Promise<string> {
 
   try {
     const { data: html } = await axios.get(
-      "https://www.mroauto.cz/cs/katalog/tecdoc/osobni",
+      "https://www.mroauto.cz/cs/katalog/tecdoc/osobni/skoda/octavia-1u2/1-4/olejovy-filtr/106/1904/14748/100259/?path=100005~100259",
       {
         headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
         timeout: 10000,

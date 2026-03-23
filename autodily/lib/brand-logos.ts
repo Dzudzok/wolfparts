@@ -9,6 +9,10 @@ const CAR_BRAND_FILES: Record<string, string> = {
   "mini": "mini", "nissan": "nissan", "opel": "opel", "peugeot": "peugeot",
   "renault": "renault", "seat": "seat", "skoda": "skoda", "škoda": "skoda",
   "tesla": "tesla", "toyota": "toyota", "volkswagen": "vw", "vw": "vw", "volvo": "volvo",
+  "alfa romeo": "alfa-romeo", "chrysler": "chrysler", "daewoo": "daewoo",
+  "daf": "daf", "daihatsu": "daihatsu", "isuzu": "isuzu", "lada": "lada",
+  "mitsubishi": "mitsubishi", "porsche": "porsche", "rover": "rover",
+  "saab": "saab", "smart": "smart", "subaru": "subaru", "suzuki": "suzuki",
 };
 
 // Manufacturer logos — maps brand name → local filename in /logos/brands/

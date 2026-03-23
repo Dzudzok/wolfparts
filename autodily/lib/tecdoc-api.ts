@@ -47,7 +47,10 @@ async function call<T>(operation: string, params: Record<string, unknown>): Prom
     throw new Error(`TecDoc ${operation}: ${data.statusText || data.status}`);
   }
 
-  apiCache.set(cacheKey, { data, ts: Date.now() });
+  // Don't cache empty/error results for long
+  const isEmpty = !data.data?.array?.length && !data.articles?.length;
+  const ttl = isEmpty ? 60 * 1000 : CACHE_TTL; // 1 min for empty, 1h for good data
+  apiCache.set(cacheKey, { data, ts: Date.now() - (CACHE_TTL - ttl) });
   if (apiCache.size > 5000) {
     const entries = [...apiCache.entries()].sort((a, b) => a[1].ts - b[1].ts);
     for (let i = 0; i < 1000; i++) apiCache.delete(entries[i][0]);

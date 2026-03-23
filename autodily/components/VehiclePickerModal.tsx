@@ -1,0 +1,568 @@
+"use client";
+
+import { useState, useEffect, useRef, useMemo, Fragment } from "react";
+import { useRouter } from "next/navigation";
+import { getCarBrandLogoUrl } from "@/lib/brand-logos";
+
+interface BrandItem { name: string; slug: string; brandId: number; }
+interface ModelItem { name: string; slug: string; modelId: number; years?: string; }
+interface EngineItem {
+  name: string; slug: string; engineId: number; power: string;
+  years: string; engineCode: string; fuel: string;
+}
+
+type Step = "brand" | "model" | "engine";
+
+export default function VehiclePickerModal({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
+  const [step, setStep] = useState<Step>("brand");
+  const [brands, setBrands] = useState<BrandItem[]>([]);
+  const [models, setModels] = useState<ModelItem[]>([]);
+  const [engines, setEngines] = useState<EngineItem[]>([]);
+  const [selectedBrand, setSelectedBrand] = useState<BrandItem | null>(null);
+  const [selectedModel, setSelectedModel] = useState<ModelItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Filters
+  const [fuelFilter, setFuelFilter] = useState<string>("");
+  const [yearRange, setYearRange] = useState(1970);
+  const [hoveredEngine, setHoveredEngine] = useState<EngineItem | null>(null);
+
+  useEffect(() => {
+    fetch("/api/vehicles?action=brands")
+      .then((r) => r.json()).then((d) => setBrands(Array.isArray(d) ? d : []))
+      .catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    setSearch(""); setFuelFilter(""); setYearRange(1970);
+    setTimeout(() => searchRef.current?.focus(), 150);
+  }, [step]);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+
+  function selectBrand(brand: BrandItem) {
+    setSelectedBrand(brand); setSelectedModel(null); setModels([]); setEngines([]);
+    setStep("model"); setLoading(true);
+    fetch(`/api/vehicles?action=models&brandId=${brand.brandId}`)
+      .then((r) => r.json()).then((d) => setModels(Array.isArray(d) ? d : []))
+      .catch(() => {}).finally(() => setLoading(false));
+  }
+
+  function selectModel(model: ModelItem) {
+    if (!selectedBrand) return;
+    setSelectedModel(model); setEngines([]); setStep("engine"); setLoading(true);
+    fetch(`/api/vehicles?action=engines&brandId=${selectedBrand.brandId}&modelId=${model.modelId}`)
+      .then((r) => r.json()).then((d) => setEngines(Array.isArray(d) ? d : []))
+      .catch(() => {}).finally(() => setLoading(false));
+  }
+
+  function selectEngine(engine: EngineItem) {
+    if (!selectedBrand || !selectedModel) return;
+    const params = new URLSearchParams({
+      bs: selectedBrand.slug, ms: selectedModel.slug, es: engine.slug || slugify(engine.name),
+      bi: String(selectedBrand.brandId), mi: String(selectedModel.modelId),
+      bn: selectedBrand.name, mn: selectedModel.name, en: `${engine.name} ${engine.power}`,
+    });
+    onClose();
+    router.push(`/vehicle/${engine.engineId}?${params}`);
+  }
+
+  function goBack() {
+    setSearch(""); setHoveredEngine(null);
+    if (step === "engine") { setStep("model"); setEngines([]); }
+    else if (step === "model") { setStep("brand"); setModels([]); setSelectedBrand(null); }
+  }
+
+  const lf = search.toLowerCase();
+
+  function parseYear(s: string): { from: number; to: number } {
+    const m = s.match(/(\d{2})\.(\d{4})/g) || [];
+    const from = m[0] ? parseInt(m[0].split(".")[1]) : 0;
+    const to = m[1] ? parseInt(m[1].split(".")[1]) : 2999;
+    return { from, to };
+  }
+
+  const fuelTypes = useMemo(() => {
+    const set = new Set<string>();
+    engines.forEach((e) => { if (e.fuel) set.add(e.fuel); });
+    return [...set].sort();
+  }, [engines]);
+
+  // Group models by base name (e.g. "A3", "GOLF", "OCTAVIA")
+  interface ModelGroup { baseName: string; models: ModelItem[]; }
+
+  const modelGroups = useMemo((): ModelGroup[] => {
+    // Extract base name: "A3 (8L1)" → "A3", "GOLF VII (5G1)" → "GOLF"
+    function getBaseName(name: string): string {
+      // Remove parenthetical codes
+      const clean = name.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+      // Split by space and take meaningful parts
+      const parts = clean.split(/\s+/);
+      // Model base is usually first 1-2 parts before roman numerals or generation info
+      let base = parts[0];
+      // Include second part if it's a number or short word (e.g. "C4", "100", "A3")
+      if (parts[1] && (parts[1].match(/^[IVX]+$/) || parts[1].match(/^\d/) || parts[1].length <= 2)) {
+        // Don't include roman numerals in base — they differentiate generations
+      } else if (parts[1] && !["Avant", "Break", "Turnier", "Kombi", "Sportback", "Kabriolet", "Limousine", "kupé", "Coupé", "limuzína", "pick-up", "Multispace", "Pluriel"].includes(parts[1])) {
+        base = parts[0] + " " + parts[1];
+      }
+      return base;
+    }
+
+    const groups = new Map<string, ModelItem[]>();
+    const filtered = models.filter((m) => {
+      if (search && !m.name.toLowerCase().includes(lf)) return false;
+      if (yearRange > 1970) {
+        const y = parseYear(m.years || "");
+        if (y.to < yearRange) return false;
+      }
+      return true;
+    });
+
+    for (const model of filtered) {
+      const base = getBaseName(model.name);
+      if (!groups.has(base)) groups.set(base, []);
+      groups.get(base)!.push(model);
+    }
+
+    return [...groups.entries()]
+      .map(([baseName, models]) => ({ baseName, models }))
+      .sort((a, b) => a.baseName.localeCompare(b.baseName));
+  }, [models, search, lf, yearRange]);
+
+  const filteredModels = useMemo(() => {
+    return models.filter((m) => {
+      if (search && !m.name.toLowerCase().includes(lf)) return false;
+      if (yearRange > 1970) {
+        const y = parseYear(m.years || "");
+        if (y.to < yearRange) return false;
+      }
+      return true;
+    });
+  }, [models, search, lf, yearRange]);
+
+  const filteredEngines = useMemo(() => {
+    return engines.filter((e) => {
+      if (search && !`${e.name} ${e.power} ${e.fuel} ${e.engineCode}`.toLowerCase().includes(lf)) return false;
+      if (fuelFilter && e.fuel !== fuelFilter) return false;
+      if (yearRange > 1970) {
+        const y = parseYear(e.years);
+        if (y.to < yearRange) return false;
+      }
+      return true;
+    });
+  }, [engines, search, lf, fuelFilter, yearRange]);
+
+  const filteredBrands = useMemo(() => {
+    return brands.filter((b) => !search || b.name.toLowerCase().includes(lf));
+  }, [brands, search, lf]);
+
+  const stepNum = step === "brand" ? 1 : step === "model" ? 2 : 3;
+  const showSidebar = (step === "engine" || step === "model") && !loading;
+
+  // Fuel icons
+  function FuelIcon({ type }: { type: string }) {
+    const lower = type.toLowerCase();
+    if (lower.includes("benz")) return <span className="text-[10px] font-black text-green-600">PB</span>;
+    if (lower.includes("naft") || lower.includes("diesel")) return <span className="text-[10px] font-black text-amber-700">ON</span>;
+    if (lower.includes("cng") || lower.includes("lpg")) return <span className="text-[10px] font-black text-blue-600">CNG</span>;
+    if (lower.includes("elekt") || lower.includes("hybrid")) return <span className="text-[10px] font-black text-emerald-500">EV</span>;
+    return <span className="text-[10px] font-black text-gray-400">?</span>;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+
+      <div className="relative w-full max-w-[1100px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col" style={{ height: "min(92vh, 780px)" }}>
+
+        {/* ─── HEADER ─── */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
+          <div className="flex items-center gap-3">
+            {step !== "brand" && (
+              <button onClick={goBack} className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-mltext-light hover:text-mltext-dark transition-colors">
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+              </button>
+            )}
+            <div className="flex items-center gap-2 text-sm">
+              {selectedBrand && getCarBrandLogoUrl(selectedBrand.slug) && (
+                <img src={getCarBrandLogoUrl(selectedBrand.slug)} alt="" className="w-6 h-6 object-contain" />
+              )}
+              {!selectedBrand && <span className="text-mltext-dark font-bold text-[15px]">Vyberte vozidlo</span>}
+              {selectedBrand && <span className={selectedModel ? "text-mltext-light" : "text-mltext-dark font-bold"}>{selectedBrand.name}</span>}
+              {selectedModel && (
+                <>
+                  <span className="text-mltext-light/30">›</span>
+                  <span className="text-mltext-dark font-bold">{selectedModel.name}</span>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-mltext-light mr-2">
+              <span className={stepNum >= 1 ? "text-primary" : ""}>Značka</span>
+              <span className="text-mltext-light/20">→</span>
+              <span className={stepNum >= 2 ? "text-primary" : ""}>Model</span>
+              <span className="text-mltext-light/20">→</span>
+              <span className={stepNum >= 3 ? "text-primary" : ""}>Motor</span>
+            </div>
+            <div className="flex gap-0.5">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className={`h-1 rounded-full transition-all ${n <= stepNum ? "w-8 bg-primary" : "w-3 bg-gray-200"}`} />
+              ))}
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-mltext-light hover:text-mltext-dark transition-colors">
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+          </div>
+        </div>
+
+        {/* ─── BODY ─── */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* ─── LEFT SIDEBAR FILTERS ─── */}
+          {showSidebar && (
+            <div className="hidden sm:flex flex-col w-60 border-r border-gray-100 shrink-0 bg-gray-50/50">
+              <div className="flex-1 overflow-y-auto p-4">
+
+                {/* Year slider */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[12px] font-bold text-mltext">Rok výroby</p>
+                    <span className="text-[12px] font-bold text-primary">
+                      {yearRange > 1970 ? `od ${yearRange}` : "Vše"}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1970" max="2026" step="1"
+                    value={yearRange}
+                    onChange={(e) => setYearRange(parseInt(e.target.value))}
+                    className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+                  />
+                  <div className="flex justify-between mt-1">
+                    <span className="text-[10px] text-mltext-light">1970</span>
+                    <span className="text-[10px] text-mltext-light">2026</span>
+                  </div>
+                  {/* Quick buttons */}
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {[{ label: "Vše", val: 1970 }, { label: "2020+", val: 2020 }, { label: "2015+", val: 2015 }, { label: "2010+", val: 2010 }, { label: "2005+", val: 2005 }, { label: "2000+", val: 2000 }].map((b) => (
+                      <button
+                        key={b.val}
+                        onClick={() => setYearRange(b.val)}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md border transition-all ${yearRange === b.val ? "bg-primary text-white border-primary" : "bg-white text-mltext-light border-gray-200 hover:border-primary/30"}`}
+                      >
+                        {b.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Fuel filter — engines only */}
+                {step === "engine" && fuelTypes.length > 1 && (
+                  <div className="mb-6">
+                    <p className="text-[12px] font-bold text-mltext mb-2.5">Palivo</p>
+                    <div className="space-y-1">
+                      <button
+                        onClick={() => setFuelFilter("")}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left transition-all ${!fuelFilter ? "bg-primary/5 border-primary/20 text-primary" : "bg-white border-gray-200 text-mltext hover:border-gray-300"}`}
+                      >
+                        <span className="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center text-[10px] font-black text-mltext-light">VŠE</span>
+                        <span className="text-[12px] font-semibold">Všechna paliva</span>
+                      </button>
+                      {fuelTypes.map((f) => {
+                        const active = fuelFilter === f;
+                        return (
+                          <button
+                            key={f}
+                            onClick={() => setFuelFilter(active ? "" : f)}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left transition-all ${active ? "bg-primary/5 border-primary/20" : "bg-white border-gray-200 hover:border-gray-300"}`}
+                          >
+                            <span className={`w-7 h-7 rounded-md flex items-center justify-center ${active ? "bg-primary/10" : "bg-gray-100"}`}>
+                              <FuelIcon type={f} />
+                            </span>
+                            <span className={`text-[12px] font-semibold ${active ? "text-primary" : "text-mltext"}`}>{f}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Hovered engine preview */}
+                {step === "engine" && hoveredEngine && (
+                  <div className="mb-4 p-3 bg-white rounded-xl border border-primary/20 shadow-sm">
+                    <div className="w-full aspect-[16/10] rounded-lg bg-gray-50 overflow-hidden mb-3">
+                      <img
+                        src={`/api/tecdoc-image?type=car&id=${hoveredEngine.engineId}`}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                    </div>
+                    <p className="text-[13px] font-bold text-mltext-dark">{selectedBrand?.name} {selectedModel?.name}</p>
+                    <p className="text-[14px] font-bold text-primary">{hoveredEngine.name}</p>
+                    <div className="mt-2 space-y-1 text-[11px]">
+                      {hoveredEngine.power && <div className="flex justify-between"><span className="text-mltext-light">Výkon</span><span className="font-bold text-mltext-dark">{hoveredEngine.power}</span></div>}
+                      {hoveredEngine.fuel && <div className="flex justify-between"><span className="text-mltext-light">Palivo</span><span className="font-bold text-mltext-dark">{hoveredEngine.fuel}</span></div>}
+                      {hoveredEngine.years && <div className="flex justify-between"><span className="text-mltext-light">Období</span><span className="font-bold text-mltext-dark">{hoveredEngine.years}</span></div>}
+                      {hoveredEngine.engineCode && <div className="flex justify-between"><span className="text-mltext-light">Typ</span><span className="font-bold text-mltext-dark font-mono">{hoveredEngine.engineCode}</span></div>}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Count bar */}
+              <div className="px-4 py-3 border-t border-gray-100 bg-white shrink-0">
+                <p className="text-[12px] text-mltext-light">
+                  {step === "engine" ? (
+                    <><span className="font-bold text-mltext-dark">{filteredEngines.length}</span> z {engines.length} motorů</>
+                  ) : (
+                    <><span className="font-bold text-mltext-dark">{filteredModels.length}</span> z {models.length} modelů</>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ─── MAIN CONTENT ─── */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Search */}
+            <div className="px-4 py-3 border-b border-gray-50 shrink-0">
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mltext-light/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input
+                  ref={searchRef}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={step === "brand" ? "Hledat značku..." : step === "model" ? "Hledat model..." : "Hledat motor, výkon..."}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl h-10 pl-9 pr-4 text-sm text-mltext-dark placeholder-mltext-light/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {loading && (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <div className="animate-spin rounded-full h-8 w-8 border-[3px] border-gray-200 border-t-primary mb-3" />
+                  <span className="text-sm text-mltext-light">Načítám...</span>
+                </div>
+              )}
+
+              {/* ─── BRANDS ─── */}
+              {step === "brand" && !loading && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
+                  {filteredBrands.map((brand) => {
+                    const logo = getCarBrandLogoUrl(brand.slug) || getCarBrandLogoUrl(brand.name);
+                    return (
+                      <button
+                        key={brand.brandId}
+                        onClick={() => selectBrand(brand)}
+                        className="group flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-primary hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 transition-all bg-white"
+                      >
+                        <div className="w-14 h-14 flex items-center justify-center">
+                          {logo ? (
+                            <img src={logo} alt="" className="w-full h-full object-contain group-hover:scale-110 transition-transform" loading="lazy" />
+                          ) : (
+                            <span className="text-base font-bold text-mltext-light/30 uppercase">{brand.name.slice(0, 3)}</span>
+                          )}
+                        </div>
+                        <span className="text-[11px] font-bold text-mltext-light group-hover:text-primary uppercase tracking-wide truncate w-full text-center transition-colors">
+                          {brand.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {filteredBrands.length === 0 && <p className="col-span-full text-center text-mltext-light text-sm py-12">Značka nenalezena</p>}
+                </div>
+              )}
+
+              {/* ─── MODELS (grouped) ─── */}
+              {step === "model" && !loading && (
+                <div>
+                  {modelGroups.length === 0 && <p className="text-center text-mltext-light text-sm py-12">Model nenalezen</p>}
+
+                  {/* If few groups or searching, show flat */}
+                  {(search || modelGroups.length <= 8) ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                      {filteredModels.map((model) => (
+                        <button
+                          key={model.modelId}
+                          onClick={() => selectModel(model)}
+                          className="group flex items-center justify-between p-3.5 rounded-xl border border-gray-100 hover:border-primary hover:bg-primary/[0.02] hover:shadow-sm transition-all text-left bg-white"
+                        >
+                          <div className="min-w-0">
+                            <span className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary truncate transition-colors">{model.name}</span>
+                            {model.years && <span className="text-[11px] text-mltext-light block">{model.years}</span>}
+                          </div>
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-200 group-hover:text-primary shrink-0 ml-2" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    /* Grouped view — show base names as big buttons, expand on click */
+                    <ModelGroupedView groups={modelGroups} onSelectModel={selectModel} />
+                  )}
+                </div>
+              )}
+
+              {/* ─── ENGINES ─── */}
+              {step === "engine" && !loading && (
+                <div className="space-y-1.5">
+                  {filteredEngines.map((engine) => (
+                    <button
+                      key={engine.engineId}
+                      onClick={() => selectEngine(engine)}
+                      onMouseEnter={() => setHoveredEngine(engine)}
+                      onMouseLeave={() => setHoveredEngine(null)}
+                      className="group w-full flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-primary hover:bg-primary/[0.02] hover:shadow-sm transition-all text-left bg-white"
+                    >
+                      {/* Fuel icon */}
+                      <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0 group-hover:border-primary/20 group-hover:bg-primary/5 transition-colors">
+                        <FuelIcon type={engine.fuel} />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[15px] font-bold text-mltext-dark group-hover:text-primary transition-colors">
+                            {engine.name}
+                          </span>
+                          {engine.power && (
+                            <span className="text-[11px] font-bold text-white bg-primary rounded-md px-2 py-0.5">
+                              {engine.power}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {engine.fuel && (
+                            <span className="text-[11px] font-medium text-mltext bg-gray-100 rounded px-1.5 py-0.5">{engine.fuel}</span>
+                          )}
+                          {engine.years && (
+                            <span className="text-[11px] text-mltext-light">{engine.years}</span>
+                          )}
+                          {engine.engineCode && (
+                            <span className="text-[11px] text-mltext-light/40 font-mono">{engine.engineCode}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-200 group-hover:text-primary shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                    </button>
+                  ))}
+                  {filteredEngines.length === 0 && <p className="text-center text-mltext-light text-sm py-12">Žádný motor neodpovídá filtrům</p>}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Grouped model selector — expands inline under clicked group ─── */
+interface ModelGroup { baseName: string; models: ModelItem[]; }
+
+function ModelGroupedView({ groups, onSelectModel }: { groups: ModelGroup[]; onSelectModel: (m: ModelItem) => void }) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  // Arrange groups in a 4-col grid, but insert expanded panel spanning full width after the clicked row
+  const cols = 4;
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+      {groups.map((group, idx) => {
+        const isExpanded = expanded === group.baseName;
+        const yearRange = group.models.reduce(
+          (acc, m) => {
+            const parsed = m.years?.match(/(\d{4})/g) || [];
+            const nums = parsed.map(Number);
+            return {
+              from: Math.min(acc.from, ...nums.filter(Boolean)),
+              to: Math.max(acc.to, ...nums.filter(Boolean)),
+            };
+          },
+          { from: 9999, to: 0 }
+        );
+
+        // Check if expanded panel should appear after this item (end of row or last in row)
+        const isEndOfRow = (idx + 1) % cols === 0 || idx === groups.length - 1;
+        const expandedGroupInThisRow = groups.slice(
+          Math.floor(idx / cols) * cols,
+          Math.floor(idx / cols) * cols + cols
+        ).some((g) => expanded === g.baseName);
+        const showExpanded = isEndOfRow && expandedGroupInThisRow;
+
+        return (
+          <Fragment key={group.baseName}>
+            <button
+              onClick={() => {
+                if (group.models.length === 1) {
+                  onSelectModel(group.models[0]);
+                } else {
+                  setExpanded(isExpanded ? null : group.baseName);
+                }
+              }}
+              className={`group flex flex-col p-4 rounded-xl border text-left transition-all ${
+                isExpanded
+                  ? "border-primary bg-primary/[0.04] shadow-sm ring-1 ring-primary/20"
+                  : "border-gray-100 hover:border-primary/40 hover:shadow-sm bg-white"
+              }`}
+            >
+              <span className={`text-[16px] font-bold transition-colors ${isExpanded ? "text-primary" : "text-mltext-dark group-hover:text-primary"}`}>
+                {group.baseName}
+              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[11px] text-mltext-light">
+                  {yearRange.from < 9999 ? `${yearRange.from} – ${yearRange.to || ""}` : ""}
+                </span>
+                {group.models.length > 1 && (
+                  <span className="text-[10px] font-bold text-white bg-primary/70 rounded px-1.5 py-0.5">
+                    {group.models.length}
+                  </span>
+                )}
+              </div>
+            </button>
+
+            {/* Expanded sub-models — full width under this row */}
+            {showExpanded && expanded && (
+              <div className="col-span-full bg-gray-50 rounded-xl border border-gray-200 p-3 -mt-0.5">
+                <p className="text-[11px] font-bold text-mltext-light uppercase tracking-wider mb-2 px-1">
+                  {expanded} — vyberte generaci
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  {groups.find((g) => g.baseName === expanded)?.models.map((model) => (
+                    <button
+                      key={model.modelId}
+                      onClick={() => onSelectModel(model)}
+                      className="group flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-white hover:shadow-sm transition-all text-left bg-white"
+                    >
+                      <div className="min-w-0">
+                        <span className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary truncate transition-colors">{model.name}</span>
+                        {model.years && <span className="text-[11px] text-mltext-light">{model.years}</span>}
+                      </div>
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-200 group-hover:text-primary shrink-0 ml-2" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
