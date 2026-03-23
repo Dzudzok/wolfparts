@@ -172,7 +172,7 @@ export async function getManufacturers(all = false): Promise<TecDocManufacturer[
 export async function getModelSeries(manuId: number): Promise<TecDocModelSeries[]> {
   const data = await call<{ data: { array: Array<{ modelId: number; modelname: string; yearOfConstrFrom?: number; yearOfConstrTo?: number; favorFlag?: number }> } }>(
     "getModelSeries2",
-    { country: "cz", lang: "cs", manuId, favouredList: 1, linkingTargetType: "V" }
+    { country: "cz", lang: "cs", manuId, linkingTargetType: "V" }
   );
   return (data.data?.array || []).map((m) => ({
     modelId: m.modelId,
@@ -194,31 +194,39 @@ export async function getVehicles(manuId: number, modelId: number): Promise<TecD
   const ids = (data.data?.array || []).map((v) => v.carId);
   if (ids.length === 0) return [];
 
-  // Step 2: Get full details for all IDs
-  const details = await call<{ data: { array: Array<{ carId: number; vehicleDetails: RawVehicleDetails }> } }>(
-    "getVehicleByIds4",
-    { country: "cz", lang: "cs", articleCountry: "cz", countriesCarSelection: "cz", carIds: { array: ids } }
-  );
+  // Step 2: Get full details — batch by 10 to avoid API limits
+  const BATCH = 10;
+  const allVehicles: TecDocVehicle[] = [];
 
-  return (details.data?.array || []).map((v) => {
-    const d = v.vehicleDetails || {};
-    return {
-      carId: v.carId,
-      carName: d.typeName || String(v.carId),
-      yearOfConstFrom: d.yearOfConstrFrom,
-      yearOfConstTo: d.yearOfConstrTo,
-      powerKwFrom: d.powerKwFrom,
-      powerKwTo: d.powerKwTo,
-      powerHpFrom: d.powerHpFrom,
-      powerHpTo: d.powerHpTo,
-      fuelType: d.fuelType,
-      engineCodes: d.motorType,
-      bodyType: d.constructionType,
-      driveType: d.impulsionType,
-      cylinders: d.cylinder,
-      capacityCcm: d.cylinderCapacityCcm,
-    };
-  });
+  for (let i = 0; i < ids.length; i += BATCH) {
+    const batch = ids.slice(i, i + BATCH);
+    const details = await call<{ data: { array: Array<{ carId: number; vehicleDetails: RawVehicleDetails }> } }>(
+      "getVehicleByIds4",
+      { country: "cz", lang: "cs", articleCountry: "cz", countriesCarSelection: "cz", carIds: { array: batch } }
+    );
+
+    for (const v of details.data?.array || []) {
+      const d = v.vehicleDetails || {};
+      allVehicles.push({
+        carId: v.carId,
+        carName: d.typeName || String(v.carId),
+        yearOfConstFrom: d.yearOfConstrFrom,
+        yearOfConstTo: d.yearOfConstrTo,
+        powerKwFrom: d.powerKwFrom,
+        powerKwTo: d.powerKwTo,
+        powerHpFrom: d.powerHpFrom,
+        powerHpTo: d.powerHpTo,
+        fuelType: d.fuelType,
+        engineCodes: d.motorType,
+        bodyType: d.constructionType,
+        driveType: d.impulsionType,
+        cylinders: d.cylinder,
+        capacityCcm: d.cylinderCapacityCcm,
+      });
+    }
+  }
+
+  return allVehicles;
 }
 
 // Raw response shape from getVehicleByIds4
