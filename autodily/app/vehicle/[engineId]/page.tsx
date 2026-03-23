@@ -358,15 +358,14 @@ export default function VehiclePartsPage() {
                 {products.slice(0, visibleCount).map((item, i) => (
                   <div
                     key={i}
-                    className={`bg-white rounded-xl border p-5 flex gap-5 items-start transition-all ${
-                      item.product ? "border-mlborder-light hover:shadow-lg" : "border-mlborder-light/50 opacity-40"
-                    }`}
+                    className="bg-white rounded-xl border border-mlborder-light p-5 flex gap-5 items-start transition-all hover:shadow-lg"
                   >
                     {/* Product image */}
-                    <a href={item.product ? `/product/${item.product.id}` : "#"} className="w-20 h-20 rounded-xl bg-gray-50 border border-mlborder-light flex items-center justify-center shrink-0 overflow-hidden hover:border-primary/20 transition-colors">
+                    <a href={item.product?.id ? `/product/${item.product.id}` : `/search?q=${encodeURIComponent(item.tecdocCode)}`} className="w-20 h-20 rounded-xl bg-gray-50 border border-mlborder-light flex items-center justify-center shrink-0 overflow-hidden hover:border-primary/20 transition-colors">
                       <ProductThumb
                         imageUrl={item.product?.image_url as string}
                         productId={item.product?.id as string}
+                        productCode={item.tecdocCode}
                         brand={item.tecdocBrand}
                       />
                     </a>
@@ -381,6 +380,10 @@ export default function VehiclePartsPage() {
                           {item.tecdocBrand}
                         </span>
                         <span className="text-[11px] font-mono text-primary/60 bg-primary/[0.04] px-1.5 py-0.5 rounded">{item.tecdocCode}</span>
+                        {/* Source badge for testing */}
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${item.product ? "bg-blue-100 text-blue-600" : "bg-orange-100 text-orange-600"}`}>
+                          {item.product ? "TS" : "API"}
+                        </span>
                       </div>
                       <p className="text-[15px] font-bold text-mltext-dark leading-tight truncate">
                         {item.product?.name || item.tecdocName || item.tecdocCode}
@@ -389,11 +392,12 @@ export default function VehiclePartsPage() {
                         <p className={`text-[12px] font-bold ${(item.nextisQty || 0) > 0 ? "text-mlgreen" : "text-mltext-light"}`}>
                           {(item.nextisQty || 0) > 0 ? `Skladem ${item.nextisQty} ks` : "Na objednávku"}
                         </p>
-                        {item.product && (
-                          <a href={`/product/${item.product.id}`} className="text-[12px] text-primary hover:text-primary-dark font-semibold transition-colors">
-                            Detail →
-                          </a>
-                        )}
+                        <a
+                          href={item.product?.id ? `/product/${item.product.id}` : `/search?q=${encodeURIComponent(item.tecdocCode)}`}
+                          className="text-[12px] text-primary hover:text-primary-dark font-semibold transition-colors"
+                        >
+                          Detail →
+                        </a>
                       </div>
                     </div>
 
@@ -456,19 +460,35 @@ export default function VehiclePartsPage() {
   );
 }
 
-/** Lazy-loads product image from TecDoc if not in Typesense */
-function ProductThumb({ imageUrl, productId, brand }: { imageUrl?: string; productId?: string; brand: string }) {
+/** Lazy-loads product image: Typesense → TecDoc API by productId → TecDoc API by code */
+function ProductThumb({ imageUrl, productId, productCode, brand }: { imageUrl?: string; productId?: string; productCode?: string; brand: string }) {
   const [src, setSrc] = useState(imageUrl || "");
   const [tried, setTried] = useState(false);
 
   useEffect(() => {
-    if (src || tried || !productId) return;
+    if (src || tried) return;
     setTried(true);
-    fetch(`/api/product-image?id=${productId}`)
+
+    // Try Typesense product first (has cached image)
+    if (productId) {
+      fetch(`/api/product-image?id=${productId}`)
+        .then((r) => r.json())
+        .then((d) => { if (d.imageUrl) { setSrc(d.imageUrl); return; } throw new Error("no image"); })
+        .catch(() => {
+          // Fallback: TecDoc getArticles by code
+          if (productCode) fetchByCode(productCode);
+        });
+    } else if (productCode) {
+      fetchByCode(productCode);
+    }
+  }, [src, tried, productId, productCode]);
+
+  function fetchByCode(code: string) {
+    fetch(`/api/product-image?code=${encodeURIComponent(code)}`)
       .then((r) => r.json())
       .then((d) => { if (d.imageUrl) setSrc(d.imageUrl); })
       .catch(() => {});
-  }, [src, tried, productId]);
+  }
 
   if (src) {
     return <img src={src} alt="" className="w-full h-full object-contain p-1.5" loading="lazy" />;

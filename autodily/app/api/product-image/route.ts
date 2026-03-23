@@ -22,6 +22,27 @@ interface ResponseData {
  */
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id");
+  const codeParam = req.nextUrl.searchParams.get("code");
+
+  // Direct code lookup (no Typesense needed)
+  if (codeParam && !id) {
+    const cacheKey = "code:" + codeParam;
+    const cached = cache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < CACHE_TTL) {
+      return NextResponse.json(cached.data, { headers: { "Cache-Control": "public, max-age=86400" } });
+    }
+    try {
+      const article = await getArticleByCode(codeParam);
+      const images = (article?.images || []).sort((a, b) => a.sortNumber - b.sortNumber).map((img) => img.imageURL800 || img.imageURL400);
+      const imageUrl = images[0] || null;
+      const result: ResponseData = { imageUrl, images, attributes: [], pdfs: [], genericArticle: "", category: "" };
+      cache.set(cacheKey, { data: result, ts: Date.now() });
+      return NextResponse.json(result, { headers: { "Cache-Control": "public, max-age=86400" } });
+    } catch {
+      return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "" });
+    }
+  }
+
   if (!id) return NextResponse.json({ imageUrl: null, images: [], attributes: [] });
 
   // Check memory cache
