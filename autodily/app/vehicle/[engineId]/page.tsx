@@ -296,43 +296,126 @@ export default function VehiclePartsPage() {
             </div>
           )}
 
-          {/* Categories grid */}
-          {!loading && categories.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-              {categories.map((cat) => {
-                const style = getCategoryStyle(cat.name);
-                const image = getCategoryImage(cat.name);
-                return (
-                  <button
-                    key={cat.nodeId}
-                    onClick={() => handleCategoryClick(cat)}
-                    className="group text-left bg-white rounded-2xl border border-mlborder-light hover:border-transparent hover:shadow-xl transition-all p-5 flex items-center gap-5 hover:-translate-y-1"
-                  >
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-50 border border-mlborder-light shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      {image ? (
-                        <img src={image} alt="" className="w-full h-full object-contain p-1.5" loading="lazy" />
-                      ) : (
-                        <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d={style.icon} />
+          {/* Categories */}
+          {!loading && categories.length > 0 && (() => {
+            const isSubcategory = breadcrumb.length > 0;
+
+            // Inside a category → clean subcategory layout (no repeated photos)
+            if (isSubcategory) {
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {categories.map((cat) => {
+                    const style = getCategoryStyle(cat.name);
+                    return (
+                      <button
+                        key={cat.nodeId}
+                        onClick={() => handleCategoryClick(cat)}
+                        className="group text-left bg-white rounded-xl border-2 border-mlborder-light hover:border-primary/30 transition-all px-4 py-3.5 flex items-center gap-3"
+                      >
+                        <div className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center" style={{ backgroundColor: style.color + "10" }}>
+                          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d={style.icon} />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="block text-[14px] font-bold text-mltext-dark group-hover:text-primary transition-colors truncate">
+                            {cat.name}
+                          </span>
+                          <span className="block text-[11px] text-mltext-light">
+                            {cat.isEndNode ? "Zobrazit díly" : "Podkategorie"}
+                          </span>
+                        </div>
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 text-mlborder group-hover:text-primary shrink-0 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="9 18 15 12 9 6" />
                         </svg>
-                      )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            }
+
+            // Root level → split popular (with photos) + rest (compact)
+            const POPULAR_KEYS = ["brzd", "filtr", "motor", "odpruž", "tlumen", "řízen", "rizen", "chlaz", "spojk", "výfuk", "vyfuk", "paliv", "řemen", "elektro", "zapalov", "klima", "servis", "kontrol"];
+            const isPopular = (name: string) => {
+              const l = name.toLowerCase();
+              return POPULAR_KEYS.some((k) => l.includes(k));
+            };
+            const popular = categories.filter((c) => isPopular(c.name));
+            const rest = categories.filter((c) => !isPopular(c.name));
+
+            return (
+              <>
+                {/* Popular categories — cards with photos */}
+                {popular.length > 0 && (
+                  <>
+                    <p className="text-[11px] font-bold text-mltext-light uppercase tracking-wider mb-3">Nejhledanější kategorie</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-8">
+                      {popular.map((cat) => {
+                        const style = getCategoryStyle(cat.name);
+                        const image = getCategoryImage(cat.name);
+                        return (
+                          <button
+                            key={cat.nodeId}
+                            onClick={() => handleCategoryClick(cat)}
+                            className="group text-left rounded-2xl border-2 border-mlborder-light hover:border-primary/40 hover:shadow-lg transition-all flex flex-col items-center overflow-hidden hover:-translate-y-1"
+                          >
+                            <div className="w-full pt-4 pb-2 flex items-center justify-center bg-gradient-to-b from-gray-50 to-white group-hover:from-primary/[0.04]">
+                              <div className="w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                {image ? (
+                                  <img src={image} alt="" className="w-full h-full object-contain p-1" loading="lazy" />
+                                ) : (
+                                  <svg viewBox="0 0 24 24" className="w-10 h-10" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d={style.icon} />
+                                  </svg>
+                                )}
+                              </div>
+                            </div>
+                            <div className="w-full px-3 pb-3 pt-1 bg-white">
+                              <span className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight text-center">
+                                {cat.name}
+                              </span>
+                              <span className="block text-[10px] text-mltext-light mt-0.5 text-center">
+                                {cat.isEndNode ? "Zobrazit díly" : "Podkategorie →"}
+                              </span>
+                            </div>
+                            <div className="w-full h-[3px] bg-mlborder-light group-hover:bg-primary transition-colors" />
+                          </button>
+                        );
+                      })}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="block text-[15px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight">
-                        {cat.name}
-                      </span>
-                      <span className="block text-[12px] text-mltext-light mt-1">
-                        {cat.isEndNode ? "Zobrazit díly" : "Podkategorie"}
-                      </span>
+                  </>
+                )}
+
+                {/* Remaining categories — compact with colored dot */}
+                {rest.length > 0 && (
+                  <>
+                    <p className="text-[11px] font-bold text-mltext-light uppercase tracking-wider mb-3">Další kategorie</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
+                      {rest.map((cat) => {
+                        const style = getCategoryStyle(cat.name);
+                        return (
+                          <button
+                            key={cat.nodeId}
+                            onClick={() => handleCategoryClick(cat)}
+                            className="group text-left bg-white rounded-xl border border-mlborder-light hover:border-primary/30 hover:bg-primary/[0.02] transition-all px-4 py-3 flex items-center gap-3"
+                          >
+                            <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: style.color + "40", border: `2px solid ${style.color}` }} />
+                            <span className="flex-1 text-[13px] font-semibold text-mltext group-hover:text-primary transition-colors truncate">
+                              {cat.name}
+                            </span>
+                            <svg viewBox="0 0 24 24" className="w-4 h-4 text-mlborder-light group-hover:text-primary shrink-0 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                          </button>
+                        );
+                      })}
                     </div>
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-mlborder group-hover:text-primary shrink-0 transition-all group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                  </>
+                )}
+              </>
+            );
+          })()}
 
           {/* No categories */}
           {!loading && categories.length === 0 && products.length === 0 && !loadingProducts && (
