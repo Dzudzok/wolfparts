@@ -4,9 +4,9 @@
  */
 
 import axios from "axios";
+import { getTecDocApiKey, invalidateKey } from "./tecdoc-key";
 
-const API_KEY = "2BeBXg67wzbzFCs4QjwPEUsEm5Xq3Hq37sNWymUuuMXDp2BQU3Tc";
-const ENDPOINT = `https://webservice.tecalliance.services/pegasus-3-0/services/TecdocToCatDLB.jsonEndpoint?api_key=${API_KEY}`;
+const BASE_ENDPOINT = "https://webservice.tecalliance.services/pegasus-3-0/services/TecdocToCatDLB.jsonEndpoint";
 const PROVIDER = 415;
 
 // Simple in-memory cache to reduce API calls
@@ -20,12 +20,29 @@ async function call<T>(operation: string, params: Record<string, unknown>): Prom
     return cached.data as T;
   }
 
+  const apiKey = await getTecDocApiKey();
   const body: Record<string, unknown> = {};
   body[operation] = { provider: PROVIDER, ...params };
-  const { data } = await axios.post(ENDPOINT, body, {
+  const { data } = await axios.post(`${BASE_ENDPOINT}?api_key=${apiKey}`, body, {
     headers: { "Content-Type": "application/json" },
     timeout: 20000,
   });
+
+  // If 401, key rotated — refresh and retry once
+  if (data.status === 401) {
+    invalidateKey();
+    const newKey = await getTecDocApiKey();
+    const { data: retryData } = await axios.post(`${BASE_ENDPOINT}?api_key=${newKey}`, body, {
+      headers: { "Content-Type": "application/json" },
+      timeout: 20000,
+    });
+    if (retryData.status && retryData.status !== 200 && retryData.status !== 400) {
+      throw new Error(`TecDoc ${operation}: ${retryData.statusText || retryData.status}`);
+    }
+    apiCache.set(cacheKey, { data: retryData, ts: Date.now() });
+    return retryData;
+  }
+
   if (data.status && data.status !== 200 && data.status !== 400) {
     throw new Error(`TecDoc ${operation}: ${data.statusText || data.status}`);
   }
@@ -329,8 +346,9 @@ export async function getBrandsForVehicleCategory(
 /**
  * Get car photo URL by engine K-type ID (via Pegasus documents)
  */
-export function getCarPhotoUrl(engineId: number | string): string {
-  return `https://webservice.tecalliance.services/pegasus-3-0/documents/${PROVIDER}/DR${engineId}/0?api_key=${API_KEY}`;
+export async function getCarPhotoUrl(engineId: number | string): Promise<string> {
+  const key = await getTecDocApiKey();
+  return `https://webservice.tecalliance.services/pegasus-3-0/documents/${PROVIDER}/DR${engineId}/0?api_key=${key}`;
 }
 
 /**

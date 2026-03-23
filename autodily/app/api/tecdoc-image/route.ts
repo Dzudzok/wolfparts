@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCarPhotoUrl, getDocumentUrl } from "@/lib/tecdoc-media";
+import { getTecDocApiKey } from "@/lib/tecdoc-key";
+
+const PROVIDER = 415;
 
 /**
  * GET /api/tecdoc-image?type=car&id=3726
  * GET /api/tecdoc-image?type=doc&id=845520172495142
  *
- * Proxies images from TecAlliance Pegasus so API key is not exposed client-side.
- * Caches via CDN headers (7 days for cars, 1 day for docs).
+ * Proxies images from TecAlliance Pegasus with auto-rotating API key.
  */
 export async function GET(req: NextRequest) {
   const type = req.nextUrl.searchParams.get("type");
@@ -16,11 +17,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing type or id" }, { status: 400 });
   }
 
-  const url = type === "car" ? getCarPhotoUrl(id) : getDocumentUrl(id);
-  const cacheTtl = type === "car" ? 604800 : 86400; // 7 days / 1 day
+  const apiKey = await getTecDocApiKey();
+  const docId = type === "car" ? `DR${id}` : id;
+  const url = `https://webservice.tecalliance.services/pegasus-3-0/documents/${PROVIDER}/${docId}/0?api_key=${apiKey}`;
+  const cacheTtl = type === "car" ? 604800 : 86400;
 
   try {
-    const res = await fetch(url, { next: { revalidate: cacheTtl } });
+    const res = await fetch(url);
 
     if (!res.ok) {
       return new NextResponse(null, { status: 404 });
