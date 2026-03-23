@@ -77,14 +77,18 @@ function ModelCardImage({ modelId, brandId, modelName }: { modelId: number; bran
       {modelName && <span className="text-[11px] font-bold text-gray-300 uppercase tracking-wide">{modelName}</span>}
     </div>
   );
-  if (!src) return <div className="w-full h-full bg-white rounded animate-pulse" />;
 
   return (
-    <img
-      src={src}
-      alt=""
-      className="w-full h-full object-contain"
-    />
+    <div className="w-full h-full relative bg-white rounded">
+      {!src && <div className="absolute inset-0 bg-gray-100 rounded animate-pulse" />}
+      {src && (
+        <img
+          src={src}
+          alt=""
+          className="w-full h-full object-contain animate-[fadeIn_0.3s_ease-in]"
+        />
+      )}
+    </div>
   );
 }
 
