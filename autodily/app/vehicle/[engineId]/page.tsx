@@ -8,8 +8,7 @@ import { getCarBrandLogoUrl } from "@/lib/brand-logos";
 import { getManufacturerLogoUrl, hasManufacturerLogo } from "@/lib/brand-logos";
 import { getCategoryStyle, getCategoryImage } from "@/lib/category-icons";
 import { useCart } from "@/lib/cart";
-import BrakeSchematic from "@/components/BrakeSchematic";
-import FilterSchematic from "@/components/FilterSchematic";
+import SchematicSidebar from "@/components/SchematicSidebar";
 
 interface Category { nodeId: string; name: string; isEndNode: boolean; href: string; }
 interface MatchedProduct {
@@ -56,6 +55,7 @@ export default function VehiclePartsPage() {
   const [loading, setLoading] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [tecdocCount, setTecdocCount] = useState(0);
+  const [hoveredCatId, setHoveredCatId] = useState<string | null>(null);
   const [vehicleInfo, setVehicleInfo] = useState<{ imageUrl?: string; power?: string; engineCodes?: string; fuel?: string; years?: string; body?: string } | null>(null);
 
   // Build breadcrumb from URL
@@ -327,6 +327,8 @@ export default function VehiclePartsPage() {
                           <button
                             key={cat.nodeId}
                             onClick={() => handleCategoryClick(cat)}
+                            onMouseEnter={() => setHoveredCatId(cat.nodeId)}
+                            onMouseLeave={() => setHoveredCatId(null)}
                             className="group text-left rounded-2xl border-2 border-mlborder-light hover:border-primary/40 hover:shadow-lg transition-all flex flex-col items-center overflow-hidden hover:-translate-y-1"
                           >
                             <div className="w-full pt-4 pb-2 flex items-center justify-center bg-gradient-to-b from-gray-50 to-white group-hover:from-primary/[0.04]">
@@ -367,6 +369,8 @@ export default function VehiclePartsPage() {
                           <button
                             key={cat.nodeId}
                             onClick={() => handleCategoryClick(cat)}
+                            onMouseEnter={() => setHoveredCatId(cat.nodeId)}
+                            onMouseLeave={() => setHoveredCatId(null)}
                             className="group text-left bg-white rounded-xl border border-mlborder-light hover:border-primary/30 hover:bg-primary/[0.02] transition-all px-4 py-3 flex items-center gap-3"
                           >
                             <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: style.color + "40", border: `2px solid ${style.color}` }} />
@@ -523,24 +527,16 @@ export default function VehiclePartsPage() {
           </div>
         </div>
 
-        {/* RIGHT SIDEBAR — Interactive schematic */}
+        {/* RIGHT — Expandable schematic sidebar */}
         {showRightSchematic && (
-          <aside className="hidden xl:block w-[300px] shrink-0 border-l border-mlborder-light bg-white overflow-y-auto" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: "64px" }}>
-            <div className="p-3">
-              {showBrakeSchematic && (
-                <>
-                  <p className="text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2 px-1">Schéma brzd</p>
-                  <BrakeSchematic categories={categories} onSelect={handleCategoryClick} />
-                </>
-              )}
-              {showFilterSchematic && (
-                <>
-                  <p className="text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2 px-1">Schéma filtrů</p>
-                  <FilterSchematic categories={categories} onSelect={handleCategoryClick} />
-                </>
-              )}
-            </div>
-          </aside>
+          <SchematicSidebar
+            showBrake={showBrakeSchematic}
+            showFilter={showFilterSchematic}
+            categories={categories}
+            onSelect={handleCategoryClick}
+            engineId={String(engineId)}
+            hoveredCategoryId={hoveredCatId}
+          />
         )}
       </div>
 
