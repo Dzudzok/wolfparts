@@ -27,8 +27,14 @@ export default function Footer() {
           <div>
             <h4 className="text-white/70 font-bold text-xs uppercase tracking-widest mb-4">Nákup</h4>
             <div className="space-y-2.5">
-              {["Doprava a platba", "Obchodní podmínky", "Vrácení zboží", "Reklamace", "Kontakt"].map((l) => (
-                <a key={l} href="#" className="block text-white/30 text-sm hover:text-white/70 transition-colors">{l}</a>
+              {[
+                { label: "O nás", href: "/o-nas" },
+                { label: "Doprava a platba", href: "/doprava" },
+                { label: "Obchodní podmínky", href: "/obchodni-podminky" },
+                { label: "Soubory ke stažení", href: "/ke-stazeni" },
+                { label: "Kontakt", href: "/kontakt" },
+              ].map((l) => (
+                <a key={l.label} href={l.href} className="block text-white/30 text-sm hover:text-white/70 transition-colors">{l.label}</a>
               ))}
             </div>
           </div>

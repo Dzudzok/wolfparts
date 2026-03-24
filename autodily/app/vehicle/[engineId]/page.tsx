@@ -116,7 +116,31 @@ export default function VehiclePartsPage() {
     return `/vehicle/${engineId}?${base}`;
   }
 
-  function handleCategoryClick(cat: Category) {
+  async function handleCategoryClick(cat: Category) {
+    // Handle promoted subcategories (e.g. "Brzdové obložení" promoted from "Kotoučová brzda")
+    if (cat.nodeId.startsWith("promoted_")) {
+      const parts = cat.nodeId.split("_"); // promoted_{parentNodeId}_{subName}
+      const parentId = parts[1];
+      const subName = cat.name.toLowerCase();
+      // Fetch subcategories of parent to find real nodeId
+      try {
+        const res = await fetch(`/api/vehicles?action=categories&engineId=${engineId}&parentId=${parentId}`);
+        const subs: Category[] = await res.json();
+        const real = subs.find((s: Category) => s.name.toLowerCase().includes(subName));
+        if (real) {
+          const parentCat = categories.find(c => c.nodeId === parentId);
+          const parentPath = parentCat ? `${parentCat.nodeId}:${parentCat.name}~` : "";
+          const path = catPathParam ? `${catPathParam}~${parentPath}${real.nodeId}:${real.name}` : `${parentPath}${real.nodeId}:${real.name}`;
+          if (real.isEndNode) {
+            router.push(vehicleUrl({ cat: "", catPath: path, leaf: real.nodeId }));
+          } else {
+            router.push(vehicleUrl({ cat: real.nodeId, catPath: path, leaf: "" }));
+          }
+          return;
+        }
+      } catch {}
+    }
+
     const newPath = catPathParam ? `${catPathParam}~${cat.nodeId}:${cat.name}` : `${cat.nodeId}:${cat.name}`;
     if (cat.isEndNode) {
       router.push(vehicleUrl({ cat: "", catPath: newPath, leaf: cat.nodeId }));
@@ -304,14 +328,42 @@ export default function VehiclePartsPage() {
 
           {/* Categories */}
           {!loading && categories.length > 0 && (() => {
+            // Promote key subcategories to main level (e.g. Brzdové obložení from Kotoučová brzda)
+            const PROMOTE_MAP: Record<string, string[]> = {
+              "kotoučová brzda": ["brzdové obložení", "brzdový kotouč"],
+            };
+            const promoted: Category[] = [];
+            for (const cat of categories) {
+              const key = cat.name.toLowerCase();
+              if (PROMOTE_MAP[key]) {
+                // This is a GROUP whose children should be promoted
+                for (const subName of PROMOTE_MAP[key]) {
+                  // Create a virtual promoted category — will be resolved on click via subcats fetch
+                  promoted.push({
+                    nodeId: `promoted_${cat.nodeId}_${subName.replace(/\s/g, "_")}`,
+                    name: subName.charAt(0).toUpperCase() + subName.slice(1),
+                    isEndNode: true, // Will search as leaf
+                    href: "",
+                  });
+                }
+              }
+            }
+            // Hide certain subcategories from brake view
+            const HIDE_FROM_BRAKE = ["simulátor pocitu", "filtr"];
+            const isBrakeView = breadcrumb.some(b => b.name.toLowerCase().includes("brzd"));
+            const filteredCats = isBrakeView
+              ? categories.filter(c => !HIDE_FROM_BRAKE.some(h => c.name.toLowerCase().startsWith(h)))
+              : categories;
+            const allCategories = [...promoted, ...filteredCats];
+
             // Split popular + rest
-            const POPULAR_KEYS = ["brzd", "filtr", "motor", "odpruž", "tlumen", "řízen", "rizen", "chlaz", "spojk", "výfuk", "vyfuk", "paliv", "řemen", "elektro", "zapalov", "klima", "servis", "kontrol"];
+            const POPULAR_KEYS = ["brzd", "filtr", "motor", "odpruž", "tlumen", "řízen", "rizen", "chlaz", "spojk", "výfuk", "vyfuk", "paliv", "řemen", "elektro", "zapalov", "klima", "servis", "kontrol", "obložení", "kotouč"];
             const isPopular = (name: string) => {
               const l = name.toLowerCase();
               return POPULAR_KEYS.some((k) => l.includes(k));
             };
-            const popular = categories.filter((c) => isPopular(c.name));
-            const rest = categories.filter((c) => !isPopular(c.name));
+            const popular = allCategories.filter((c) => isPopular(c.name));
+            const rest = allCategories.filter((c) => !isPopular(c.name));
 
             return (
               <>
