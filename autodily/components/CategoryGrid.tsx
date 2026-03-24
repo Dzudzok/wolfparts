@@ -33,7 +33,10 @@ export default function CategoryGrid() {
               src={cat.image}
               alt={cat.name}
               className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-300"
+              width={100}
+              height={100}
               loading="lazy"
+              decoding="async"
             />
           </div>
           <span className="text-mltext text-[13px] font-bold group-hover:text-primary transition-colors leading-tight">

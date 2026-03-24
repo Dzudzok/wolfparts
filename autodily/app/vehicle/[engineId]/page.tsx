@@ -357,11 +357,8 @@ export default function VehiclePartsPage() {
             const allCategories = [...promoted, ...filteredCats];
 
             // Split popular + rest
-            const POPULAR_KEYS = ["brzd", "filtr", "motor", "odpruž", "tlumen", "řízen", "rizen", "chlaz", "spojk", "výfuk", "vyfuk", "paliv", "řemen", "elektro", "zapalov", "klima", "servis", "kontrol", "obložení", "kotouč"];
-            const isPopular = (name: string) => {
-              const l = name.toLowerCase();
-              return POPULAR_KEYS.some((k) => l.includes(k));
-            };
+            // Show as photo card if we have an image for it
+            const isPopular = (name: string) => !!getCategoryImage(name);
             const popular = allCategories.filter((c) => isPopular(c.name));
             const rest = allCategories.filter((c) => !isPopular(c.name));
 

@@ -1,13 +1,13 @@
-import { getToken } from "@/lib/nextis-api";
+import { checkItemsByCode } from "@/lib/nextis-api";
 import { getTypesenseAdminClient } from "@/lib/typesense";
 import { NextRequest } from "next/server";
-import axios from "axios";
-
-const BASE_URL = process.env.NEXTIS_API_URL || "https://api.mroauto.nextis.cz";
 
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
+
+  // User token from header (if logged in)
+  const userToken = req.headers.get("x-user-token") || undefined;
 
   try {
     // Get product code and brand from Typesense
@@ -20,17 +20,8 @@ export async function GET(req: NextRequest) {
       return Response.json({ error: "Product missing code/brand" }, { status: 404 });
     }
 
-    // Call Nextis API with code + brand
-    const token = await getToken();
-    const res = await axios.post(`${BASE_URL}/catalogs/items-checking-by-id`, {
-      language: "cs",
-      token,
-      getEANCodes: true,
-      getOECodes: true,
-      items: [{ code, brand }],
-    }, { timeout: 10000 });
-
-    const items = res.data.items || res.data.Items || [];
+    // Call Nextis — with user token (their prices) or master token (catalog prices)
+    const items = await checkItemsByCode([{ code, brand }], userToken);
     const item = items[0]?.responseItem || items[0]?.ResponseItem || {};
 
     const price = item.price || item.Price || {};
@@ -42,12 +33,13 @@ export async function GET(req: NextRequest) {
         priceVAT: price.unitPriceIncVAT ?? price.UnitPriceIncVAT ?? 0,
         priceRetail: price.unitPriceRetail ?? price.UnitPriceRetail ?? 0,
         discount: price.discount ?? price.Discount ?? 0,
-        currency: "CZK",
+        currency: price.currency ?? "CZK",
         qty: item.qtyAvailableMain ?? item.QtyAvailableMain ?? 0,
         inStock: (item.qtyAvailableMain ?? item.QtyAvailableMain ?? 0) > 0,
         valid,
+        isUserPrice: !!userToken,
       },
-      { headers: { "Cache-Control": "public, s-maxage=300" } }
+      { headers: { "Cache-Control": userToken ? "private, no-cache" : "public, s-maxage=300" } }
     );
   } catch (err) {
     console.error("product-live error:", err);

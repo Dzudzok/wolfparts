@@ -2,8 +2,9 @@ import { spawn } from "child_process";
 import path from "path";
 
 const ALLOWED_SCRIPTS: Record<string, { cmd: string; args: string[] }> = {
-  "sync:test": { cmd: "npx", args: ["tsx", "scripts/sync-products.ts", "--limit", "500"] },
+  "sync:test": { cmd: "npx", args: ["tsx", "scripts/sync-products.ts", "--reset", "--limit", "500"] },
   "sync:full": { cmd: "npx", args: ["tsx", "scripts/sync-products.ts"] },
+  "sync:reset": { cmd: "npx", args: ["tsx", "scripts/sync-products.ts", "--reset"] },
   "scrape:tecdoc": { cmd: "npx", args: ["tsx", "scripts/scrape-tecdoc.ts"] },
   "scrape:tecdoc:all": { cmd: "npx", args: ["tsx", "scripts/scrape-tecdoc.ts", "--all"] },
   "scrape:tecdoc:brand": { cmd: "npx", args: ["tsx", "scripts/scrape-tecdoc.ts", "--brand"] },

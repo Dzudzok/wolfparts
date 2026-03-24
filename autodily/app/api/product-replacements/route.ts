@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const items = await findByCode(code, 0, "NA");
+    const userToken = req.headers.get("x-user-token") || undefined;
+    const items = await findByCode(code, 0, "NA", userToken);
 
     const results = items
       .filter((item: { responseItem: { productCode: string } }) => item.responseItem?.productCode)

@@ -8,7 +8,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No items" }, { status: 400 });
     }
 
-    const result = await validateOrder(items);
+    const userToken = req.headers.get("x-user-token") || undefined;
+    const result = await validateOrder(items, userToken);
     return NextResponse.json({ items: result });
   } catch (error) {
     console.error("Order validation error:", error);

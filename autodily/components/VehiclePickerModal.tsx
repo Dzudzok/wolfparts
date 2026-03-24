@@ -32,11 +32,22 @@ function ModelCardImage({ modelId, brandId, modelName }: { modelId: number; bran
   const [src, setSrc] = useState<string | null>(null);
   const [hidden, setHidden] = useState(false);
 
+  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Only load when visible in viewport
   useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); }}, { rootMargin: "100px" });
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
     let cancelled = false;
 
     async function load() {
-      // 1. Resolve engineId for this model
       let eid = engineIdCache[modelId] ?? null;
       if (engineIdCache[modelId] === undefined) {
         try {
@@ -69,17 +80,17 @@ function ModelCardImage({ modelId, brandId, modelName }: { modelId: number; bran
 
     load();
     return () => { cancelled = true; };
-  }, [modelId, brandId]);
+  }, [visible, modelId, brandId]);
 
   if (hidden) return (
-    <div className="w-full h-full bg-white rounded flex flex-col items-center justify-center">
+    <div ref={ref} className="w-full h-full bg-white rounded flex flex-col items-center justify-center">
       <CarSilhouette />
       {modelName && <span className="text-[11px] font-bold text-gray-300 uppercase tracking-wide">{modelName}</span>}
     </div>
   );
 
   return (
-    <div className="w-full h-full relative bg-white rounded">
+    <div ref={ref} className="w-full h-full relative bg-white rounded">
       {!src && <div className="absolute inset-0 bg-gray-100 rounded animate-pulse" />}
       {src && (
         <img

@@ -171,20 +171,27 @@ export default function AdminPage() {
           <p className="text-sm text-gray-500 mb-4">
             Stahne CSV z FTP a aktualizuje produkty v Typesense
           </p>
-          <div className="flex items-center gap-3 mb-4">
-            <button
-              onClick={() => sync.run("sync:test")}
-              disabled={sync.running}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
-            >
-              {sync.running ? "Bezi..." : "Sync test (500)"}
-            </button>
+          <div className="flex flex-wrap items-center gap-3 mb-4">
             <button
               onClick={() => sync.run("sync:full")}
               disabled={sync.running}
               className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
             >
-              {sync.running ? "Bezi..." : "Sync plny"}
+              {sync.running ? "Běží..." : "Sync (aktualizace)"}
+            </button>
+            <button
+              onClick={() => sync.run("sync:reset")}
+              disabled={sync.running}
+              className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
+            >
+              {sync.running ? "Běží..." : "Reset + Full Sync"}
+            </button>
+            <button
+              onClick={() => sync.run("sync:test")}
+              disabled={sync.running}
+              className="bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
+            >
+              {sync.running ? "Běží..." : "Test (500)"}
             </button>
           </div>
           <LogPanel title="Sync log" logs={sync.logs} running={sync.running} onStop={sync.stop} />

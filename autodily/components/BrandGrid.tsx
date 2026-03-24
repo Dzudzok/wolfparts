@@ -30,7 +30,7 @@ export default function BrandGrid() {
               src={getCarBrandLogoUrl(b.name)}
               alt={b.display || b.name}
               className="h-9 w-auto object-contain mb-1.5 group-hover:scale-110 transition-transform"
-              loading="lazy"
+              loading="eager"
             />
             <span className="text-mltext-light text-[9px] font-bold uppercase tracking-wider text-center leading-tight group-hover:text-primary transition-colors">
               {b.display || b.name}

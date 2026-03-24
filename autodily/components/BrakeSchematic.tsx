@@ -69,22 +69,29 @@ const MAIN_HOTSPOTS: Hotspot[] = [
 export default function BrakeSchematic({ categories, onSelect, engineId, hoveredCategoryId }: Props) {
   const [hov, setHov] = useState<string | null>(null);
 
+  const [drilldown, setDrilldown] = useState<string | null>(null);
+  const [subcats, setSubcats] = useState<Category[]>([]);
+  const [loadingSub, setLoadingSub] = useState(false);
+  const [promotedSubcats, setPromotedSubcats] = useState<Category[]>([]);
+
   // Map external hoveredCategoryId to internal hotspot id
   const externalHov = (() => {
     if (!hoveredCategoryId) return null;
-    // Find which hotspot matches this category
+    const searchCats = [...categories, ...promotedSubcats];
     for (const hs of MAIN_HOTSPOTS) {
-      const cat = findCat(hs.match, [...categories]);
+      const cat = findCat(hs.match, searchCats);
       if (cat && cat.nodeId === hoveredCategoryId) return hs.id;
+    }
+    if (hoveredCategoryId.startsWith("promoted_")) {
+      const hovName = hoveredCategoryId.split("_").slice(2).join(" ").toLowerCase();
+      for (const hs of MAIN_HOTSPOTS) {
+        if (hs.match.toLowerCase().includes(hovName) || hovName.includes(hs.match.toLowerCase())) return hs.id;
+      }
     }
     return null;
   })();
 
   const activeHov = hov || externalHov;
-  const [drilldown, setDrilldown] = useState<string | null>(null);
-  const [subcats, setSubcats] = useState<Category[]>([]);
-  const [loadingSub, setLoadingSub] = useState(false);
-  const [promotedSubcats, setPromotedSubcats] = useState<Category[]>([]);
 
   // Auto-load subcats of "Kotoučová brzda" to promote Brzdový kotouč + Brzdové obložení to main level
   useEffect(() => {

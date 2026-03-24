@@ -49,7 +49,12 @@ export default function ProductDetail({ product }: { product: Product }) {
   const [activeTab, setActiveTab] = useState<"specs" | "replacements" | "oe">("specs");
 
   useEffect(() => {
-    fetch(`/api/product-live?id=${product.id}`)
+    // Fetch live price — with user token if logged in (gets customer-specific prices)
+    const token = (() => { try { const t = localStorage.getItem("auth_token"); const v = localStorage.getItem("auth_valid_to"); return t && v && new Date(v) > new Date() ? t : null; } catch { return null; } })();
+    const headers: Record<string, string> = {};
+    if (token) headers["x-user-token"] = token;
+
+    fetch(`/api/product-live?id=${product.id}`, { headers })
       .then((r) => r.json())
       .then((d) => { if (!d.error) setLive(d); })
       .catch(() => {})
