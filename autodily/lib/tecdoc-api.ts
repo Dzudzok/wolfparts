@@ -301,14 +301,16 @@ export async function getCategoriesForVehicle(carId: number): Promise<TecDocCate
 /**
  * Search article by product code (e.g. "GDB1330")
  */
-export async function getArticleByCode(code: string): Promise<TecDocArticle | null> {
+export async function getArticleByCode(code: string, brand?: string): Promise<TecDocArticle | null> {
+  // Request more results when brand is specified — we need to find the right one
+  const perPage = brand ? 10 : 1;
   const data = await call<{ articles: TecDocArticle[] }>("getArticles", {
     lang: "cs",
     country: "cz",
     articleCountry: "cz",
     searchQuery: code,
     searchType: 0,
-    perPage: 1,
+    perPage,
     page: 1,
     includeImages: true,
     includeArticleCriteria: true,
@@ -318,7 +320,16 @@ export async function getArticleByCode(code: string): Promise<TecDocArticle | nu
     includeGenericArticles: true,
     includeLinks: true,
   });
-  return data.articles?.[0] || null;
+
+  const articles = data.articles || [];
+  if (!brand) return articles[0] || null;
+  if (articles.length === 0) return null;
+
+  // Find article matching our brand — STRICT match, don't return wrong brand's data
+  const brandLower = brand.toLowerCase();
+  const match = articles.find((a) => a.mfrName?.toLowerCase() === brandLower);
+  // Only return if brand matches — wrong brand = wrong images/specs
+  return match || null;
 }
 
 export interface TecDocBrandForVehicle {

@@ -51,12 +51,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(cached.data, { headers: { "Cache-Control": "public, max-age=86400" } });
   }
 
-  // Get product code from Typesense
+  // Get product code + brand from Typesense
   let code = "";
+  let brand = "";
   try {
     const client = getTypesenseAdminClient();
     const doc = await client.collections("products").documents(id).retrieve() as Record<string, unknown>;
     code = (doc.product_code as string) || "";
+    brand = (doc.brand as string) || "";
   } catch {
     return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "" });
   }
@@ -66,8 +68,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Call TecDoc API directly — images, specs, PDFs, everything
-    const article = await getArticleByCode(code);
+    // Call TecDoc API — search by code, then filter by brand to get correct article
+    const article = await getArticleByCode(code, brand);
 
     if (!article) {
       const empty: ResponseData = { imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "" };

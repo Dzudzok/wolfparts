@@ -55,8 +55,19 @@ export async function syncProductsFromCSV(limit?: number): Promise<void> {
     return clean;
   });
 
+  // Sort: in-stock first, then by price (highest first) — so most important products go first
+  // This matters when Typesense runs out of memory mid-sync
+  records.sort((a, b) => {
+    const stockA = parsePrice(a.TotalStock);
+    const stockB = parsePrice(b.TotalStock);
+    if (stockA > 0 && stockB <= 0) return -1;
+    if (stockA <= 0 && stockB > 0) return 1;
+    return parsePrice(b.RetailPriceMin) - parsePrice(a.RetailPriceMin);
+  });
+
   const items = limit ? records.slice(0, limit) : records;
-  console.log(`Przetwarzanie ${items.length} produktow...`);
+  const inStockCount = items.filter((r) => parsePrice(r.TotalStock) > 0).length;
+  console.log(`Przetwarzanie ${items.length} produktow (${inStockCount} skladem)...`);
 
   const client = getTypesenseAdminClient();
   const BATCH = 1000;
@@ -74,19 +85,8 @@ export async function syncProductsFromCSV(limit?: number): Promise<void> {
         name: stripHtml(r.Name) || "",
         description: stripHtml(r.Description) || "",
         brand: stripHtml(r.Brand) || "Neznama",
-        brand_group: stripHtml(r.BrandGroup) || "",
         category: stripHtml(r.Category) || "Nezarazeno",
-        assortment: stripHtml(r.AssortmentName) || "",
-        price_min: parsePrice(r.RetailPriceMin),
-        price_max: parsePrice(r.RetailPriceMax),
-        in_stock: parsePrice(r.TotalStock) > 0,
-        stock_qty: parsePrice(r.TotalStock),
-        is_sale: r.IsSale === "1",
-        image_url: r.ImageURL || "",
         oem_numbers: parsePipeList(r.OEMNumbers),
-        ean_codes: parsePipeList(r.EANCodes),
-        cross_numbers: parsePipeList(r.CrossNumbers),
-        updated_at: Date.now(),
       }));
 
     try {
