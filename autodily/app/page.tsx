@@ -28,7 +28,7 @@ export default function Home() {
               {/* Stats */}
               <div className="flex items-center justify-center lg:justify-start gap-6 text-white/50">
                 <div>
-                  <span className="block text-2xl font-bold text-white">4 000 000+</span>
+                  <span className="block text-2xl font-bold text-white">6 000 000+</span>
                   <span className="text-[11px] uppercase tracking-wider">dílů skladem</span>
                 </div>
                 <div className="w-px h-10 bg-white/10" />
