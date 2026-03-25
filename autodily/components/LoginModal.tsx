@@ -108,6 +108,13 @@ export default function LoginModal({ onLogin, onClose }: LoginModalProps) {
               "Přihlásit se"
             )}
           </button>
+
+          <p className="text-center text-[13px] text-mltext-light mt-1">
+            Nemáte účet?{" "}
+            <a href="/registrace" className="text-primary font-bold hover:text-primary-dark transition-colors">
+              Zaregistrujte se
+            </a>
+          </p>
         </form>
       </div>
     </div>

@@ -58,6 +58,7 @@ export default function VehiclePartsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [dynamicFilters, setDynamicFilters] = useState<DynamicFilter[]>([]);
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+  const [productView, setProductView] = useState<"list" | "grid">("list");
   const [loading, setLoading] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [tecdocCount, setTecdocCount] = useState(0);
@@ -362,64 +363,65 @@ export default function VehiclePartsPage() {
               : categories;
             const allCategories = [...promoted, ...filteredCats];
 
-            // Split popular + rest
-            // Show as photo card if we have an image for it
-            const isPopular = (name: string) => !!getCategoryImage(name);
-            const popular = allCategories.filter((c) => isPopular(c.name));
-            const rest = allCategories.filter((c) => !isPopular(c.name));
+            // Priority order for categories
+            const PRIORITY_ORDER = [
+              "brzd", "motor", "filtr", "řemen", "spojk", "řízen", "rizen", "odpruž", "tlumen",
+              "chlaz", "výfuk", "vyfuk", "paliv", "elektro", "zapalov", "klima", "zavěšen",
+              "náprav", "pohon", "převod", "karos", "topen", "servis", "kontrol",
+            ];
+            function getPriority(name: string): number {
+              const l = name.toLowerCase();
+              for (let i = 0; i < PRIORITY_ORDER.length; i++) {
+                if (l.includes(PRIORITY_ORDER[i])) return i;
+              }
+              return 999;
+            }
+
+            const sorted = [...allCategories].sort((a, b) => getPriority(a.name) - getPriority(b.name));
+            const top8 = sorted.slice(0, 8);
+            const rest = sorted.slice(8);
 
             return (
               <>
-                {/* Popular categories — cards with photos */}
-                {popular.length > 0 && (
-                  <>
-                    <p className="text-[11px] font-bold text-mltext-light uppercase tracking-wider mb-3">Nejhledanější kategorie</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-8">
-                      {popular.map((cat) => {
-                        const style = getCategoryStyle(cat.name);
-                        const image = getCategoryImage(cat.name);
-                        return (
-                          <button
-                            key={cat.nodeId}
-                            onClick={() => handleCategoryClick(cat)}
-                            onMouseEnter={() => setHoveredCatId(cat.nodeId)}
-                            onMouseLeave={() => setHoveredCatId(null)}
-                            className="group text-left rounded-2xl border-2 border-mlborder-light hover:border-primary/40 hover:shadow-lg transition-all flex flex-col items-center overflow-hidden hover:-translate-y-1"
-                          >
-                            <div className="w-full pt-4 pb-2 flex items-center justify-center bg-gradient-to-b from-gray-50 to-white group-hover:from-primary/[0.04]">
-                              <div className="w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                {image ? (
-                                  <img src={image} alt="" className="w-full h-full object-contain p-1" loading="lazy" />
-                                ) : (
-                                  <svg viewBox="0 0 24 24" className="w-10 h-10" fill="none" stroke={style.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d={style.icon} />
-                                  </svg>
-                                )}
-                              </div>
-                            </div>
-                            <div className="w-full px-3 pb-3 pt-1 bg-white">
-                              <span className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight text-center">
-                                {cat.name}
-                              </span>
-                              <span className="block text-[10px] text-mltext-light mt-0.5 text-center">
-                                {cat.isEndNode ? "Zobrazit díly" : "Podkategorie →"}
-                              </span>
-                            </div>
-                            <div className="w-full h-[3px] bg-mlborder-light group-hover:bg-primary transition-colors" />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </>
+                {/* Top categories — large cards */}
+                {top8.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+                    {top8.map((cat) => {
+                      const image = getCategoryImage(cat.name);
+                      const style = getCategoryStyle(cat.name);
+                      return (
+                        <button
+                          key={cat.nodeId}
+                          onClick={() => handleCategoryClick(cat)}
+                          onMouseEnter={() => setHoveredCatId(cat.nodeId)}
+                          onMouseLeave={() => setHoveredCatId(null)}
+                          className="group bg-white rounded-xl border border-mlborder-light hover:border-primary/30 hover:shadow-lg transition-all p-4 flex flex-col items-center gap-3 hover:-translate-y-0.5"
+                        >
+                          <div className="w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            {image ? (
+                              <img src={image} alt="" className="w-full h-full object-contain" loading="lazy" />
+                            ) : (
+                              <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke={style.color} strokeWidth="1.5"><path d={style.icon} /></svg>
+                            )}
+                          </div>
+                          <div className="text-center">
+                            <span className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight">{cat.name}</span>
+                            <span className="block text-[10px] text-mltext-light mt-0.5">{cat.isEndNode ? "Zobrazit díly" : "Podkategorie →"}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
 
-                {/* Remaining categories — compact with colored dot */}
+                {/* Rest — compact rows */}
                 {rest.length > 0 && (
                   <>
-                    <p className="text-[11px] font-bold text-mltext-light uppercase tracking-wider mb-3">Další kategorie</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
+                    <p className="text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2">Další kategorie</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 mb-4">
                       {rest.map((cat) => {
                         const style = getCategoryStyle(cat.name);
+                        const image = getCategoryImage(cat.name);
                         return (
                           <button
                             key={cat.nodeId}
@@ -519,16 +521,71 @@ export default function VehiclePartsPage() {
                     <> — <span className="font-bold text-mlgreen">{products.filter((p) => p.product).length}</span> v našem skladu</>
                   )}
                 </p>
+                {/* View toggle */}
+                <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+                  <button onClick={() => setProductView("list")} className={`p-1.5 rounded-md transition-all ${productView === "list" ? "bg-white shadow-sm text-mltext-dark" : "text-mltext-light hover:text-mltext"}`}>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
+                  </button>
+                  <button onClick={() => setProductView("grid")} className={`p-1.5 rounded-md transition-all ${productView === "grid" ? "bg-white shadow-sm text-mltext-dark" : "text-mltext-light hover:text-mltext"}`}>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-3">
-                {filteredProducts.map((item, i) => (
+              <div className={productView === "grid" ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" : "space-y-2"}>
+                {filteredProducts.map((item, i) => {
+                  const montovanaStrana = item.criteria?.find((c) => c.key.toLowerCase().includes("montovaná strana") || c.key.toLowerCase().includes("provedení nápravy"));
+                  const detailUrl = item.product?.id ? `/product/${item.product.id}` : `/search?q=${encodeURIComponent(item.tecdocCode)}`;
+                  const inStock = (item.nextisQty || 0) > 0;
+
+                  /* ─── GRID VIEW ─── */
+                  if (productView === "grid") return (
+                    <div key={i} className={`bg-white rounded-xl border overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 ${inStock ? "border-mlgreen/20" : "border-mlborder-light"}`}>
+                      <a href={detailUrl} className="block aspect-[4/3] bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-3 relative">
+                        <ProductThumb imageUrl={item.product?.image_url as string} productId={item.product?.id as string} productCode={item.tecdocCode} brand={item.tecdocBrand} />
+                        {inStock && <span className="absolute top-1.5 left-1.5 text-[9px] font-bold text-white bg-mlgreen px-1.5 py-0.5 rounded">Skladem</span>}
+                      </a>
+                      <div className="p-2.5">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          {hasManufacturerLogo(item.tecdocBrand) && <img src={getManufacturerLogoUrl(item.tecdocBrand)} alt="" className="h-3 w-auto object-contain" loading="lazy" />}
+                          <span className="text-[9px] text-mltext-light font-bold uppercase">{item.tecdocBrand}</span>
+                          <span className="text-[9px] font-mono text-primary/40">{item.tecdocCode}</span>
+                        </div>
+                        <a href={detailUrl} className="block text-[12px] font-bold text-mltext-dark hover:text-primary transition-colors leading-tight line-clamp-2">
+                          {item.product?.name || item.tecdocName || item.tecdocCode}
+                        </a>
+                        {/* Key specs */}
+                        {montovanaStrana && (
+                          <span className="inline-block mt-1 text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{montovanaStrana.value}</span>
+                        )}
+                        {item.criteria && item.criteria.filter((c) => c !== montovanaStrana).length > 0 && (
+                          <div className="flex flex-wrap gap-0.5 mt-1">
+                            {item.criteria.filter((c) => c !== montovanaStrana).slice(0, 3).map((c, ci) => (
+                              <span key={ci} className="text-[8px] text-mltext-light bg-gray-50 px-1 py-0.5 rounded">{c.key}: <span className="font-semibold">{c.value}</span></span>
+                            ))}
+                          </div>
+                        )}
+                        {/* Price + cart */}
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-mlborder-light">
+                          {item.nextisPrice ? (
+                            <span className="text-[15px] font-extrabold text-mltext-dark">{item.nextisPrice.toFixed(0)} <span className="text-[10px] text-mltext-light">Kč</span></span>
+                          ) : <span className="text-[11px] text-mltext-light">Na dotaz</span>}
+                          <button onClick={() => cart.addItem({ id: item.product?.id as string || item.tecdocCode, productCode: item.tecdocCode, brand: item.tecdocBrand, name: item.product?.name as string || item.tecdocName, price: item.nextisPrice || 0, imageUrl: item.product?.image_url as string || "", qty: 1 })}
+                            className="bg-primary hover:bg-primary-dark text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors">
+                            Do košíku
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+
+                  /* ─── LIST VIEW ─── */
+                  return (
                   <div
                     key={i}
-                    className="bg-white rounded-xl border border-mlborder-light p-5 flex gap-5 items-start transition-all hover:shadow-lg"
+                    className={`bg-white rounded-xl border p-4 flex gap-5 items-center transition-all hover:shadow-md ${inStock ? "border-mlgreen/20" : "border-mlborder-light"}`}
                   >
-                    {/* Product image */}
-                    <a href={item.product?.id ? `/product/${item.product.id}` : `/search?q=${encodeURIComponent(item.tecdocCode)}`} className="w-20 h-20 rounded-xl bg-gray-50 border border-mlborder-light flex items-center justify-center shrink-0 overflow-hidden hover:border-primary/20 transition-colors">
+                    <a href={detailUrl} className="w-28 h-24 rounded-lg bg-gray-50 border border-mlborder-light flex items-center justify-center shrink-0 overflow-hidden hover:border-primary/20 transition-colors p-1">
                       <ProductThumb
                         imageUrl={item.product?.image_url as string}
                         productId={item.product?.id as string}
@@ -539,47 +596,46 @@ export default function VehiclePartsPage() {
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      {/* Brand + code */}
+                      <div className="flex items-center gap-2 mb-0.5">
                         {hasManufacturerLogo(item.tecdocBrand) && (
                           <img src={getManufacturerLogoUrl(item.tecdocBrand)} alt="" className="h-3.5 w-auto object-contain" loading="lazy" />
                         )}
-                        <span className="text-[11px] text-mltext-light font-bold uppercase tracking-wider">
-                          {item.tecdocBrand}
-                        </span>
-                        <span className="text-[11px] font-mono text-primary/60 bg-primary/[0.04] px-1.5 py-0.5 rounded">{item.tecdocCode}</span>
-                        {/* Source badge for testing */}
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${item.product ? "bg-blue-100 text-blue-600" : "bg-orange-100 text-orange-600"}`}>
-                          {item.product ? "TS" : "API"}
-                        </span>
+                        <span className="text-[11px] text-mltext-light font-bold uppercase">{item.tecdocBrand}</span>
+                        <span className="text-[11px] font-mono text-primary/50">{item.tecdocCode}</span>
                       </div>
-                      <p className="text-[15px] font-bold text-mltext-dark leading-tight truncate">
+                      {/* Name */}
+                      <a href={detailUrl} className="block text-[14px] font-bold text-mltext-dark hover:text-primary transition-colors leading-tight truncate">
                         {item.product?.name || item.tecdocName || item.tecdocCode}
-                      </p>
-                      {/* TecDoc specs inline */}
+                      </a>
+                      {/* Montovaná strana — highlighted */}
+                      {montovanaStrana && (
+                        <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
+                          <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
+                          {montovanaStrana.value}
+                        </span>
+                      )}
+                      {/* Other specs */}
                       {item.criteria && item.criteria.length > 0 && (
-                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
-                          {item.criteria.slice(0, 6).map((c, ci) => (
-                            <span key={ci} className="text-[10px] text-mltext-light">
-                              <span className="text-mltext-light/60">{c.key}:</span> <span className="font-semibold text-mltext">{c.value}</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {item.criteria.filter((c) => c !== montovanaStrana).slice(0, 5).map((c, ci) => (
+                            <span key={ci} className="text-[10px] text-mltext-light bg-gray-50 px-1.5 py-0.5 rounded">
+                              {c.key}: <span className="font-semibold text-mltext">{c.value}</span>
                             </span>
                           ))}
                         </div>
                       )}
+                      {/* Stock + Detail */}
                       <div className="flex items-center gap-3 mt-1.5">
-                        <p className={`text-[12px] font-bold ${(item.nextisQty || 0) > 0 ? "text-mlgreen" : "text-mltext-light"}`}>
-                          {(item.nextisQty || 0) > 0 ? `Skladem ${item.nextisQty} ks` : "Na objednávku"}
-                        </p>
-                        <a
-                          href={item.product?.id ? `/product/${item.product.id}` : `/search?q=${encodeURIComponent(item.tecdocCode)}`}
-                          className="text-[12px] text-primary hover:text-primary-dark font-semibold transition-colors"
-                        >
-                          Detail →
-                        </a>
+                        <span className={`text-[11px] font-bold ${inStock ? "text-mlgreen" : "text-mlorange"}`}>
+                          {inStock ? `Skladem ${item.nextisQty} ks` : "Na objednávku"}
+                        </span>
+                        <a href={detailUrl} className="text-[11px] text-primary hover:text-primary-dark font-semibold">Detail →</a>
                       </div>
                     </div>
 
                     {/* Price + Cart */}
-                    <div className="flex flex-col items-end gap-2 shrink-0">
+                    <div className="flex flex-col items-end gap-2 shrink-0 min-w-[100px]">
                       {item.nextisPrice ? (
                         <>
                           <div className="text-right">
@@ -588,7 +644,7 @@ export default function VehiclePartsPage() {
                               <span className="text-sm font-bold text-mltext-light ml-0.5">Kč</span>
                             </p>
                             {item.nextisPriceVAT && (
-                              <p className="text-[11px] text-mltext-light mt-0.5">{item.nextisPriceVAT.toFixed(0)} Kč s DPH</p>
+                              <p className="text-[10px] text-mltext-light">{item.nextisPriceVAT.toFixed(0)} Kč s DPH</p>
                             )}
                           </div>
                           <button
@@ -612,7 +668,8 @@ export default function VehiclePartsPage() {
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Show more button — fetches next page from API */}

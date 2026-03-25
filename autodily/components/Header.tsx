@@ -100,8 +100,8 @@ export default function Header({ initialQuery, showSearch = true }: HeaderProps)
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => setShowLogin(true)}
+                <a
+                  href="/prihlaseni"
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] transition-all"
                   title="Přihlásit se"
                 >
@@ -109,7 +109,7 @@ export default function Header({ initialQuery, showSearch = true }: HeaderProps)
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
-                </button>
+                </a>
               )}
 
               {/* Cart */}
