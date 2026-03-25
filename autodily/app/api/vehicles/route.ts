@@ -104,6 +104,25 @@ export async function GET(req: NextRequest) {
         "Speciální nářadí", "Vedlejší pohon", "Pneumatický systém",
       ]);
 
+      // parentId=-1 → return ALL categories flat (for search)
+      if (parentId === -1) {
+        const filtered = allNodes.filter((n) => !HIDDEN_CATEGORIES.has(n.assemblyGroupName));
+        // Build parent name lookup
+        const nameMap = new Map<number, string>();
+        for (const n of allNodes) nameMap.set(n.assemblyGroupNodeId, n.assemblyGroupName);
+        return Response.json(
+          filtered
+            .sort((a, b) => (a.sortNo || 0) - (b.sortNo || 0))
+            .map((n) => ({
+              nodeId: String(n.assemblyGroupNodeId),
+              name: n.assemblyGroupName,
+              parentNodeId: n.parentNodeId || null,
+              parentName: n.parentNodeId ? nameMap.get(n.parentNodeId) || null : null,
+              isEndNode: !n.hasChilds,
+            }))
+        );
+      }
+
       // Filter to requested level + remove hidden
       const nodes = (parentId === 0
         ? allNodes.filter((n) => !n.parentNodeId)
@@ -228,12 +247,18 @@ export async function GET(req: NextRequest) {
 
       // Build dynamic filters from criteria of ALL products
       const filtersMap = new Map<string, Set<string>>();
+      // Add manufacturer (výrobce) filter from product brand
+      const brandSet = new Set<string>();
+      for (const p of allProducts) {
+        if (p.tecdocBrand) brandSet.add(p.tecdocBrand);
+      }
+      if (brandSet.size >= 1) filtersMap.set("Výrobce", brandSet);
+
       for (const p of allProducts) {
         const criteria = (p as Record<string, unknown>).criteria as Array<{ key: string; value: string }> | undefined;
         if (!criteria) continue;
         for (const c of criteria) {
           if (!c.key || !c.value) continue;
-          // Skip very long or unfiltered criteria
           if (c.value.length > 50) continue;
           if (c.key.match(/zkušební|svhc|nutně|doplňk/i)) continue;
           if (!filtersMap.has(c.key)) filtersMap.set(c.key, new Set());
@@ -241,11 +266,20 @@ export async function GET(req: NextRequest) {
         }
       }
 
+      // Key filters always shown (even with 1 value)
+      const ALWAYS_SHOW = /výrobce|montovaná strana|provedení nápravy|strana montáže/i;
+
       // Convert to array, sort by number of unique values (most useful first)
       const dynamicFilters = [...filtersMap.entries()]
-        .filter(([, values]) => values.size >= 2 && values.size <= 20) // Only show filters with 2-20 options
-        .sort((a, b) => a[1].size - b[1].size)
-        .slice(0, 8) // Max 8 filter groups
+        .filter(([key, values]) => (ALWAYS_SHOW.test(key) ? values.size >= 1 : values.size >= 2) && (ALWAYS_SHOW.test(key) || values.size <= 20))
+        .sort((a, b) => {
+          // Always-show filters first
+          const aKey = ALWAYS_SHOW.test(a[0]) ? -1 : 0;
+          const bKey = ALWAYS_SHOW.test(b[0]) ? -1 : 0;
+          if (aKey !== bKey) return aKey - bKey;
+          return a[1].size - b[1].size;
+        })
+        .slice(0, 10)
         .map(([key, values]) => ({ key, values: [...values].sort() }));
 
       return Response.json({

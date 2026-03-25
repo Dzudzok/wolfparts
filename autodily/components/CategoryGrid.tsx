@@ -26,9 +26,12 @@ export default function CategoryGrid() {
         <a
           key={cat.name}
           href={`/search?q=${encodeURIComponent(cat.query)}`}
-          className="group flex flex-col items-center gap-2 p-3 pb-4 rounded-xl bg-white border border-mlborder-light hover:border-transparent hover:shadow-lg transition-all text-center hover:-translate-y-0.5 relative overflow-hidden"
+          className="group relative flex flex-col items-center gap-2.5 p-3 pb-4 rounded-xl bg-white border border-mlborder-light hover:border-primary/20 hover:shadow-lg transition-all text-center hover:-translate-y-1 overflow-hidden"
         >
-          <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center mb-1">
+          {/* Hover glow */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+          <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center mb-0.5">
             <img
               src={cat.image}
               alt={cat.name}
@@ -39,7 +42,7 @@ export default function CategoryGrid() {
               decoding="async"
             />
           </div>
-          <span className="text-mltext text-[13px] font-bold group-hover:text-primary transition-colors leading-tight">
+          <span className="relative text-mltext text-[13px] font-bold group-hover:text-primary transition-colors leading-tight">
             {cat.name}
           </span>
         </a>
