@@ -122,8 +122,6 @@ const CATEGORY_IMAGES: Record<string, string> = {
   "výkonné-brzdové obložení": "/categories/subcats/brzdy/vysoko-oblozeni.jpg",
   "výkonný-brzdový třmen": "/categories/subcats/brzdy/vysoko-trmen.jpg",
   // Motor subcategories (must be before generic "motor")
-  "řízení motoru": "/categories/subcats/motor/rizeni-motoru.png",
-  "rozvodový řemen": "/categories/subcats/motor/rizeni-motoru.png",
   "řemenice": "/categories/subcats/motor/remenice.jpg",
   "ventil/seřízení": "/categories/subcats/motor/ventil.jpg",
   "ventil, seřízení": "/categories/subcats/motor/ventil.jpg",
