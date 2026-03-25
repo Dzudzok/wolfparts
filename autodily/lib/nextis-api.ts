@@ -116,13 +116,25 @@ export async function validateOrder(items: OrderItem[], userToken?: string) {
  * Send order — places actual order in Nextis ERP.
  * MUST use customer token so order goes to their account.
  */
-export async function sendOrder(items: OrderItem[], userOrder?: string, userToken?: string) {
-  const res = await axios.post(`${BASE_URL}/orders/sending`, {
+export async function sendOrder(
+  items: OrderItem[],
+  userOrder?: string,
+  userToken?: string,
+  userNote?: string,
+  customerInfo?: { name: string; street: string; city: string; postcode: string; countryCode?: string; contactPhone?: string; contactEmail?: string; taxID?: string; vatID?: string },
+  deliveryAddress?: { addressName: string; street: string; city: string; postalCode: string },
+) {
+  const body: Record<string, unknown> = {
     ...buildTokenParams(userToken),
     keepBackOrder: true,
     userOrder: userOrder || "",
     items,
-  }, { timeout: 15000 });
+  };
+  if (userNote) body.userNote = userNote;
+  if (customerInfo) body.subCustomerInfo = customerInfo;
+  if (deliveryAddress) body.optionalDeliveryAddress = deliveryAddress;
+
+  const res = await axios.post(`${BASE_URL}/orders/sending`, body, { timeout: 15000 });
   return res.data;
 }
 

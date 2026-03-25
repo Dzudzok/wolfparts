@@ -13,6 +13,7 @@ interface ResponseData {
   pdfs: Array<{ url: string; name: string }>;
   genericArticle: string;
   category: string;
+  vehicles: string;
 }
 
 /**
@@ -35,11 +36,11 @@ export async function GET(req: NextRequest) {
       const article = await getArticleByCode(codeParam);
       const images = (article?.images || []).sort((a, b) => a.sortNumber - b.sortNumber).map((img) => img.imageURL800 || img.imageURL400);
       const imageUrl = images[0] || null;
-      const result: ResponseData = { imageUrl, images, attributes: [], pdfs: [], genericArticle: "", category: "" };
+      const result: ResponseData = { imageUrl, images, attributes: [], pdfs: [], genericArticle: "", category: "", vehicles: "" };
       cache.set(cacheKey, { data: result, ts: Date.now() });
       return NextResponse.json(result, { headers: { "Cache-Control": "public, max-age=86400" } });
     } catch {
-      return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "" });
+      return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "", vehicles: "" });
     }
   }
 
@@ -60,11 +61,11 @@ export async function GET(req: NextRequest) {
     code = (doc.product_code as string) || "";
     brand = (doc.brand as string) || "";
   } catch {
-    return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "" });
+    return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "", vehicles: "" });
   }
 
   if (!code) {
-    return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "" });
+    return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "", vehicles: "" });
   }
 
   try {
@@ -72,7 +73,7 @@ export async function GET(req: NextRequest) {
     const article = await getArticleByCode(code, brand);
 
     if (!article) {
-      const empty: ResponseData = { imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "" };
+      const empty: ResponseData = { imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "", vehicles: "" };
       cache.set(id, { data: empty, ts: Date.now() });
       return NextResponse.json(empty, { headers: { "Cache-Control": "public, max-age=86400" } });
     }
@@ -100,7 +101,22 @@ export async function GET(req: NextRequest) {
     const genericArticle = ga?.genericArticleDescription || "";
     const category = ga?.assemblyGroupName || "";
 
-    const result: ResponseData = { imageUrl, images, attributes, pdfs, genericArticle, category };
+    // Scrape vehicle compatibility from mroauto (your own site)
+    // Scrape vehicle compatibility from mroauto.cz (your own site)
+    let vehicles = "";
+    try {
+      const { default: ax } = await import("axios");
+      const { data: mroHtml } = await ax.get(`https://www.mroauto.cz/cs/hledani/1/9/x/x/x/x/${id}`, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+        timeout: 8000,
+      });
+      const vMatch = mroHtml.match(/je vhodn[ýá] pro modely aut[\s\S]*?<\/div>/i);
+      if (vMatch) {
+        vehicles = vMatch[0].replace(/<[^>]*>/g, " ").replace(/je vhodn[ýá] pro modely aut/i, "").replace(/\s+/g, " ").trim();
+      }
+    } catch {}
+
+    const result: ResponseData = { imageUrl, images, attributes, pdfs, genericArticle, category, vehicles };
 
     // Persist main image to Typesense for faster loading on list pages
     if (imageUrl) {
@@ -118,6 +134,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(result, { headers: { "Cache-Control": "public, max-age=86400" } });
   } catch {
-    return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "" });
+    return NextResponse.json({ imageUrl: null, images: [], attributes: [], pdfs: [], genericArticle: "", category: "", vehicles: "" });
   }
 }

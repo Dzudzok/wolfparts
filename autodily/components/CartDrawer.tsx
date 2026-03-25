@@ -87,12 +87,13 @@ export default function CartDrawer() {
               <span className="text-sm text-mltext-light">Celkem</span>
               <span className="text-xl font-extrabold text-mltext-dark">{total.toFixed(0)} Kč</span>
             </div>
-            <button
-              onClick={() => alert("Objednávka bude implementována")}
-              className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40"
+            <a
+              href="/checkout"
+              onClick={() => setIsOpen(false)}
+              className="block w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 text-center"
             >
-              Objednat
-            </button>
+              Pokračovat k objednávce →
+            </a>
             <button onClick={clearCart} className="w-full text-sm text-mltext-light hover:text-primary font-semibold py-1 transition-colors">
               Vyprázdnit košík
             </button>

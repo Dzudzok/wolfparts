@@ -6,8 +6,33 @@ import {
   getCategoriesForVehicle,
 } from "@/lib/tecdoc-api";
 import { getTypesenseAdminClient } from "@/lib/typesense";
-import { checkItemsByID } from "@/lib/nextis-api";
+// checkItemsByID no longer needed — using findByVehicle directly
 import axios from "axios";
+
+// Cache for vehicle products (avoid re-fetching on page 2, 3, ...)
+const vehicleProductsCache = new Map<string, { items: Array<{ responseItem: Record<string, unknown> }>; ts: number }>();
+const VP_CACHE_TTL = 5 * 60 * 1000; // 5 min
+
+async function findByVehicle(engineId: number, genArtId: number): Promise<Array<{ responseItem: Record<string, unknown> }>> {
+  const cacheKey = `${engineId}:${genArtId}`;
+  const cached = vehicleProductsCache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < VP_CACHE_TTL) return cached.items;
+  const BASE = process.env.NEXTIS_API_URL;
+  const TOKEN = process.env.NEXTIS_TOKEN_ADMIN;
+  const PID = parseInt(process.env.NEXTIS_DEFAULT_PARTNER_ID || "0");
+  const { data } = await axios.post(`${BASE}/catalogs/items-finding-by-vehicle`, {
+    token: TOKEN, tokenIsMaster: true, tokenPartnerID: PID,
+    language: "cs", engineID: engineId, target: "P", genArtID: genArtId,
+    getEANCodes: true, getOECodes: true,
+  }, { timeout: 20000 });
+  const items = data.items || [];
+  vehicleProductsCache.set(`${engineId}:${genArtId}`, { items, ts: Date.now() });
+  if (vehicleProductsCache.size > 500) {
+    const entries = [...vehicleProductsCache.entries()].sort((a, b) => a[1].ts - b[1].ts);
+    for (let i = 0; i < 100; i++) vehicleProductsCache.delete(entries[i][0]);
+  }
+  return items;
+}
 
 /**
  * GET /api/vehicles?action=brands|models|engines|categories|products
@@ -74,10 +99,16 @@ export async function GET(req: NextRequest) {
 
       const allNodes = await getCategoriesForVehicle(engineId);
 
-      // Filter to requested level
-      const nodes = parentId === 0
+      // Categories to hide (no products on e-shop or irrelevant)
+      const HIDDEN_CATEGORIES = new Set([
+        "Speciální nářadí", "Vedlejší pohon", "Pneumatický systém",
+      ]);
+
+      // Filter to requested level + remove hidden
+      const nodes = (parentId === 0
         ? allNodes.filter((n) => !n.parentNodeId)
-        : allNodes.filter((n) => n.parentNodeId === parentId);
+        : allNodes.filter((n) => n.parentNodeId === parentId)
+      ).filter((n) => !HIDDEN_CATEGORIES.has(n.assemblyGroupName));
 
       return Response.json(
         nodes
@@ -96,82 +127,46 @@ export async function GET(req: NextRequest) {
       const engineId = parseInt(req.nextUrl.searchParams.get("engineId") || "0");
       const categoryId = parseInt(req.nextUrl.searchParams.get("categoryId") || "0");
       const page = parseInt(req.nextUrl.searchParams.get("page") || "1");
+      const perPage = 20;
       if (!engineId || !categoryId) return Response.json({ products: [], tecdocCount: 0, hasMore: false });
 
-      const bs = req.nextUrl.searchParams.get("bs") || "";
-      const ms = req.nextUrl.searchParams.get("ms") || "";
-      const es = req.nextUrl.searchParams.get("es") || "";
-      const bi = req.nextUrl.searchParams.get("bi") || "";
-      const mi = req.nextUrl.searchParams.get("mi") || "";
-
-      // Get category name from TecDoc
+      // Get ALL genArtIDs + category name from TecDoc
       let categoryName = "";
+      const genArtIDs: number[] = [];
       try {
+        const { getBrandsForVehicleCategory } = await import("@/lib/tecdoc-api");
+        const brands = await getBrandsForVehicleCategory(engineId, categoryId);
+        // Collect ALL unique genArtIDs (not just first)
+        const seen = new Set<number>();
+        for (const b of brands) {
+          if (b.genericArticleId && !seen.has(b.genericArticleId)) {
+            seen.add(b.genericArticleId);
+            genArtIDs.push(b.genericArticleId);
+          }
+        }
         const allCats = await getCategoriesForVehicle(engineId);
         const catNode = allCats.find((c) => c.assemblyGroupNodeId === categoryId);
         categoryName = catNode?.assemblyGroupName || "";
       } catch {}
 
-      interface NextisItem {
-        responseItem: {
-          id: number; valid: boolean; productCode: string; productBrand: string;
-          productName: string; price: { unitPrice: number; unitPriceIncVAT: number; discount: number } | null;
-          qtyAvailableMain: number;
-        };
+      if (genArtIDs.length === 0) {
+        return Response.json({ products: [], tecdocCount: 0, categoryName, error: "Category not found" });
       }
 
+      // ── Nextis items-finding-by-vehicle — fetch ALL genArtIDs ──
+      interface NextisItem { responseItem: Record<string, unknown>; }
       let items: NextisItem[] = [];
-      let genArtID = 0;
-      let hasMore = false;
-
-      // ── Scrape mroauto.cz → guaranteed vehicle-compatible products ──
-      // Fetches only the requested page (16 products per page on mroauto).
-      if (bs && ms && es) {
-        try {
-          const mroBase = `https://www.mroauto.cz/cs/katalog/tecdoc/osobni/${bs}/${ms}/${es}/x/${bi}/${mi}/${engineId}/${categoryId}/`;
-          const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-          const url = page === 1 ? mroBase : `${mroBase}?page=${page}`;
-
-          const { data: html } = await axios.get(url, {
-            headers: { "User-Agent": UA },
-            timeout: 15000,
-          });
-
-          // Extract genArtID from TecDoc widget
-          const genArtMatch = html.match(/data-flex-tecdoc-generic-article-id="(\d+)"/);
-          if (genArtMatch) genArtID = parseInt(genArtMatch[1]);
-
-          // Extract total count (e.g. "43 položek")
-          const totalMatch = html.match(/(\d+)\s*polož/);
-          const totalProducts = totalMatch ? parseInt(totalMatch[1]) : 0;
-          hasMore = totalProducts > page * 16;
-
-          // Extract Nextis product IDs from addToBasket() calls
-          const re = /addToBasket\(this,\s*'#ProductItem_(\d+)',\s*'([^']*)',\s*(\d+)/g;
-          const nextisIds: number[] = [];
-          let m;
-          while ((m = re.exec(html)) !== null) {
-            nextisIds.push(parseInt(m[1]));
-          }
-
-          // Get live prices and stock from Nextis
-          if (nextisIds.length > 0) {
-            for (let i = 0; i < nextisIds.length; i += 50) {
-              try {
-                const checked = await checkItemsByID(nextisIds.slice(i, i + 50));
-                for (const item of checked) {
-                  const ri = item.responseItem || item;
-                  if (ri?.productCode) items.push({ responseItem: ri } as NextisItem);
-                }
-              } catch {}
-            }
-          }
-        } catch (err) {
-          console.error("[vehicles] mroauto scrape failed:", err instanceof Error ? err.message : err);
-        }
+      try {
+        // Fetch products for all genArtIDs in parallel
+        const results = await Promise.all(
+          genArtIDs.map((gid) => findByVehicle(engineId, gid).catch(() => []))
+        );
+        items = results.flat();
+      } catch (err) {
+        console.error("[vehicles] items-finding-by-vehicle failed:", err instanceof Error ? err.message : err);
       }
 
-      // Deduplicate
+      // Deduplicate by code+brand
       const seen = new Set<string>();
       const uniqueItems = items.filter((ni) => {
         const ri = ni.responseItem;
@@ -182,35 +177,21 @@ export async function GET(req: NextRequest) {
         return true;
       });
 
-      // Batch Typesense lookup for IDs + images
       const client = getTypesenseAdminClient();
-      const tsMap = new Map<string, Record<string, unknown>>();
-      for (let i = 0; i < Math.min(uniqueItems.length, 100); i += 20) {
-        const batch = uniqueItems.slice(i, i + 20);
-        try {
-          const searches = batch.map((ni) => ({
-            collection: "products", q: ni.responseItem.productCode, query_by: "product_code", per_page: 1,
-          }));
-          const res = await client.multiSearch.perform({ searches }, {});
-          for (const result of res.results || []) {
-            const hit = (result as { hits?: Array<{ document: Record<string, unknown> }> }).hits?.[0];
-            if (hit) {
-              const doc = hit.document;
-              tsMap.set(`${doc.product_code}|${doc.brand}`, { id: doc.id, name: doc.name, product_code: doc.product_code, brand: doc.brand, image_url: doc.image_url });
-            }
-          }
-        } catch {}
-      }
 
-      // Build + sort: in-stock first, then by price
-      const products = uniqueItems.map((ni) => {
-        const ri = ni.responseItem;
+      // Build all products sorted: in-stock first, then by price
+      const allProducts = uniqueItems.map((ni) => {
+        const ri = ni.responseItem as Record<string, unknown>;
+        const price = ri.price as Record<string, number> | null;
         return {
-          tecdocCode: ri.productCode, tecdocBrand: ri.productBrand,
-          tecdocName: ri.productName || categoryName, genArtID,
-          product: tsMap.get(`${ri.productCode}|${ri.productBrand}`) || null,
-          nextisPrice: ri.price?.unitPrice ?? null, nextisPriceVAT: ri.price?.unitPriceIncVAT ?? null,
-          nextisQty: ri.qtyAvailableMain ?? null, nextisDiscount: ri.price?.discount ?? null,
+          tecdocCode: ri.productCode as string,
+          tecdocBrand: ri.productBrand as string,
+          tecdocName: (ri.productName as string) || categoryName,
+          genArtID: genArtIDs[0] || 0,
+          nextisPrice: price?.unitPrice ?? null,
+          nextisPriceVAT: price?.unitPriceIncVAT ?? null,
+          nextisQty: (ri.qtyAvailableMain as number) ?? null,
+          nextisDiscount: price?.discount ?? null,
         };
       }).sort((a, b) => {
         const as2 = (a.nextisQty || 0) > 0 ? 1 : 0, bs2 = (b.nextisQty || 0) > 0 ? 1 : 0;
@@ -218,7 +199,69 @@ export async function GET(req: NextRequest) {
         return (a.nextisPrice || 9999) - (b.nextisPrice || 9999);
       });
 
-      return Response.json({ products, tecdocCount: uniqueItems.length, categoryName, genArtID, hasMore, page });
+      // Paginate
+      const start = (page - 1) * perPage;
+      const pageItems = allProducts.slice(start, start + perPage);
+      const hasMore = start + perPage < allProducts.length;
+
+      // Enrich page items: Typesense (IDs) + TecDoc (criteria/specs)
+      const { getArticleByCode } = await import("@/lib/tecdoc-api");
+
+      await Promise.all(pageItems.map(async (p) => {
+        const item = p as Record<string, unknown>;
+        // Typesense lookup (for product detail link)
+        try {
+          const res = await client.collections("products").documents().search({
+            q: p.tecdocCode, query_by: "product_code", per_page: 1,
+          });
+          const hit = res.hits?.[0]?.document;
+          if (hit) item.product = hit;
+        } catch {}
+
+        // TecDoc criteria (specs for filtering)
+        try {
+          const article = await getArticleByCode(p.tecdocCode, p.tecdocBrand);
+          if (article?.articleCriteria?.length) {
+            item.criteria = article.articleCriteria.map((c: { criteriaDescription: string; formattedValue: string; criteriaUnitDescription?: string }) => ({
+              key: c.criteriaDescription,
+              value: c.formattedValue + (c.criteriaUnitDescription ? ` ${c.criteriaUnitDescription}` : ""),
+            }));
+          }
+          if (article?.images?.[0]) {
+            item.imageUrl = article.images[0].imageURL400 || article.images[0].imageURL200;
+          }
+        } catch {}
+      }));
+
+      // Build dynamic filters from criteria of ALL products on this page
+      const filtersMap = new Map<string, Set<string>>();
+      for (const p of pageItems) {
+        const criteria = (p as Record<string, unknown>).criteria as Array<{ key: string; value: string }> | undefined;
+        if (!criteria) continue;
+        for (const c of criteria) {
+          if (!c.key || !c.value) continue;
+          // Skip very long or unfiltered criteria
+          if (c.value.length > 50) continue;
+          if (c.key.match(/zkušební|svhc|nutně|doplňk/i)) continue;
+          if (!filtersMap.has(c.key)) filtersMap.set(c.key, new Set());
+          filtersMap.get(c.key)!.add(c.value);
+        }
+      }
+
+      // Convert to array, sort by number of unique values (most useful first)
+      const dynamicFilters = [...filtersMap.entries()]
+        .filter(([, values]) => values.size >= 2 && values.size <= 20) // Only show filters with 2-20 options
+        .sort((a, b) => a[1].size - b[1].size)
+        .slice(0, 8) // Max 8 filter groups
+        .map(([key, values]) => ({ key, values: [...values].sort() }));
+
+      return Response.json({
+        products: pageItems,
+        tecdocCount: allProducts.length,
+        categoryName, genArtID: genArtIDs[0] || 0,
+        hasMore, page, totalPages: Math.ceil(allProducts.length / perPage),
+        filters: dynamicFilters,
+      });
     }
 
     return Response.json({ error: "Unknown action" }, { status: 400 });

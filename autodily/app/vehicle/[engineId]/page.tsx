@@ -18,7 +18,11 @@ interface MatchedProduct {
   nextisPriceVAT: number | null;
   nextisQty: number | null;
   nextisDiscount: number | null;
+  criteria?: Array<{ key: string; value: string }>;
+  imageUrl?: string;
 }
+
+interface DynamicFilter { key: string; values: string[]; }
 
 export default function VehiclePartsPage() {
   const params = useParams();
@@ -52,6 +56,8 @@ export default function VehiclePartsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [dynamicFilters, setDynamicFilters] = useState<DynamicFilter[]>([]);
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [tecdocCount, setTecdocCount] = useState(0);
@@ -84,10 +90,10 @@ export default function VehiclePartsPage() {
   useEffect(() => {
     if (leafParam) {
       // Load first page of products for leaf category
-      setLoadingProducts(true); setCurrentPage(1); setHasMore(false); setProducts([]); setCategories([]);
+      setLoadingProducts(true); setCurrentPage(1); setHasMore(false); setProducts([]); setCategories([]); setDynamicFilters([]); setActiveFilters({});
       fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}&page=1`)
         .then((r) => r.json())
-        .then((data) => { setProducts(data.products || []); setTecdocCount(data.tecdocCount || 0); setHasMore(!!data.hasMore); setCurrentPage(1); })
+        .then((data) => { setProducts(data.products || []); setTecdocCount(data.tecdocCount || 0); setHasMore(!!data.hasMore); setCurrentPage(1); if (data.filters) setDynamicFilters(data.filters); })
         .catch(() => setProducts([]))
         .finally(() => setLoadingProducts(false));
     } else {
@@ -454,11 +460,61 @@ export default function VehiclePartsPage() {
           )}
 
           {/* Products */}
-          {!loadingProducts && products.length > 0 && (
+          {!loadingProducts && products.length > 0 && (() => {
+            // Apply client-side filters from criteria
+            const filteredProducts = products.filter((p) => {
+              if (Object.keys(activeFilters).length === 0) return true;
+              if (!p.criteria) return true;
+              for (const [filterKey, filterValue] of Object.entries(activeFilters)) {
+                const match = p.criteria.find((c) => c.key === filterKey && c.value === filterValue);
+                if (!match) return false;
+              }
+              return true;
+            });
+
+            return (
             <>
+              {/* Dynamic TecDoc filters */}
+              {dynamicFilters.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2 items-center">
+                  {dynamicFilters.map((f) => (
+                    <div key={f.key} className="relative group">
+                      <button className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-all ${
+                        activeFilters[f.key] ? "bg-primary/10 border-primary/30 text-primary" : "bg-white border-mlborder-light text-mltext hover:border-mlborder"
+                      }`}>
+                        {f.key}{activeFilters[f.key] ? `: ${activeFilters[f.key]}` : ""}
+                        <svg viewBox="0 0 24 24" className="w-3 h-3 ml-1 inline" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9" /></svg>
+                      </button>
+                      <div className="absolute top-full left-0 mt-1 bg-white rounded-xl border border-mlborder-light shadow-xl py-1 min-w-[160px] z-20 hidden group-hover:block">
+                        <button
+                          onClick={() => { const next = { ...activeFilters }; delete next[f.key]; setActiveFilters(next); }}
+                          className={`w-full text-left px-3 py-1.5 text-[11px] font-semibold transition-colors ${!activeFilters[f.key] ? "text-primary bg-primary/5" : "text-mltext-light hover:bg-gray-50"}`}
+                        >
+                          Vše
+                        </button>
+                        {f.values.map((v) => (
+                          <button
+                            key={v}
+                            onClick={() => setActiveFilters({ ...activeFilters, [f.key]: v })}
+                            className={`w-full text-left px-3 py-1.5 text-[11px] font-semibold transition-colors ${activeFilters[f.key] === v ? "text-primary bg-primary/5" : "text-mltext hover:bg-gray-50"}`}
+                          >
+                            {v}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {Object.keys(activeFilters).length > 0 && (
+                    <button onClick={() => setActiveFilters({})} className="text-[11px] text-primary hover:text-primary-dark font-semibold">
+                      Zrušit filtry ✕
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-mltext-light">
-                  <span className="font-bold text-mltext-dark">{tecdocCount}</span> dílů v TecDoc
+                  <span className="font-bold text-mltext-dark">{Object.keys(activeFilters).length > 0 ? filteredProducts.length + " z " + tecdocCount : tecdocCount}</span> dílů
                   {products.filter((p) => p.product).length > 0 && (
                     <> — <span className="font-bold text-mlgreen">{products.filter((p) => p.product).length}</span> v našem skladu</>
                   )}
@@ -466,7 +522,7 @@ export default function VehiclePartsPage() {
               </div>
 
               <div className="space-y-3">
-                {products.map((item, i) => (
+                {filteredProducts.map((item, i) => (
                   <div
                     key={i}
                     className="bg-white rounded-xl border border-mlborder-light p-5 flex gap-5 items-start transition-all hover:shadow-lg"
@@ -499,6 +555,16 @@ export default function VehiclePartsPage() {
                       <p className="text-[15px] font-bold text-mltext-dark leading-tight truncate">
                         {item.product?.name || item.tecdocName || item.tecdocCode}
                       </p>
+                      {/* TecDoc specs inline */}
+                      {item.criteria && item.criteria.length > 0 && (
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+                          {item.criteria.slice(0, 6).map((c, ci) => (
+                            <span key={ci} className="text-[10px] text-mltext-light">
+                              <span className="text-mltext-light/60">{c.key}:</span> <span className="font-semibold text-mltext">{c.value}</span>
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <div className="flex items-center gap-3 mt-1.5">
                         <p className={`text-[12px] font-bold ${(item.nextisQty || 0) > 0 ? "text-mlgreen" : "text-mltext-light"}`}>
                           {(item.nextisQty || 0) > 0 ? `Skladem ${item.nextisQty} ks` : "Na objednávku"}
@@ -572,7 +638,8 @@ export default function VehiclePartsPage() {
                 </div>
               )}
             </>
-          )}
+          );
+          })()}
           </div>
         </div>
 
