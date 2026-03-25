@@ -126,9 +126,7 @@ export async function GET(req: NextRequest) {
     if (action === "products") {
       const engineId = parseInt(req.nextUrl.searchParams.get("engineId") || "0");
       const categoryId = parseInt(req.nextUrl.searchParams.get("categoryId") || "0");
-      const page = parseInt(req.nextUrl.searchParams.get("page") || "1");
-      const perPage = 20;
-      if (!engineId || !categoryId) return Response.json({ products: [], tecdocCount: 0, hasMore: false });
+      if (!engineId || !categoryId) return Response.json({ products: [], tecdocCount: 0 });
 
       // Get ALL genArtIDs + category name from TecDoc
       let categoryName = "";
@@ -199,15 +197,10 @@ export async function GET(req: NextRequest) {
         return (a.nextisPrice || 9999) - (b.nextisPrice || 9999);
       });
 
-      // Paginate
-      const start = (page - 1) * perPage;
-      const pageItems = allProducts.slice(start, start + perPage);
-      const hasMore = start + perPage < allProducts.length;
-
-      // Enrich page items: Typesense (IDs) + TecDoc (criteria/specs)
+      // Enrich all items: Typesense (IDs) + TecDoc (criteria/specs)
       const { getArticleByCode } = await import("@/lib/tecdoc-api");
 
-      await Promise.all(pageItems.map(async (p) => {
+      await Promise.all(allProducts.map(async (p) => {
         const item = p as Record<string, unknown>;
         // Typesense lookup (for product detail link)
         try {
@@ -233,9 +226,9 @@ export async function GET(req: NextRequest) {
         } catch {}
       }));
 
-      // Build dynamic filters from criteria of ALL products on this page
+      // Build dynamic filters from criteria of ALL products
       const filtersMap = new Map<string, Set<string>>();
-      for (const p of pageItems) {
+      for (const p of allProducts) {
         const criteria = (p as Record<string, unknown>).criteria as Array<{ key: string; value: string }> | undefined;
         if (!criteria) continue;
         for (const c of criteria) {
@@ -256,10 +249,9 @@ export async function GET(req: NextRequest) {
         .map(([key, values]) => ({ key, values: [...values].sort() }));
 
       return Response.json({
-        products: pageItems,
+        products: allProducts,
         tecdocCount: allProducts.length,
         categoryName, genArtID: genArtIDs[0] || 0,
-        hasMore, page, totalPages: Math.ceil(allProducts.length / perPage),
         filters: dynamicFilters,
       });
     }

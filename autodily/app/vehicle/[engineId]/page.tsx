@@ -53,11 +53,8 @@ export default function VehiclePartsPage() {
   const [expandedSidebarCat, setExpandedSidebarCat] = useState<string | null>(null);
   const [sidebarSubcats, setSidebarSubcats] = useState<Category[]>([]);
   const [products, setProducts] = useState<MatchedProduct[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [dynamicFilters, setDynamicFilters] = useState<DynamicFilter[]>([]);
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
   const [productView, setProductView] = useState<"list" | "grid">("list");
   const [loading, setLoading] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -90,11 +87,17 @@ export default function VehiclePartsPage() {
   // React to URL changes (including back/forward)
   useEffect(() => {
     if (leafParam) {
-      // Load first page of products for leaf category
-      setLoadingProducts(true); setCurrentPage(1); setHasMore(false); setProducts([]); setCategories([]); setDynamicFilters([]); setActiveFilters({});
-      fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}&page=1`)
+      // Load all products for leaf category (single request)
+      setLoadingProducts(true); setProducts([]); setCategories([]); setDynamicFilters([]); setActiveFilters({});
+      const url = `/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}`;
+      fetch(url)
         .then((r) => r.json())
-        .then((data) => { setProducts(data.products || []); setTecdocCount(data.tecdocCount || 0); setHasMore(!!data.hasMore); setCurrentPage(1); if (data.filters) setDynamicFilters(data.filters); })
+        .then((data) => {
+          const all: MatchedProduct[] = data.products || [];
+          setProducts(all);
+          setTecdocCount(data.tecdocCount || all.length);
+          setDynamicFilters(data.filters || []);
+        })
         .catch(() => setProducts([]))
         .finally(() => setLoadingProducts(false));
     } else {
@@ -166,21 +169,6 @@ export default function VehiclePartsPage() {
     }
   }
 
-  function loadMoreProducts() {
-    if (loadingMore || !hasMore || !leafParam) return;
-    const nextPage = currentPage + 1;
-    setLoadingMore(true);
-    fetch(`/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}&page=${nextPage}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setProducts((prev) => [...prev, ...(data.products || [])]);
-        setTecdocCount((prev) => prev + (data.tecdocCount || 0));
-        setHasMore(!!data.hasMore);
-        setCurrentPage(nextPage);
-      })
-      .catch(() => {})
-      .finally(() => setLoadingMore(false));
-  }
 
   const showBrakeSchematic = !loading && categories.length > 0 && breadcrumb.some((b) => b.name.toLowerCase().includes("brzd"));
   const showFilterSchematic = !loading && categories.length > 0 && breadcrumb.some((b) => b.name.toLowerCase().includes("filtr"));
@@ -463,64 +451,81 @@ export default function VehiclePartsPage() {
 
           {/* Products */}
           {!loadingProducts && products.length > 0 && (() => {
-            // Apply client-side filters from criteria
+            const hasActiveFilters = Object.keys(activeFilters).length > 0;
+            // Apply client-side multi-select filters
             const filteredProducts = products.filter((p) => {
-              if (Object.keys(activeFilters).length === 0) return true;
-              if (!p.criteria) return true;
-              for (const [filterKey, filterValue] of Object.entries(activeFilters)) {
-                const match = p.criteria.find((c) => c.key === filterKey && c.value === filterValue);
+              if (!hasActiveFilters) return true;
+              if (!p.criteria) return false;
+              for (const [filterKey, filterValues] of Object.entries(activeFilters)) {
+                if (filterValues.length === 0) continue;
+                const match = p.criteria.find((c) => c.key === filterKey && filterValues.includes(c.value));
                 if (!match) return false;
               }
               return true;
             });
 
+            function toggleFilter(key: string, value: string) {
+              setActiveFilters((prev) => {
+                const current = prev[key] || [];
+                const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
+                if (next.length === 0) { const { [key]: _, ...rest } = prev; return rest; }
+                return { ...prev, [key]: next };
+              });
+            }
+
+            const inStockCount = products.filter((p) => (p.nextisQty || 0) > 0).length;
+
             return (
             <>
-              {/* Dynamic TecDoc filters */}
+              {/* ── Filter bar ── */}
               {dynamicFilters.length > 0 && (
-                <div className="mb-4 flex flex-wrap gap-2 items-center">
-                  {dynamicFilters.map((f) => (
-                    <div key={f.key} className="relative group">
-                      <button className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-all ${
-                        activeFilters[f.key] ? "bg-primary/10 border-primary/30 text-primary" : "bg-white border-mlborder-light text-mltext hover:border-mlborder"
-                      }`}>
-                        {f.key}{activeFilters[f.key] ? `: ${activeFilters[f.key]}` : ""}
-                        <svg viewBox="0 0 24 24" className="w-3 h-3 ml-1 inline" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9" /></svg>
-                      </button>
-                      <div className="absolute top-full left-0 mt-1 bg-white rounded-xl border border-mlborder-light shadow-xl py-1 min-w-[160px] z-20 hidden group-hover:block">
-                        <button
-                          onClick={() => { const next = { ...activeFilters }; delete next[f.key]; setActiveFilters(next); }}
-                          className={`w-full text-left px-3 py-1.5 text-[11px] font-semibold transition-colors ${!activeFilters[f.key] ? "text-primary bg-primary/5" : "text-mltext-light hover:bg-gray-50"}`}
-                        >
-                          Vše
-                        </button>
-                        {f.values.map((v) => (
-                          <button
-                            key={v}
-                            onClick={() => setActiveFilters({ ...activeFilters, [f.key]: v })}
-                            className={`w-full text-left px-3 py-1.5 text-[11px] font-semibold transition-colors ${activeFilters[f.key] === v ? "text-primary bg-primary/5" : "text-mltext hover:bg-gray-50"}`}
-                          >
-                            {v}
-                          </button>
-                        ))}
+                <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {dynamicFilters.map((f) => {
+                    const selected = activeFilters[f.key] || [];
+                    return (
+                      <div key={f.key} className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-bold text-mltext-light whitespace-nowrap">{f.key}:</span>
+                        {f.values.map((v) => {
+                          const isActive = selected.includes(v);
+                          return (
+                            <button
+                              key={v}
+                              onClick={() => toggleFilter(f.key, v)}
+                              className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all ${
+                                isActive
+                                  ? "bg-primary text-white border-primary"
+                                  : "bg-white text-mltext border-mlborder-light hover:border-primary/40 hover:text-primary"
+                              }`}
+                            >
+                              {v}
+                            </button>
+                          );
+                        })}
                       </div>
-                    </div>
-                  ))}
-                  {Object.keys(activeFilters).length > 0 && (
-                    <button onClick={() => setActiveFilters({})} className="text-[11px] text-primary hover:text-primary-dark font-semibold">
-                      Zrušit filtry ✕
+                    );
+                  })}
+                  {hasActiveFilters && (
+                    <button onClick={() => setActiveFilters({})} className="text-[11px] text-primary hover:text-primary-dark font-bold">
+                      ✕ Zrušit
                     </button>
                   )}
                 </div>
               )}
 
+              {/* ── Results header ── */}
               <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-mltext-light">
-                  <span className="font-bold text-mltext-dark">{Object.keys(activeFilters).length > 0 ? filteredProducts.length + " z " + tecdocCount : tecdocCount}</span> dílů
-                  {products.filter((p) => p.product).length > 0 && (
-                    <> — <span className="font-bold text-mlgreen">{products.filter((p) => p.product).length}</span> v našem skladu</>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-mltext-light">
+                    <span className="font-bold text-mltext-dark text-base">{hasActiveFilters ? filteredProducts.length : tecdocCount}</span>
+                    {hasActiveFilters && <span className="text-mltext-light"> z {tecdocCount}</span>} dílů
+                  </p>
+                  {inStockCount > 0 && (
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-mlgreen bg-mlgreen/10 px-2.5 py-1 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-mlgreen" />
+                      {inStockCount} skladem
+                    </span>
                   )}
-                </p>
+                </div>
                 {/* View toggle */}
                 <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
                   <button onClick={() => setProductView("list")} className={`p-1.5 rounded-md transition-all ${productView === "list" ? "bg-white shadow-sm text-mltext-dark" : "text-mltext-light hover:text-mltext"}`}>
@@ -532,47 +537,56 @@ export default function VehiclePartsPage() {
                 </div>
               </div>
 
+              {/* ── Product list ── */}
               <div className={productView === "grid" ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" : "space-y-2"}>
                 {filteredProducts.map((item, i) => {
                   const montovanaStrana = item.criteria?.find((c) => c.key.toLowerCase().includes("montovaná strana") || c.key.toLowerCase().includes("provedení nápravy"));
                   const detailUrl = item.product?.id ? `/product/${item.product.id}` : `/search?q=${encodeURIComponent(item.tecdocCode)}`;
                   const inStock = (item.nextisQty || 0) > 0;
+                  const otherCriteria = item.criteria?.filter((c) => c !== montovanaStrana) || [];
 
                   /* ─── GRID VIEW ─── */
                   if (productView === "grid") return (
-                    <div key={i} className={`bg-white rounded-xl border overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 ${inStock ? "border-mlgreen/20" : "border-mlborder-light"}`}>
-                      <a href={detailUrl} className="block aspect-[4/3] bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-3 relative">
+                    <div key={i} className={`group bg-white rounded-2xl border overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 ${inStock ? "border-mlgreen/20" : "border-mlborder-light"}`}>
+                      <a href={detailUrl} className="block aspect-[4/3] bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-4 relative overflow-hidden">
                         <ProductThumb imageUrl={item.product?.image_url as string} productId={item.product?.id as string} productCode={item.tecdocCode} brand={item.tecdocBrand} />
-                        {inStock && <span className="absolute top-1.5 left-1.5 text-[9px] font-bold text-white bg-mlgreen px-1.5 py-0.5 rounded">Skladem</span>}
+                        {inStock && (
+                          <span className="absolute top-2 left-2 text-[9px] font-bold text-white bg-mlgreen px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="w-1 h-1 rounded-full bg-white" />
+                            Skladem {item.nextisQty} ks
+                          </span>
+                        )}
+                        {montovanaStrana && (
+                          <span className="absolute top-2 right-2 text-[9px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">{montovanaStrana.value}</span>
+                        )}
                       </a>
-                      <div className="p-2.5">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          {hasManufacturerLogo(item.tecdocBrand) && <img src={getManufacturerLogoUrl(item.tecdocBrand)} alt="" className="h-3 w-auto object-contain" loading="lazy" />}
-                          <span className="text-[9px] text-mltext-light font-bold uppercase">{item.tecdocBrand}</span>
-                          <span className="text-[9px] font-mono text-primary/40">{item.tecdocCode}</span>
+                      <div className="p-3">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          {hasManufacturerLogo(item.tecdocBrand) && <img src={getManufacturerLogoUrl(item.tecdocBrand)} alt="" className="h-3.5 w-auto object-contain" loading="lazy" />}
+                          <span className="text-[10px] text-mltext-light font-bold uppercase">{item.tecdocBrand}</span>
+                          <span className="text-[10px] font-mono text-mltext-light/50 ml-auto">{item.tecdocCode}</span>
                         </div>
-                        <a href={detailUrl} className="block text-[12px] font-bold text-mltext-dark hover:text-primary transition-colors leading-tight line-clamp-2">
+                        <a href={detailUrl} className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight line-clamp-2 min-h-[36px]">
                           {item.product?.name || item.tecdocName || item.tecdocCode}
                         </a>
-                        {/* Key specs */}
-                        {montovanaStrana && (
-                          <span className="inline-block mt-1 text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{montovanaStrana.value}</span>
-                        )}
-                        {item.criteria && item.criteria.filter((c) => c !== montovanaStrana).length > 0 && (
-                          <div className="flex flex-wrap gap-0.5 mt-1">
-                            {item.criteria.filter((c) => c !== montovanaStrana).slice(0, 3).map((c, ci) => (
-                              <span key={ci} className="text-[8px] text-mltext-light bg-gray-50 px-1 py-0.5 rounded">{c.key}: <span className="font-semibold">{c.value}</span></span>
+                        {otherCriteria.length > 0 && (
+                          <div className="flex flex-wrap gap-0.5 mt-1.5">
+                            {otherCriteria.slice(0, 2).map((c, ci) => (
+                              <span key={ci} className="text-[9px] text-mltext-light bg-gray-50 px-1.5 py-0.5 rounded-full">{c.key}: <span className="font-bold text-mltext">{c.value}</span></span>
                             ))}
                           </div>
                         )}
                         {/* Price + cart */}
-                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-mlborder-light">
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-mlborder-light">
                           {item.nextisPrice ? (
-                            <span className="text-[15px] font-extrabold text-mltext-dark">{item.nextisPrice.toFixed(0)} <span className="text-[10px] text-mltext-light">Kč</span></span>
+                            <div>
+                              <p className="text-[17px] font-extrabold text-mltext-dark leading-none">{item.nextisPrice.toFixed(0)} <span className="text-[11px] text-mltext-light font-bold">Kč</span></p>
+                              {item.nextisPriceVAT && <p className="text-[9px] text-mltext-light mt-0.5">{item.nextisPriceVAT.toFixed(0)} Kč s DPH</p>}
+                            </div>
                           ) : <span className="text-[11px] text-mltext-light">Na dotaz</span>}
                           <button onClick={() => cart.addItem({ id: item.product?.id as string || item.tecdocCode, productCode: item.tecdocCode, brand: item.tecdocBrand, name: item.product?.name as string || item.tecdocName, price: item.nextisPrice || 0, imageUrl: item.product?.image_url as string || "", qty: 1 })}
-                            className="bg-primary hover:bg-primary-dark text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors">
-                            Do košíku
+                            className="bg-primary hover:bg-primary-dark text-white text-[11px] font-bold px-3 py-1.5 rounded-xl transition-colors shadow-sm hover:shadow-md">
+                            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
                           </button>
                         </div>
                       </div>
@@ -583,68 +597,66 @@ export default function VehiclePartsPage() {
                   return (
                   <div
                     key={i}
-                    className={`bg-white rounded-xl border p-4 flex gap-5 items-center transition-all hover:shadow-md ${inStock ? "border-mlgreen/20" : "border-mlborder-light"}`}
+                    className={`group bg-white rounded-2xl border p-4 flex gap-5 items-center transition-all hover:shadow-lg ${inStock ? "border-mlgreen/15 hover:border-mlgreen/30" : "border-mlborder-light hover:border-mlborder"}`}
                   >
-                    <a href={detailUrl} className="w-28 h-24 rounded-lg bg-gray-50 border border-mlborder-light flex items-center justify-center shrink-0 overflow-hidden hover:border-primary/20 transition-colors p-1">
+                    {/* Image */}
+                    <a href={detailUrl} className="w-32 h-28 rounded-xl bg-gradient-to-b from-gray-50 to-white border border-mlborder-light flex items-center justify-center shrink-0 overflow-hidden group-hover:border-primary/20 transition-colors p-2 relative">
                       <ProductThumb
                         imageUrl={item.product?.image_url as string}
                         productId={item.product?.id as string}
                         productCode={item.tecdocCode}
                         brand={item.tecdocBrand}
                       />
+                      {montovanaStrana && (
+                        <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full whitespace-nowrap">{montovanaStrana.value}</span>
+                      )}
                     </a>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       {/* Brand + code */}
-                      <div className="flex items-center gap-2 mb-0.5">
+                      <div className="flex items-center gap-2 mb-1">
                         {hasManufacturerLogo(item.tecdocBrand) && (
-                          <img src={getManufacturerLogoUrl(item.tecdocBrand)} alt="" className="h-3.5 w-auto object-contain" loading="lazy" />
+                          <img src={getManufacturerLogoUrl(item.tecdocBrand)} alt="" className="h-4 w-auto object-contain" loading="lazy" />
                         )}
                         <span className="text-[11px] text-mltext-light font-bold uppercase">{item.tecdocBrand}</span>
-                        <span className="text-[11px] font-mono text-primary/50">{item.tecdocCode}</span>
+                        <span className="text-[11px] font-mono text-mltext-light/50">{item.tecdocCode}</span>
                       </div>
                       {/* Name */}
-                      <a href={detailUrl} className="block text-[14px] font-bold text-mltext-dark hover:text-primary transition-colors leading-tight truncate">
+                      <a href={detailUrl} className="block text-[15px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight truncate">
                         {item.product?.name || item.tecdocName || item.tecdocCode}
                       </a>
-                      {/* Montovaná strana — highlighted */}
-                      {montovanaStrana && (
-                        <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
-                          <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
-                          {montovanaStrana.value}
-                        </span>
-                      )}
-                      {/* Other specs */}
-                      {item.criteria && item.criteria.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {item.criteria.filter((c) => c !== montovanaStrana).slice(0, 5).map((c, ci) => (
-                            <span key={ci} className="text-[10px] text-mltext-light bg-gray-50 px-1.5 py-0.5 rounded">
-                              {c.key}: <span className="font-semibold text-mltext">{c.value}</span>
+                      {/* Specs */}
+                      {otherCriteria.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {otherCriteria.slice(0, 5).map((c, ci) => (
+                            <span key={ci} className="text-[10px] text-mltext-light bg-gray-50 px-2 py-0.5 rounded-full">
+                              {c.key}: <span className="font-bold text-mltext">{c.value}</span>
                             </span>
                           ))}
                         </div>
                       )}
                       {/* Stock + Detail */}
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <span className={`text-[11px] font-bold ${inStock ? "text-mlgreen" : "text-mlorange"}`}>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full ${inStock ? "text-mlgreen bg-mlgreen/10" : "text-mlorange bg-mlorange/10"}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${inStock ? "bg-mlgreen" : "bg-mlorange"}`} />
                           {inStock ? `Skladem ${item.nextisQty} ks` : "Na objednávku"}
                         </span>
-                        <a href={detailUrl} className="text-[11px] text-primary hover:text-primary-dark font-semibold">Detail →</a>
+                        <a href={detailUrl} className="text-[11px] text-primary hover:text-primary-dark font-bold">Detail →</a>
                       </div>
                     </div>
 
                     {/* Price + Cart */}
-                    <div className="flex flex-col items-end gap-2 shrink-0 min-w-[100px]">
+                    <div className="flex flex-col items-end gap-2.5 shrink-0 min-w-[120px]">
                       {item.nextisPrice ? (
                         <>
                           <div className="text-right">
-                            <p className="text-xl font-extrabold text-mltext-dark leading-none">
+                            <p className="text-2xl font-extrabold text-mltext-dark leading-none">
                               {item.nextisPrice.toFixed(0)}
                               <span className="text-sm font-bold text-mltext-light ml-0.5">Kč</span>
                             </p>
                             {item.nextisPriceVAT && (
-                              <p className="text-[10px] text-mltext-light">{item.nextisPriceVAT.toFixed(0)} Kč s DPH</p>
+                              <p className="text-[10px] text-mltext-light mt-0.5">{item.nextisPriceVAT.toFixed(0)} Kč s DPH</p>
                             )}
                           </div>
                           <button
@@ -657,9 +669,9 @@ export default function VehiclePartsPage() {
                               imageUrl: item.product?.image_url as string || "",
                               qty: 1,
                             })}
-                            className="flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-[12px] font-bold px-4 py-2 rounded-lg transition-colors shadow-sm"
+                            className="flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-[12px] font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm hover:shadow-md w-full justify-center"
                           >
-                            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
+                            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
                             Do košíku
                           </button>
                         </>
@@ -672,26 +684,11 @@ export default function VehiclePartsPage() {
                 })}
               </div>
 
-              {/* Show more button — fetches next page from API */}
-              {hasMore && (
-                <div className="text-center mt-6">
-                  <button
-                    onClick={loadMoreProducts}
-                    disabled={loadingMore}
-                    className="inline-flex items-center gap-2 bg-white border-2 border-mlborder hover:border-primary/30 text-mltext-dark font-bold text-sm px-8 py-3 rounded-xl transition-all hover:shadow-md disabled:opacity-60"
-                  >
-                    {loadingMore ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-mlborder-light border-t-primary" />
-                        Načítám...
-                      </>
-                    ) : (
-                      <>
-                        Zobrazit další
-                        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9" /></svg>
-                      </>
-                    )}
-                  </button>
+              {/* No results after filtering */}
+              {filteredProducts.length === 0 && hasActiveFilters && (
+                <div className="text-center py-12 bg-white rounded-2xl border border-mlborder-light">
+                  <p className="text-mltext-light text-sm">Žádné díly neodpovídají vybraným filtrům.</p>
+                  <button onClick={() => setActiveFilters({})} className="mt-2 text-primary hover:text-primary-dark text-sm font-bold">Zrušit filtry</button>
                 </div>
               )}
             </>
