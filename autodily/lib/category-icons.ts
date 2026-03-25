@@ -202,7 +202,6 @@ const CATEGORY_IMAGES: Record<string, string> = {
   "převod": "/categories/spojka.jpg",
   "palivové čerpadlo": "/categories/palivove-cerpadlo.jpg",
   "příprava paliva": "/categories/priprava-paliva.jpg",
-  "paliv": "/categories/palivo.jpg",
   "kola": "/categories/brzdy.jpg",
   "pneu": "/categories/brzdy.jpg",
   "hybrid": "/categories/elektro.jpg",
