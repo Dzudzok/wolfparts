@@ -13,10 +13,21 @@ interface Props {
   onSelect: (cat: Category & { href: string }) => void;
   engineId: string;
   hoveredCategoryId?: string | null;
+  inline?: boolean;
 }
 
-export default function SchematicSidebar({ showBrake, showFilter, categories, onSelect, engineId, hoveredCategoryId }: Props) {
+export default function SchematicSidebar({ showBrake, showFilter, categories, onSelect, engineId, hoveredCategoryId, inline }: Props) {
   const [hovered, setHovered] = useState(false);
+
+  // Inline mode — render content directly without sticky sidebar wrapper
+  if (inline) {
+    return (
+      <div>
+        {showBrake && <BrakeSchematic categories={categories} onSelect={onSelect} engineId={engineId} hoveredCategoryId={hoveredCategoryId} />}
+        {showFilter && <FilterSchematic categories={categories} onSelect={onSelect} />}
+      </div>
+    );
+  }
 
   return (
     <div

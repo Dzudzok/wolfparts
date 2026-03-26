@@ -319,6 +319,7 @@ export default function VehiclePartsPage() {
             {allRootCategories.map((cat) => {
               const isActive = breadcrumb.some((b) => b.categoryId === cat.nodeId);
               const isExpanded = expandedSidebarCat === cat.nodeId;
+              const style = getCategoryStyle(cat.name);
               return (
                 <div key={cat.nodeId}>
                   <button
@@ -336,25 +337,32 @@ export default function VehiclePartsPage() {
                         router.push(vehicleUrl({ cat: cat.nodeId, catPath: path, leaf: "" }));
                       }
                     }}
-                    className={`w-full flex items-center justify-between px-4 py-2 text-left text-[13px] transition-colors ${isActive ? "text-primary font-bold bg-primary/[0.04]" : "text-mltext hover:bg-gray-50 font-medium"}`}
+                    className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium transition-all ${isActive ? "bg-primary/[0.08] text-primary border-l-2 border-primary pl-[10px]" : "text-mltext hover:bg-gray-50 hover:text-mltext-dark"}`}
                   >
-                    <span className="truncate">{cat.name}</span>
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: style.color }} />
+                    <span className="flex-1 truncate">{cat.name}</span>
                     {!cat.isEndNode && (
-                      <svg viewBox="0 0 24 24" className={`w-3 h-3 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""} ${isActive ? "text-primary" : "text-mltext-light/40"}`} fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                      <svg viewBox="0 0 24 24" className={`w-3.5 h-3.5 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""} text-mltext-light`} fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
                     )}
                   </button>
                   {isExpanded && sidebarSubcats.length > 0 && (
                     <div className="bg-gray-50/50">
-                      {sidebarSubcats.map((sub) => (
+                      {sidebarSubcats.map((sub) => {
+                        const subStyle = getCategoryStyle(sub.name);
+                        return (
                         <button key={sub.nodeId} onClick={() => {
                           const path = `${cat.nodeId}:${cat.name}~${sub.nodeId}:${sub.name}`;
                           if (sub.isEndNode) router.push(vehicleUrl({ cat: "", catPath: path, leaf: sub.nodeId }));
                           else router.push(vehicleUrl({ cat: sub.nodeId, catPath: path, leaf: "" }));
-                        }} className="w-full flex items-center justify-between pl-8 pr-4 py-1.5 text-left text-[12px] text-mltext-light hover:text-primary hover:bg-gray-50 transition-colors">
-                          <span className="truncate">{sub.name}</span>
-                          <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 shrink-0 text-mltext-light/30" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+                        }} className="w-full flex items-center gap-2.5 pl-8 pr-4 py-1.5 text-left text-[12px] text-mltext-light hover:text-primary hover:bg-gray-50 transition-colors">
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: subStyle.color }} />
+                          <span className="flex-1 truncate">{sub.name}</span>
+                          {!sub.isEndNode && (
+                            <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0 text-mltext-light/30" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
+                          )}
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -596,19 +604,16 @@ export default function VehiclePartsPage() {
             for (const cat of categories) {
               const key = cat.name.toLowerCase();
               if (PROMOTE_MAP[key]) {
-                // This is a GROUP whose children should be promoted
                 for (const subName of PROMOTE_MAP[key]) {
-                  // Create a virtual promoted category — will be resolved on click via subcats fetch
                   promoted.push({
                     nodeId: `promoted_${cat.nodeId}_${subName.replace(/\s/g, "_")}`,
                     name: subName.charAt(0).toUpperCase() + subName.slice(1),
-                    isEndNode: true, // Will search as leaf
+                    isEndNode: true,
                     href: "",
                   });
                 }
               }
             }
-            // Hide certain subcategories from brake view
             const HIDE_FROM_BRAKE = ["simulátor pocitu", "filtr"];
             const isBrakeView = breadcrumb.some(b => b.name.toLowerCase().includes("brzd"));
             const filteredCats = isBrakeView
@@ -616,85 +621,65 @@ export default function VehiclePartsPage() {
               : categories;
             const allCategories = [...promoted, ...filteredCats];
 
-            // Priority order for categories
-            const PRIORITY_ORDER = [
-              "brzd", "motor", "filtr", "řemen", "spojk", "řízen", "rizen", "odpruž", "tlumen",
-              "chlaz", "výfuk", "vyfuk", "paliv", "elektro", "zapalov", "klima", "zavěšen",
-              "náprav", "pohon", "převod", "karos", "topen", "servis", "kontrol",
-            ];
-            function getPriority(name: string): number {
-              const l = name.toLowerCase();
-              for (let i = 0; i < PRIORITY_ORDER.length; i++) {
-                if (l.includes(PRIORITY_ORDER[i])) return i;
-              }
-              return 999;
-            }
-
-            const sorted = [...allCategories].sort((a, b) => getPriority(a.name) - getPriority(b.name));
-            const top8 = sorted.slice(0, 8);
-            const rest = sorted.slice(8);
-
             return (
               <>
-                {/* Top categories — large cards */}
-                {top8.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
-                    {top8.map((cat) => {
-                      const image = getCategoryImage(cat.name);
-                      const style = getCategoryStyle(cat.name);
-                      return (
-                        <button
-                          key={cat.nodeId}
-                          onClick={() => handleCategoryClick(cat)}
-                          onMouseEnter={() => setHoveredCatId(cat.nodeId)}
-                          onMouseLeave={() => setHoveredCatId(null)}
-                          className="group bg-white rounded-xl border border-mlborder-light hover:border-primary/30 hover:shadow-lg transition-all p-4 flex flex-col items-center gap-3 hover:-translate-y-0.5"
-                        >
-                          <div className="w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            {image ? (
-                              <img src={image} alt="" className="w-full h-full object-contain" loading="lazy" />
-                            ) : (
-                              <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke={style.color} strokeWidth="1.5"><path d={style.icon} /></svg>
-                            )}
-                          </div>
-                          <div className="text-center">
-                            <span className="block text-[13px] font-bold text-mltext-dark group-hover:text-primary transition-colors leading-tight">{cat.name}</span>
-                            <span className="block text-[10px] text-mltext-light mt-0.5">{cat.isEndNode ? "Zobrazit díly" : "Podkategorie →"}</span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                {/* Section header */}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-mltext-dark">
+                    {breadcrumb.length === 0 ? "Kategorie dílů" : "Podkategorie"}
+                  </h2>
+                  <span className="text-xs text-mltext-light">
+                    {allCategories.length} kategorií
+                  </span>
+                </div>
 
-                {/* Rest — compact rows */}
-                {rest.length > 0 && (
-                  <>
-                    <p className="text-[10px] font-bold text-mltext-light uppercase tracking-wider mb-2">Další kategorie</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 mb-4">
-                      {rest.map((cat) => {
-                        const style = getCategoryStyle(cat.name);
-                        const image = getCategoryImage(cat.name);
-                        return (
-                          <button
-                            key={cat.nodeId}
-                            onClick={() => handleCategoryClick(cat)}
-                            onMouseEnter={() => setHoveredCatId(cat.nodeId)}
-                            onMouseLeave={() => setHoveredCatId(null)}
-                            className="group text-left bg-white rounded-xl border border-mlborder-light hover:border-primary/30 hover:bg-primary/[0.02] transition-all px-4 py-3 flex items-center gap-3"
-                          >
-                            <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: style.color + "40", border: `2px solid ${style.color}` }} />
-                            <span className="flex-1 text-[13px] font-semibold text-mltext group-hover:text-primary transition-colors truncate">
-                              {cat.name}
-                            </span>
-                            <svg viewBox="0 0 24 24" className="w-4 h-4 text-mlborder-light group-hover:text-primary shrink-0 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <polyline points="9 18 15 12 9 6" />
-                            </svg>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </>
+                {/* Unified grid — all categories equal */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+                  {allCategories.map((cat) => {
+                    const image = getCategoryImage(cat.name);
+                    const style = getCategoryStyle(cat.name);
+                    return (
+                      <button
+                        key={cat.nodeId}
+                        onClick={() => handleCategoryClick(cat)}
+                        onMouseEnter={() => setHoveredCatId(cat.nodeId)}
+                        onMouseLeave={() => setHoveredCatId(null)}
+                        className="group bg-white rounded-xl border border-mlborder-light hover:border-primary/40 hover:shadow-md transition-all duration-150 p-4 flex flex-col items-center gap-3 text-center"
+                      >
+                        <div className="w-14 h-14 flex items-center justify-center group-hover:scale-105 transition-transform duration-150">
+                          {image ? (
+                            <img src={image} alt="" className="w-full h-full object-contain" loading="lazy" />
+                          ) : (
+                            <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke={style.color} strokeWidth="1.5"><path d={style.icon} /></svg>
+                          )}
+                        </div>
+                        <span className="text-[13px] font-medium text-mltext-dark group-hover:text-primary leading-tight transition-colors">
+                          {cat.name}
+                        </span>
+                        <span className="text-[11px] text-mltext-light group-hover:text-primary/70 transition-colors">
+                          {cat.isEndNode ? "Zobrazit díly →" : "Podkategorie →"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Schematic below grid */}
+                {showRightSchematic && (
+                  <div className="mb-6 rounded-xl border border-mlborder-light bg-white p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-mltext-light mb-3">
+                      Schéma sestavy
+                    </p>
+                    <SchematicSidebar
+                      showBrake={showBrakeSchematic}
+                      showFilter={showFilterSchematic}
+                      categories={categories}
+                      onSelect={handleCategoryClick}
+                      engineId={String(engineId)}
+                      hoveredCategoryId={hoveredCatId}
+                      inline
+                    />
+                  </div>
                 )}
               </>
             );
@@ -702,15 +687,27 @@ export default function VehiclePartsPage() {
 
           {/* No categories */}
           {!loading && categories.length === 0 && products.length === 0 && !loadingProducts && (
-            <div className="text-center py-20">
-              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-mltext-light/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-              <p className="text-lg font-bold text-mltext-dark">
-                {!brandSlug ? "Vyberte vozidlo na hlavní stránce" : "Žádné kategorie"}
-              </p>
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <svg className="w-12 h-12 text-gray-200 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
+                <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+              </svg>
+              {!brandSlug ? (
+                <p className="text-sm font-medium text-mltext-dark">Vyberte vozidlo na hlavní stránce</p>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-mltext-dark mb-1">Žádné díly v této kategorii</p>
+                  <p className="text-xs text-mltext-light mb-4">Pro toto vozidlo nejsou v dané kategorii dostupné díly.</p>
+                  {breadcrumb.length > 0 && (
+                    <button
+                      onClick={() => handleBreadcrumbClick(breadcrumb.length - 2)}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      ← Zpět na kategorii
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           )}
 
@@ -1099,17 +1096,7 @@ export default function VehiclePartsPage() {
           </div>
         </div>
 
-        {/* RIGHT — Expandable schematic sidebar */}
-        {showRightSchematic && (
-          <SchematicSidebar
-            showBrake={showBrakeSchematic}
-            showFilter={showFilterSchematic}
-            categories={categories}
-            onSelect={handleCategoryClick}
-            engineId={String(engineId)}
-            hoveredCategoryId={hoveredCatId}
-          />
-        )}
+        {/* SchematicSidebar moved inline under category grid */}
       </div>
 
       <Footer />
