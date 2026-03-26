@@ -156,16 +156,13 @@ export async function GET(req: NextRequest) {
 
       const t0 = Date.now();
 
-      // Get genArtIDs + category name from TecDoc — PARALLEL
-      let categoryName = "";
+      // Get genArtIDs from TecDoc (category name passed from frontend)
+      const categoryName = req.nextUrl.searchParams.get("catName") || "";
       const genArtIDs: number[] = [];
       const { getBrandsForVehicleCategory } = await import("@/lib/tecdoc-api");
 
-      const [brandsResult, catsResult] = await Promise.all([
-        getBrandsForVehicleCategory(engineId, categoryId).catch(() => []),
-        getCategoriesForVehicle(engineId).catch(() => []),
-      ]);
-      console.log(`[products] TecDoc brands+cats: ${Date.now() - t0}ms`);
+      const brandsResult = await getBrandsForVehicleCategory(engineId, categoryId).catch(() => []);
+      console.log(`[products] TecDoc brands: ${Date.now() - t0}ms`);
 
       const seenGa = new Set<number>();
       for (const b of brandsResult) {
@@ -174,8 +171,6 @@ export async function GET(req: NextRequest) {
           genArtIDs.push(b.genericArticleId);
         }
       }
-      const catNode = catsResult.find((c) => c.assemblyGroupNodeId === categoryId);
-      categoryName = catNode?.assemblyGroupName || "";
 
       if (genArtIDs.length === 0) {
         return Response.json({ products: [], tecdocCount: 0, categoryName, error: "Category not found" });
@@ -229,26 +224,44 @@ export async function GET(req: NextRequest) {
         return (a.nextisPrice || 9999) - (b.nextisPrice || 9999);
       });
 
-      // Typesense lookups — batched via multiSearch (1 request instead of N)
+      // Typesense lookups — batched via multiSearch with filter_by (exact match, faster than full-text)
       const t2 = Date.now();
       try {
         const BATCH_SIZE = 50;
         for (let i = 0; i < allProducts.length; i += BATCH_SIZE) {
           const batch = allProducts.slice(i, i + BATCH_SIZE);
+          // First try exact code+brand match
           const searchRequests = batch.map((p) => ({
             collection: "products",
-            q: p.tecdocCode,
-            query_by: "product_code",
+            q: "*",
+            filter_by: `product_code:=${p.tecdocCode} && brand:=${p.tecdocBrand}`,
             per_page: 1,
           }));
           const results = await client.multiSearch.perform({ searches: searchRequests as never }, {});
+          // Collect indices that had no match for fallback (code-only)
+          const noMatch: number[] = [];
           for (let j = 0; j < batch.length; j++) {
             const hit = (results.results[j] as { hits?: Array<{ document: unknown }> })?.hits?.[0]?.document;
             if (hit) (batch[j] as Record<string, unknown>).product = hit;
+            else noMatch.push(j);
+          }
+          // Fallback: code-only for unmatched (brand name might differ between TecDoc and Typesense)
+          if (noMatch.length > 0) {
+            const fallbackReqs = noMatch.map((j) => ({
+              collection: "products",
+              q: "*",
+              filter_by: `product_code:=${batch[j].tecdocCode}`,
+              per_page: 1,
+            }));
+            const fbResults = await client.multiSearch.perform({ searches: fallbackReqs as never }, {});
+            for (let k = 0; k < noMatch.length; k++) {
+              const hit = (fbResults.results[k] as { hits?: Array<{ document: unknown }> })?.hits?.[0]?.document;
+              if (hit) (batch[noMatch[k]] as Record<string, unknown>).product = hit;
+            }
           }
         }
       } catch {}
-      console.log(`[products] Typesense ${allProducts.length} lookups (batch): ${Date.now() - t2}ms`);
+      console.log(`[products] Typesense ${allProducts.length} lookups (filter_by): ${Date.now() - t2}ms`);
       console.log(`[products] TOTAL: ${Date.now() - t0}ms`);
 
       // Brand filter from Nextis data (instant, no TecDoc needed)
@@ -287,10 +300,17 @@ export async function GET(req: NextRequest) {
       const enriched: Record<string, { criteria?: Array<{ key: string; value: string }>; imageUrl?: string }> = {};
       const filtersMap = new Map<string, Set<string>>();
 
-      const CONCURRENCY = 15;
-      for (let i = 0; i < codes.length; i += CONCURRENCY) {
-        const batch = codes.slice(i, i + CONCURRENCY);
-        await Promise.all(batch.map(async ({ code, brand }) => {
+      // Concurrency-limited pipeline: up to 20 in-flight at once, no sequential batching
+      const CONCURRENCY = 20;
+      let running = 0;
+      let idx = 0;
+      await new Promise<void>((resolve) => {
+        function next() {
+          if (idx >= codes.length && running === 0) { resolve(); return; }
+          while (running < CONCURRENCY && idx < codes.length) {
+            const { code, brand } = codes[idx++];
+            running++;
+            (async () => {
           try {
             const article = await getArticleByCode(code, brand);
             const entry: { criteria?: Array<{ key: string; value: string }>; imageUrl?: string } = {};
@@ -312,8 +332,13 @@ export async function GET(req: NextRequest) {
             }
             if (entry.criteria || entry.imageUrl) enriched[`${code}|${brand}`] = entry;
           } catch {}
-        }));
-      }
+          running--;
+          next();
+            })();
+          }
+        }
+        next();
+      });
 
       const ALWAYS_SHOW = /montovaná strana|provedení nápravy|strana montáže/i;
       const dynamicFilters = [...filtersMap.entries()]

@@ -122,6 +122,7 @@ export default function VehiclePickerModal({ onClose, initialBrandName }: { onCl
   const [selectedModel, setSelectedModel] = useState<ModelItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [carImagesBatch, setCarImagesBatch] = useState<Record<string, string>>({});
   const searchRef = useRef<HTMLInputElement>(null);
 
   // Filters
@@ -234,9 +235,20 @@ export default function VehiclePickerModal({ onClose, initialBrandName }: { onCl
 
   function selectModel(model: ModelItem) {
     if (!selectedBrand) return;
-    setSelectedModel(model); setEngines([]); setStep("engine"); setLoading(true);
+    setSelectedModel(model); setEngines([]); setStep("engine"); setLoading(true); setCarImagesBatch({});
     fetch(`/api/vehicles?action=engines&brandId=${selectedBrand.brandId}&modelId=${model.modelId}`)
-      .then((r) => r.json()).then((d) => setEngines(Array.isArray(d) ? d : []))
+      .then((r) => r.json()).then((d) => {
+        const list: EngineItem[] = Array.isArray(d) ? d : [];
+        setEngines(list);
+        // Batch-prefetch all car images in one request
+        if (list.length > 0) {
+          const ids = list.map((e) => e.engineId).join(",");
+          fetch(`/api/tecdoc-image?type=car-batch&ids=${ids}`)
+            .then((r) => r.json())
+            .then((imgs: Record<string, string>) => setCarImagesBatch(imgs))
+            .catch(() => {});
+        }
+      })
       .catch(() => {}).finally(() => setLoading(false));
   }
 
@@ -479,7 +491,7 @@ export default function VehiclePickerModal({ onClose, initialBrandName }: { onCl
                   <div className="p-3 bg-white rounded-xl border border-primary/20 shadow-sm">
                     <div className="w-full aspect-video rounded-lg bg-gray-50 overflow-hidden mb-2">
                       <img
-                        src={`/api/tecdoc-image?type=car&id=${hoveredEngine.engineId}`}
+                        src={carImagesBatch[hoveredEngine.engineId] || `/api/tecdoc-image?type=car&id=${hoveredEngine.engineId}`}
                         alt=""
                         className="w-full h-full object-contain"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -621,15 +633,19 @@ export default function VehiclePickerModal({ onClose, initialBrandName }: { onCl
                       onMouseLeave={() => setHoveredEngine(null)}
                       className="group w-full flex items-center gap-5 px-5 py-4 rounded-xl border border-gray-100 hover:border-primary hover:bg-primary/[0.02] hover:shadow-sm transition-all text-left bg-white"
                     >
-                      {/* Car photo */}
+                      {/* Car photo — from batch prefetch or individual fallback */}
                       <div className="w-24 h-16 rounded-xl bg-gray-50 border border-gray-200 overflow-hidden shrink-0 group-hover:border-primary/20 transition-colors">
-                        <img
-                          src={`/api/tecdoc-image?type=car&id=${engine.engineId}`}
-                          alt=""
-                          className="w-full h-full object-contain p-0.5"
-                          loading="lazy"
-                          onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
-                        />
+                        {carImagesBatch[engine.engineId] ? (
+                          <img src={carImagesBatch[engine.engineId]} alt="" className="w-full h-full object-contain p-0.5" />
+                        ) : (
+                          <img
+                            src={`/api/tecdoc-image?type=car&id=${engine.engineId}`}
+                            alt=""
+                            className="w-full h-full object-contain p-0.5"
+                            loading="lazy"
+                            onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
+                          />
+                        )}
                       </div>
 
                       <div className="flex-1 min-w-0">

@@ -37,6 +37,82 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing type or id" }, { status: 400 });
   }
 
+  // ─── CAR BATCH: return multiple car images as JSON { id: dataUrl } ───
+  if (type === "car-batch") {
+    const ids = (req.nextUrl.searchParams.get("ids") || "").split(",").filter(Boolean).slice(0, 50);
+    if (ids.length === 0) return NextResponse.json({});
+
+    await ensureCarThumbnailsCollection();
+    const client = getTypesenseAdminClient();
+    const result: Record<string, string> = {};
+
+    // 1. Batch lookup from Typesense (multiSearch)
+    const missing: string[] = [];
+    try {
+      const searches = ids.map((carId) => ({
+        collection: "car_thumbnails",
+        q: "*",
+        filter_by: `id:=${carId}`,
+        per_page: 1,
+      }));
+      const BATCH = 50;
+      for (let i = 0; i < searches.length; i += BATCH) {
+        const batch = searches.slice(i, i + BATCH);
+        const res = await client.multiSearch.perform({ searches: batch as never }, {});
+        for (let j = 0; j < batch.length; j++) {
+          const hit = (res.results[j] as { hits?: Array<{ document: { id: string; image_b64: string; content_type: string } }> })?.hits?.[0]?.document;
+          const carId = ids[i + j];
+          if (hit?.image_b64) {
+            result[carId] = `data:${hit.content_type};base64,${hit.image_b64}`;
+          } else {
+            missing.push(carId);
+          }
+        }
+      }
+    } catch {
+      missing.push(...ids.filter((id) => !result[id]));
+    }
+
+    // 2. Fetch missing from TecDoc (concurrency 10)
+    if (missing.length > 0) {
+      const apiKey = await getTecDocApiKey();
+      let running = 0, idx = 0;
+      await new Promise<void>((resolve) => {
+        function next() {
+          if (idx >= missing.length && running === 0) { resolve(); return; }
+          while (running < 10 && idx < missing.length) {
+            const carId = missing[idx++];
+            running++;
+            (async () => {
+              try {
+                const url = `https://webservice.tecalliance.services/pegasus-3-0/documents/${PROVIDER}/DR${carId}/0?api_key=${apiKey}`;
+                const res = await fetch(url);
+                if (res.ok) {
+                  const buf = await res.arrayBuffer();
+                  const ct = res.headers.get("content-type") || "image/jpeg";
+                  const b64 = Buffer.from(buf).toString("base64");
+                  result[carId] = `data:${ct};base64,${b64}`;
+                  // Persist to Typesense
+                  client.collections("car_thumbnails").documents().upsert({
+                    id: carId, image_b64: b64, content_type: ct,
+                    created_at: Math.floor(Date.now() / 1000),
+                  }).catch(() => {});
+                }
+              } catch {}
+              running--;
+              next();
+            })();
+          }
+        }
+        next();
+      });
+    }
+
+    return NextResponse.json(result, {
+      headers: { "Cache-Control": "public, max-age=86400" },
+    });
+  }
+
   // ─── CAR IMAGES: persistent Typesense cache ───
   if (type === "car") {
     try {

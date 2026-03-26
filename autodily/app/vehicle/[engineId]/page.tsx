@@ -110,28 +110,29 @@ export default function VehiclePartsPage() {
     });
   }, [catPathParam]);
 
-  // Load data based on URL params
+  // Load ALL categories in one request (flat) — builds root list + subcats map
   useEffect(() => {
-    // Load root categories for sidebar + fetch subcategories for GAFA-style cards
-    fetch(`/api/vehicles?action=categories&engineId=${engineId}`)
+    // Single request: parentId=-1 returns ALL categories flat with parentNodeId
+    fetch(`/api/vehicles?action=categories&engineId=${engineId}&parentId=-1`)
       .then((r) => r.json())
-      .then((d) => {
-        const cats: Category[] = Array.isArray(d) ? d : [];
-        setAllRootCategories(cats);
-        // Fetch subcategories for each non-end root category
-        const nonEnd = cats.filter((c) => !c.isEndNode);
-        Promise.all(
-          nonEnd.map((c) =>
-            fetch(`/api/vehicles?action=categories&engineId=${engineId}&parentId=${c.nodeId}`)
-              .then((r) => r.json())
-              .then((subs: Category[]) => ({ nodeId: c.nodeId, subs: Array.isArray(subs) ? subs : [] }))
-              .catch(() => ({ nodeId: c.nodeId, subs: [] as Category[] }))
-          )
-        ).then((results) => {
-          const map: Record<string, Category[]> = {};
-          for (const r of results) map[r.nodeId] = r.subs;
-          setSubcatsMap(map);
-        });
+      .then((allFlat: Array<{ nodeId: string; name: string; parentNodeId?: number; isEndNode: boolean }>) => {
+        if (!Array.isArray(allFlat)) return;
+        // Root categories = those without parent
+        const roots = allFlat.filter((c) => !c.parentNodeId);
+        setAllRootCategories(roots.map((c) => ({ nodeId: c.nodeId, name: c.name, isEndNode: c.isEndNode, href: "" })));
+        // Build subcats map: parentNodeId → children
+        const map: Record<string, Category[]> = {};
+        for (const c of allFlat) {
+          if (c.parentNodeId) {
+            const pid = String(c.parentNodeId);
+            if (!map[pid]) map[pid] = [];
+            map[pid].push({ nodeId: c.nodeId, name: c.name, isEndNode: c.isEndNode, href: "" });
+          }
+        }
+        setSubcatsMap(map);
+        // Also populate allCatsFlat for search
+        setAllCatsFlat(allFlat as typeof allCatsFlat);
+        setAllCatsLoaded(true);
       })
       .catch(() => {});
     // Vehicle info
@@ -236,7 +237,10 @@ export default function VehiclePartsPage() {
 
       // Fetch products (fast: Nextis + Typesense, no TecDoc)
       setLoadingProducts(true); setProducts([]); setDynamicFilters([]);
-      const url = `/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}`;
+      // Pass catName so backend doesn't need to fetch getCategoriesForVehicle again
+      const lastBreadcrumb = catPathParam ? catPathParam.split("~").pop() : "";
+      const catName = lastBreadcrumb ? lastBreadcrumb.split(":").slice(1).join(":") : "";
+      const url = `/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&catName=${encodeURIComponent(catName)}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}`;
       fetch(url)
         .then((r) => r.json())
         .then((data) => {
@@ -248,17 +252,41 @@ export default function VehiclePartsPage() {
         .catch(() => setProducts([]))
         .finally(() => setLoadingProducts(false));
     } else {
-      // Load categories
+      // Load categories — use pre-fetched subcatsMap if available
       setProducts([]); setDynamicFilters([]); setActiveFilters({}); setTecdocCount(0); setLoadingProducts(false); setShowFilterSidebar(false);
-      setLoading(true);
-      const parentId = catParam || undefined;
-      fetch(`/api/vehicles?action=categories&engineId=${engineId}${parentId ? `&parentId=${parentId}` : ""}`)
-        .then((r) => r.json())
-        .then((d) => setCategories(Array.isArray(d) ? d : []))
-        .catch(() => setCategories([]))
-        .finally(() => setLoading(false));
+      if (catParam && subcatsMap[catParam]) {
+        // Already have this level's children from the flat fetch
+        setCategories(subcatsMap[catParam]);
+        setLoading(false);
+      } else if (!catParam && allRootCategories.length > 0) {
+        // Root level already loaded
+        setCategories(allRootCategories);
+        setLoading(false);
+      } else {
+        // Fallback: fetch from API (first load before flat data arrives)
+        setLoading(true);
+        const parentId = catParam || undefined;
+        fetch(`/api/vehicles?action=categories&engineId=${engineId}${parentId ? `&parentId=${parentId}` : ""}`)
+          .then((r) => r.json())
+          .then((d) => setCategories(Array.isArray(d) ? d : []))
+          .catch(() => setCategories([]))
+          .finally(() => setLoading(false));
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- subcatsMap/allRootCategories used as fast-path cache, not reactive triggers
   }, [engineId, catParam, leafParam]);
+
+  // When flat data arrives, populate current categories if still empty
+  useEffect(() => {
+    if (leafParam || categories.length > 0) return;
+    if (!catParam && allRootCategories.length > 0) {
+      setCategories(allRootCategories);
+      setLoading(false);
+    } else if (catParam && subcatsMap[catParam]) {
+      setCategories(subcatsMap[catParam]);
+      setLoading(false);
+    }
+  }, [allRootCategories, subcatsMap, catParam, leafParam, categories.length]);
 
   // Build URL with vehicle params preserved
   function vehicleUrl(extra: Record<string, string>) {
@@ -1399,14 +1427,39 @@ export default function VehiclePartsPage() {
   );
 }
 
-/** Product image — shows imageUrl from API/enrichment, no individual fetches */
+/** Product image — stable layout, fade-in when enrichment image arrives */
 function ProductThumb({ imageUrl, brand }: { imageUrl?: string; productId?: string; productCode?: string; brand: string }) {
-  if (imageUrl) {
-    return <img src={imageUrl} alt="" className="w-full h-full object-contain p-1.5" loading="lazy" />;
+  const [loaded, setLoaded] = useState(false);
+  const [prevUrl, setPrevUrl] = useState(imageUrl);
+
+  // Reset loaded state when imageUrl changes (enrichment arrived)
+  if (imageUrl !== prevUrl) {
+    setPrevUrl(imageUrl);
+    if (imageUrl) setLoaded(false);
   }
-  if (hasManufacturerLogo(brand)) {
-    return <img src={getManufacturerLogoUrl(brand)} alt="" className="h-7 w-auto object-contain opacity-30" loading="lazy" />;
+
+  // Placeholder (logo or text) — always same size, shown until real image loads
+  const placeholder = hasManufacturerLogo(brand)
+    ? <img src={getManufacturerLogoUrl(brand)} alt="" className="h-7 w-auto object-contain opacity-20" />
+    : <span className="text-[11px] font-bold text-mltext-light/20 uppercase">{brand.slice(0, 3)}</span>;
+
+  if (!imageUrl) {
+    return <div className="w-full h-full flex items-center justify-center">{placeholder}</div>;
   }
-  return <span className="text-[11px] font-bold text-mltext-light/30 uppercase">{brand.slice(0, 3)}</span>;
+
+  return (
+    <div className="w-full h-full relative flex items-center justify-center">
+      {/* Placeholder stays until image loads — prevents jump */}
+      {!loaded && <div className="absolute inset-0 flex items-center justify-center">{placeholder}</div>}
+      <img
+        src={imageUrl}
+        alt=""
+        className={`w-full h-full object-contain p-1.5 transition-opacity duration-200 ${loaded ? "opacity-100" : "opacity-0"}`}
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(false)}
+      />
+    </div>
+  );
 }
 
