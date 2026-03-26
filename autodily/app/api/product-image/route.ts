@@ -101,20 +101,8 @@ export async function GET(req: NextRequest) {
     const genericArticle = ga?.genericArticleDescription || "";
     const category = ga?.assemblyGroupName || "";
 
-    // Scrape vehicle compatibility from mroauto (your own site)
-    // Scrape vehicle compatibility from mroauto.cz (your own site)
-    let vehicles = "";
-    try {
-      const { default: ax } = await import("axios");
-      const { data: mroHtml } = await ax.get(`https://www.mroauto.cz/cs/hledani/1/9/x/x/x/x/${id}`, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
-        timeout: 8000,
-      });
-      const vMatch = mroHtml.match(/je vhodn[ýá] pro modely aut[\s\S]*?<\/div>/i);
-      if (vMatch) {
-        vehicles = vMatch[0].replace(/<[^>]*>/g, " ").replace(/je vhodn[ýá] pro modely aut/i, "").replace(/\s+/g, " ").trim();
-      }
-    } catch {}
+    // Vehicle compatibility scraping removed — was adding up to 8s per request
+    const vehicles = "";
 
     const result: ResponseData = { imageUrl, images, attributes, pdfs, genericArticle, category, vehicles };
 

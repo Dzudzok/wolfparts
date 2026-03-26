@@ -1,4 +1,4 @@
-# WolfParts (Autodily) — Stan projektu na 26.03.2026 08:30
+# WolfParts (Autodily) — Stan projektu na 26.03.2026 (aktualizacja wieczorna)
 
 ---
 
@@ -74,11 +74,11 @@ API Server: `https://api.mroauto.nextis.cz`
 │   │       ├── /auth/route.ts           POST — logowanie (Nextis)
 │   │       ├── /register/route.ts       POST — rejestracja (dummy order WP-REG-)
 │   │       ├── /search/route.ts         POST — szukaj w Typesense
-│   │       ├── /vehicles/route.ts       GET  — brands/models/engines/categories/products
+│   │       ├── /vehicles/route.ts       GET  — brands/models/engines/categories/products/enrich
 │   │       ├── /vehicle-info/route.ts   GET  — zdjęcia pojazdów
 │   │       ├── /vin/route.ts            GET  — VIN lookup (wyłączony)
 │   │       ├── /product-live/route.ts   GET  — ceny/stany na żywo (Nextis)
-│   │       ├── /product-image/route.ts  GET  — proxy obrazków produktów
+│   │       ├── /product-image/route.ts  GET  — TecDoc obrazki + specs (bez scrapingu)
 │   │       ├── /product-replacements/route.ts GET — zamienniki
 │   │       ├── /tecdoc-image/route.ts   GET  — proxy obrazków TecDoc
 │   │       ├── /cart-prices/route.ts    POST — ceny koszyka (z auth)
@@ -187,18 +187,27 @@ GET /api/vehicles?action=categories&engineId=Z
     → Ukryte: "Speciální nářadí", "Vedlejší pohon", "Pneumatický systém"
     │
     ▼ Wybiera kategorię końcową (np. "Brzdové destičky")
-GET /api/vehicles?action=products&engineId=Z&categoryId=C
+GET /api/vehicles?action=products&engineId=Z&categoryId=C  ← FAZA 1 (szybka ~1.5s)
     │
-    ├─ a) TecDoc getBrandsForVehicleCategory() → zbiera genArtIDs
-    ├─ b) Nextis items-finding-by-vehicle (per genArtID, parallel) → ceny + stany
+    ├─ a) TecDoc getBrandsForVehicleCategory() + getCategoriesForVehicle() → PARALLEL
+    ├─ b) Nextis items-finding-by-vehicle (per genArtID, parallel, keep-alive agents)
     ├─ c) Deduplikacja po code+brand
-    ├─ d) Typesense lookup → ID produktu (link do /product/[id])
-    ├─ e) TecDoc getArticleByCode() → specs/criteria + obrazki
+    ├─ d) Typesense multiSearch batch (50/batch) → ID produktu
     │
-    ▼ Wynik:
-    Lista produktów posortowana: in-stock first, potem po cenie
-    + dynamiczne filtry (Výrobce, Montovaná strana, Provedení nápravy...)
-    + cache 5 min na wyniki Nextis
+    ▼ Wynik fazy 1:
+    Lista produktów z cenami + stanami (bez zdjęć/specs)
+    Frontend: paginacja 15/stronę, filtry po Výrobce
+    │
+    ▼ FAZA 2 (w tle ~500ms)
+GET /api/vehicles?action=enrich&engineId=Z&categoryId=C&codes=...
+    │
+    ├─ TecDoc getArticleByCode() × N (concurrency 15) → specs + obrazki
+    ├─ Buduje dynamiczne filtry (Montovaná strana, Provedení nápravy...)
+    │
+    ▼ Wynik fazy 2:
+    Obrazki + criteria wstrzyknięte do istniejących produktów
+    + pełne dynamiczne filtry
+    + cache 5 min (server) + localStorage 5 min (client)
 ```
 
 ---
@@ -525,10 +534,18 @@ npm run scrape:cars:100        # Pierwsze 100 zdjęć aut
 - [x] Proxy obrazków (produkty + TecDoc auta)
 - [x] Dynamiczne filtry na stronie vehicle (specs z TecDoc)
 - [x] Strony statyczne (o nas, kontakt, doprava, obchodní podmínky)
+- [x] **NOWE 26.03** Redesign kategorii w stylu GAFA Auto (duże karty 3-kolumnowe z listą podkategorii)
+- [x] **NOWE 26.03** Lewy sidebar kategorii — chowany drawer z czerwonym przyciskiem toggle
+- [x] **NOWE 26.03** Wyszukiwarka kategorii z obsługą czeskich diakrytyków (č→c, ř→r, ž→z)
+- [x] **NOWE 26.03** 2-fazowe ładowanie produktów (szybka faza ~1.5s + enrichment w tle ~500ms)
+- [x] **NOWE 26.03** Frontend paginacja 15/stronę (filtry działają na WSZYSTKICH produktach)
+- [x] **NOWE 26.03** Typesense multiSearch batching (48 lookupów: 881ms → 195ms)
+- [x] **NOWE 26.03** HTTP keep-alive agents dla Nextis API (maxSockets: 20)
+- [x] **NOWE 26.03** ProductThumb — czysty komponent wyświetlający (zero indywidualnych fetch)
 
 ### Nie działa / wyłączone:
 - [ ] VIN lookup — wymaga Puppeteer, nie zainstalowany w produkcji
-- [ ] Scraping mroauto.cz — Puppeteer dependency, kod istnieje ale nieaktywny
+- [ ] Scraping mroauto.cz — usunięty (był w product-image, dodawał 8s/request)
 
 ### Do zrobienia / potencjalne usprawnienia:
 - [ ] Email z potwierdzeniem zamówienia (brak implementacji)
@@ -536,8 +553,8 @@ npm run scrape:cars:100        # Pierwsze 100 zdjęć aut
 - [ ] Zapomniałem hasła / reset hasła
 - [ ] SEO (meta tagi, sitemap, structured data)
 - [ ] Responsywność — do weryfikacji na mobile
-- [ ] Lazy loading dalszych produktów (infinite scroll?)
-- [ ] Cache'owanie cen Nextis po stronie frontend
+- [ ] Nextis API serializuje requesty per token — zbadać czy da się batchować genArtIDs w jednym callu
+- [ ] Usunąć performance logi z vehicles/route.ts po zakończeniu optymalizacji
 
 ---
 
@@ -567,4 +584,68 @@ npm run scrape:cars:100        # Pierwsze 100 zdjęć aut
 
 ---
 
-*Dokument wygenerowany 26.03.2026 08:30 jako snapshot stanu projektu WolfParts.*
+---
+
+## 19. Optymalizacje wydajności (26.03.2026)
+
+### Problem: ładowanie produktów 3-6 sekund
+Źródła opóźnień zidentyfikowane przez logi:
+- TecDoc brands+cats: ~500ms-2.7s (cold cache)
+- Nextis items-finding-by-vehicle: ~1.3s per call (API serializuje per token)
+- Typesense: 881ms dla 48 indywidualnych lookupów
+- TecDoc getArticleByCode: ~500ms-1.5s per artykuł (15+ artykułów)
+- ProductThumb: 15 indywidualnych fetch do /api/product-image (~1-1.5s każdy)
+
+### Rozwiązania zastosowane:
+
+| Optymalizacja | Przed | Po |
+|---|---|---|
+| TecDoc brands + cats | Sekwencyjne | **Promise.all (parallel)** |
+| Typesense lookups | N indywidualnych search | **multiSearch batch (50/batch)**: 881ms → 195ms |
+| HTTP connections | Nowe per request | **Keep-alive agents** (maxSockets: 20) |
+| TecDoc enrichment | W głównym request | **Osobny endpoint /enrich** (faza 2 w tle) |
+| ProductThumb | Fetch /product-image per produkt | **Czysty komponent** (props only, zero fetch) |
+| Paginacja | Wszystkie produkty od razu | **15/stronę** (filtry na pełnym zbiorze) |
+| Cache client | Brak | **localStorage 5min TTL** (products + enrichment) |
+
+### Wynik: TOTAL 6.26s → 1.57s + 0.5s enrichment w tle
+
+### Architektura 2-fazowego ładowania:
+```
+Faza 1: /api/vehicles?action=products (~1.5s)
+  → TecDoc genArtIDs + Nextis ceny/stany + Typesense batch
+  → Frontend: natychmiast renderuje produkty (ceny, stany, nazwy)
+  → Paginacja 15/stronę, filtr po Výrobce
+
+Faza 2: /api/vehicles?action=enrich (~0.5s, w tle)
+  → TecDoc getArticleByCode × N (concurrency 15)
+  → Zwraca: obrazki + criteria (specs)
+  → Frontend: wstrzykuje do istniejących produktów + dodaje filtry dynamiczne
+  → Cache: server 5min (vehicleProductsCache) + client localStorage 5min
+```
+
+---
+
+## 20. Redesign strony kategorii (26.03.2026)
+
+### Styl GAFA Auto — duże karty kategorii:
+- Root level: 3-kolumnowa siatka z dużymi kartami
+- Każda karta: ikona/zdjęcie + nazwa kategorii + lista podkategorii inline
+- Podkategorie pobierane równolegle (Promise.all) dla wszystkich root categories
+- Klik na podkategorię → bezpośrednio do produktów
+
+### Sidebar kategorii:
+- Domyślnie **UKRYTY** (drawer)
+- Czerwony przycisk toggle (strzałka) na lewym marginesie
+- Animowany slide-out z backdrop overlay
+- Na liście produktów: filtry domyślnie **WIDOCZNE** (z margin-left dla toggle)
+
+### Wyszukiwarka kategorii:
+- Input nad siatką kategorii
+- Dynamiczne ukrywanie kafli (nie pasujące → display:none)
+- Obsługa czeskich diakrytyków: `String.normalize("NFD").replace(/[\u0300-\u036f]/g, "")`
+- Szuka po nazwie kategorii + nazwach podkategorii
+
+---
+
+*Dokument zaktualizowany 26.03.2026 wieczorem. Poprzednia wersja: 08:30.*

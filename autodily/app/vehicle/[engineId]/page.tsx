@@ -19,8 +19,9 @@ interface MatchedProduct {
   nextisQty: number | null;
   nextisDiscount: number | null;
   criteria?: Array<{ key: string; value: string }>;
-  imageUrl?: string;
+  imageUrl?: string; // TecDoc image from API enrichment
 }
+
 
 interface DynamicFilter { key: string; values: string[]; }
 
@@ -60,14 +61,27 @@ export default function VehiclePartsPage() {
   const [loading, setLoading] = useState(!leafParam);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
-  const [filterSidebarCollapsed, setFilterSidebarCollapsed] = useState(true);
+  const [filterSidebarCollapsed, setFilterSidebarCollapsed] = useState(false);
   const [showAllBrands, setShowAllBrands] = useState(false);
+  const [catSidebarOpen, setCatSidebarOpen] = useState(false);
+  const [productPage, setProductPage] = useState(1);
+  const PRODUCTS_PER_PAGE = 15;
+  const [catGridSearch, setCatGridSearch] = useState("");
+
+  // Normalize Czech diacritics for search: č→c, ř→r, ž→z, š→s, etc.
+  function normCz(s: string) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
   const [catSearch, setCatSearch] = useState("");
   const [allCatsFlat, setAllCatsFlat] = useState<{ nodeId: string; name: string; parentNodeId?: number; parentName?: string; isEndNode: boolean }[]>([]);
   const [allCatsLoaded, setAllCatsLoaded] = useState(false);
   const [tecdocCount, setTecdocCount] = useState(0);
   const [hoveredCatId, setHoveredCatId] = useState<string | null>(null);
   const [vehicleInfo, setVehicleInfo] = useState<{ imageUrl?: string; power?: string; engineCodes?: string; fuel?: string; years?: string; body?: string } | null>(null);
+  const [subcatsMap, setSubcatsMap] = useState<Record<string, Category[]>>({});
+
+  // Reset page when filters change
+  useEffect(() => { setProductPage(1); }, [activeFilters]);
 
   // Filtered products (reacts to filter changes)
   const filteredProducts = useMemo(() => {
@@ -98,10 +112,27 @@ export default function VehiclePartsPage() {
 
   // Load data based on URL params
   useEffect(() => {
-    // Load root categories for sidebar
+    // Load root categories for sidebar + fetch subcategories for GAFA-style cards
     fetch(`/api/vehicles?action=categories&engineId=${engineId}`)
       .then((r) => r.json())
-      .then((d) => setAllRootCategories(Array.isArray(d) ? d : []))
+      .then((d) => {
+        const cats: Category[] = Array.isArray(d) ? d : [];
+        setAllRootCategories(cats);
+        // Fetch subcategories for each non-end root category
+        const nonEnd = cats.filter((c) => !c.isEndNode);
+        Promise.all(
+          nonEnd.map((c) =>
+            fetch(`/api/vehicles?action=categories&engineId=${engineId}&parentId=${c.nodeId}`)
+              .then((r) => r.json())
+              .then((subs: Category[]) => ({ nodeId: c.nodeId, subs: Array.isArray(subs) ? subs : [] }))
+              .catch(() => ({ nodeId: c.nodeId, subs: [] as Category[] }))
+          )
+        ).then((results) => {
+          const map: Record<string, Category[]> = {};
+          for (const r of results) map[r.nodeId] = r.subs;
+          setSubcatsMap(map);
+        });
+      })
       .catch(() => {});
     // Vehicle info
     if (engineId) {
@@ -123,9 +154,70 @@ export default function VehiclePartsPage() {
         setDynamicFilters(data.filters || []);
       }
 
-      setLoading(false); setShowFilterSidebar(true); setCategories([]); setActiveFilters({});
+      // Fetch TecDoc enrichment in background, merge into products
+      function runEnrichment(prods: MatchedProduct[]) {
+        if (prods.length === 0) return;
+        const enrichCacheKey = `wp_enrich_${engineId}_${leafParam}`;
+        // Check enrichment cache
+        try {
+          const raw = localStorage.getItem(enrichCacheKey);
+          if (raw) {
+            const cached = JSON.parse(raw);
+            if (Date.now() - cached.ts < CACHE_TTL) {
+              applyEnrichment(prods, cached.data);
+              return;
+            }
+            localStorage.removeItem(enrichCacheKey);
+          }
+        } catch {}
 
-      // Try cache
+        const codes = prods.map((p) => `${p.tecdocCode}|${p.tecdocBrand}`).join(",");
+        fetch(`/api/vehicles?action=enrich&engineId=${engineId}&categoryId=${leafParam}&codes=${encodeURIComponent(codes)}`)
+          .then((r) => r.json())
+          .then((data) => {
+            applyEnrichment(prods, data);
+            try { localStorage.setItem(enrichCacheKey, JSON.stringify({ data, ts: Date.now() })); } catch {}
+          })
+          .catch(() => {});
+      }
+
+      function applyEnrichment(prods: MatchedProduct[], data: { enriched?: Record<string, { criteria?: Array<{ key: string; value: string }>; imageUrl?: string }>; filters?: DynamicFilter[] }) {
+        const enriched = data.enriched || {};
+        if (Object.keys(enriched).length === 0) return;
+        // Merge criteria + images into products
+        setProducts((prev) => prev.map((p) => {
+          const e = enriched[`${p.tecdocCode}|${p.tecdocBrand}`];
+          if (!e) return p;
+          return { ...p, criteria: e.criteria || p.criteria, imageUrl: e.imageUrl || p.imageUrl };
+        }));
+        // Add TecDoc filters (keep existing brand filter)
+        if (data.filters && data.filters.length > 0) {
+          setDynamicFilters((prev) => {
+            const existing = prev.filter((f) => !data.filters!.some((n) => n.key === f.key));
+            return [...existing, ...data.filters!];
+          });
+        }
+        // Update products cache with enriched data
+        try {
+          const raw = localStorage.getItem(cacheKey);
+          if (raw) {
+            const cached = JSON.parse(raw);
+            cached.data.products = (cached.data.products || []).map((p: MatchedProduct) => {
+              const e = enriched[`${p.tecdocCode}|${p.tecdocBrand}`];
+              return e ? { ...p, criteria: e.criteria || p.criteria, imageUrl: e.imageUrl || p.imageUrl } : p;
+            });
+            if (data.filters) {
+              const existing = (cached.data.filters || []).filter((f: DynamicFilter) => !data.filters!.some((n) => n.key === f.key));
+              cached.data.filters = [...existing, ...data.filters];
+            }
+            localStorage.setItem(cacheKey, JSON.stringify(cached));
+          }
+        } catch {}
+      }
+
+      setLoading(false); setShowFilterSidebar(true); setCategories([]); setActiveFilters({}); setProductPage(1);
+
+      // Try full cache (products + enrichment already merged)
       try {
         const raw = localStorage.getItem(cacheKey);
         if (raw) {
@@ -133,21 +225,25 @@ export default function VehiclePartsPage() {
           if (Date.now() - cached.ts < CACHE_TTL) {
             applyData(cached.data);
             setLoadingProducts(false);
+            // If no criteria = enrichment not yet cached, run it
+            const hasEnrichment = (cached.data.products || []).some((p: MatchedProduct) => p.criteria);
+            if (!hasEnrichment) runEnrichment(cached.data.products || []);
             return;
           }
           localStorage.removeItem(cacheKey);
         }
       } catch {}
 
-      // No cache — fetch from API
+      // Fetch products (fast: Nextis + Typesense, no TecDoc)
       setLoadingProducts(true); setProducts([]); setDynamicFilters([]);
       const url = `/api/vehicles?action=products&engineId=${engineId}&categoryId=${leafParam}&bs=${brandSlug}&ms=${modelSlug}&es=${engineSlug}&bi=${brandId}&mi=${modelId}`;
       fetch(url)
         .then((r) => r.json())
         .then((data) => {
           applyData(data);
-          // Save to localStorage cache
           try { localStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() })); } catch {}
+          // TecDoc enrichment in background
+          runEnrichment(data.products || []);
         })
         .catch(() => setProducts([]))
         .finally(() => setLoadingProducts(false));
@@ -231,10 +327,37 @@ export default function VehiclePartsPage() {
       <Header />
 
       {/* ═══ CONTENT WITH SIDEBAR ═══ */}
-      <div className="flex-1 flex">
-        {/* LEFT SIDEBAR */}
-        <aside className="hidden lg:block w-64 shrink-0 border-r border-mlborder-light bg-white overflow-y-auto" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: "64px" }}>
+      <div className="flex-1 flex relative">
+        {/* LEFT SIDEBAR — slide-out drawer */}
+        {/* Backdrop */}
+        <div
+          className={`fixed inset-0 z-30 lg:hidden transition-opacity duration-300 ${catSidebarOpen ? "bg-black/20 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+          onClick={() => setCatSidebarOpen(false)}
+        />
+
+        {/* Toggle tab — always visible on edge */}
+        <button
+          onClick={() => setCatSidebarOpen((p) => !p)}
+          className="hidden lg:flex fixed left-0 top-1/2 -translate-y-1/2 z-40 items-center justify-center w-6 h-16 bg-primary hover:bg-primary-dark rounded-r-lg shadow-md hover:shadow-lg transition-all"
+          style={{ left: catSidebarOpen ? "272px" : "0px", transition: "left 0.3s ease" }}
+          title={catSidebarOpen ? "Skrýt kategorie" : "Zobrazit kategorie"}
+        >
+          <svg viewBox="0 0 24 24" className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${catSidebarOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
+        </button>
+
+        {/* Sidebar panel */}
+        <aside
+          className={`fixed lg:fixed top-[64px] left-0 z-30 h-[calc(100vh-64px)] w-[272px] bg-white border-r border-mlborder-light overflow-y-auto transition-transform duration-300 ease-in-out ${catSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"}`}
+        >
           <div className="py-3">
+            {/* Close button (mobile) */}
+            <div className="flex items-center justify-between px-3 mb-2 lg:hidden">
+              <span className="text-[12px] font-bold text-mltext-dark">Kategorie</span>
+              <button onClick={() => setCatSidebarOpen(false)} className="p-1 rounded hover:bg-gray-100">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 text-mltext-light" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+
             {/* Category search */}
             <div className="px-3 mb-2">
               <div className="relative">
@@ -244,7 +367,6 @@ export default function VehiclePartsPage() {
                   value={catSearch}
                   onChange={(e) => {
                     setCatSearch(e.target.value);
-                    // Lazy-load all categories on first keystroke
                     if (e.target.value && !allCatsLoaded) {
                       setAllCatsLoaded(true);
                       fetch(`/api/vehicles?action=categories&engineId=${engineId}&parentId=-1`)
@@ -277,7 +399,6 @@ export default function VehiclePartsPage() {
                     <p className="px-4 py-3 text-[12px] text-mltext-light">Nic nenalezeno</p>
                   );
                   return results.slice(0, 20).map((cat) => {
-                    // Find parent chain for navigation
                     const parentCat = cat.parentNodeId ? allCatsFlat.find((c) => String(c.nodeId) === String(cat.parentNodeId)) : null;
                     return (
                       <button
@@ -285,7 +406,6 @@ export default function VehiclePartsPage() {
                         onClick={() => {
                           let path = "";
                           if (parentCat) {
-                            // Check if parentCat also has a parent
                             const grandParent = parentCat.parentNodeId ? allCatsFlat.find((c) => String(c.nodeId) === String(parentCat.parentNodeId)) : null;
                             if (grandParent) {
                               path = `${grandParent.nodeId}:${grandParent.name}~${parentCat.nodeId}:${parentCat.name}~${cat.nodeId}:${cat.name}`;
@@ -296,6 +416,7 @@ export default function VehiclePartsPage() {
                             path = `${cat.nodeId}:${cat.name}`;
                           }
                           setCatSearch("");
+                          setCatSidebarOpen(false);
                           if (cat.isEndNode) {
                             router.push(vehicleUrl({ cat: "", catPath: path, leaf: cat.nodeId }));
                           } else {
@@ -327,6 +448,7 @@ export default function VehiclePartsPage() {
                       const path = `${cat.nodeId}:${cat.name}`;
                       if (cat.isEndNode) {
                         router.push(vehicleUrl({ cat: "", catPath: path, leaf: cat.nodeId }));
+                        setCatSidebarOpen(false);
                       } else {
                         if (isExpanded) { setExpandedSidebarCat(null); setSidebarSubcats([]); }
                         else {
@@ -352,7 +474,7 @@ export default function VehiclePartsPage() {
                         return (
                         <button key={sub.nodeId} onClick={() => {
                           const path = `${cat.nodeId}:${cat.name}~${sub.nodeId}:${sub.name}`;
-                          if (sub.isEndNode) router.push(vehicleUrl({ cat: "", catPath: path, leaf: sub.nodeId }));
+                          if (sub.isEndNode) { router.push(vehicleUrl({ cat: "", catPath: path, leaf: sub.nodeId })); setCatSidebarOpen(false); }
                           else router.push(vehicleUrl({ cat: sub.nodeId, catPath: path, leaf: "" }));
                         }} className="w-full flex items-center gap-2.5 pl-8 pr-4 py-1.5 text-left text-[12px] text-mltext-light hover:text-primary hover:bg-gray-50 transition-colors">
                           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: subStyle.color }} />
@@ -375,7 +497,7 @@ export default function VehiclePartsPage() {
 
         {/* FILTER SIDEBAR — collapsible with edge arrow */}
         {showFilterSidebar && (
-          <div className="hidden lg:flex shrink-0 relative" style={{ position: "sticky", top: "64px", maxHeight: "calc(100vh - 64px)", alignSelf: "flex-start" }}>
+          <div className="hidden lg:flex shrink-0 relative ml-7" style={{ position: "sticky", top: "64px", maxHeight: "calc(100vh - 64px)", alignSelf: "flex-start" }}>
             {/* Sidebar content — slides in/out */}
             <aside
               className="border-r border-mlborder-light bg-white overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out"
@@ -594,8 +716,11 @@ export default function VehiclePartsPage() {
           )}
 
 
-          {/* Categories */}
+          {/* Categories — GAFA Auto style: large cards with subcategory lists */}
           {!loading && categories.length > 0 && (() => {
+            // For root level — show large GAFA-style cards
+            const isRootLevel = breadcrumb.length === 0;
+
             // Promote key subcategories to main level (e.g. Brzdové obložení from Kotoučová brzda)
             const PROMOTE_MAP: Record<string, string[]> = {
               "kotoučová brzda": ["brzdové obložení", "brzdový kotouč"],
@@ -621,48 +746,171 @@ export default function VehiclePartsPage() {
               : categories;
             const allCategories = [...promoted, ...filteredCats];
 
+            // Filter categories by search query (matches category name + subcategory names)
+            const q = normCz(catGridSearch.trim());
+            const displayCategories = q
+              ? allCategories.filter((cat) => {
+                  // Match category name
+                  if (normCz(cat.name).includes(q)) return true;
+                  // Match subcategory names
+                  const subs = subcatsMap[cat.nodeId] || [];
+                  return subs.some((s) => normCz(s.name).includes(q));
+                })
+              : allCategories;
+
             return (
               <>
-                {/* Section header */}
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-semibold text-mltext-dark">
-                    {breadcrumb.length === 0 ? "Kategorie dílů" : "Podkategorie"}
+                {/* Section header + search */}
+                <div className="flex items-center gap-4 mb-5 flex-wrap">
+                  <h2 className="text-lg font-bold text-mltext-dark shrink-0">
+                    {isRootLevel ? "Katalog autodílů" : "Podkategorie"}
                   </h2>
-                  <span className="text-xs text-mltext-light">
-                    {allCategories.length} kategorií
+                  {isRootLevel && (
+                    <div className="relative flex-1 max-w-sm">
+                      <svg viewBox="0 0 24 24" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mltext-light/50" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      <input
+                        type="text"
+                        value={catGridSearch}
+                        onChange={(e) => setCatGridSearch(e.target.value)}
+                        placeholder="Filtrovat kategorie..."
+                        className="w-full text-[13px] font-medium text-mltext-dark placeholder:text-mltext-light/50 bg-white border border-mlborder-light rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:border-primary/40 focus:shadow-sm transition-all"
+                      />
+                      {catGridSearch && (
+                        <button onClick={() => setCatGridSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-mltext-light hover:text-mltext transition-colors">
+                          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <span className="text-xs text-mltext-light ml-auto shrink-0">
+                    {displayCategories.length}{q ? ` z ${allCategories.length}` : ""} kategorií
                   </span>
                 </div>
 
-                {/* Unified grid — all categories equal */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
-                  {allCategories.map((cat) => {
-                    const image = getCategoryImage(cat.name);
-                    const style = getCategoryStyle(cat.name);
-                    return (
-                      <button
-                        key={cat.nodeId}
-                        onClick={() => handleCategoryClick(cat)}
-                        onMouseEnter={() => setHoveredCatId(cat.nodeId)}
-                        onMouseLeave={() => setHoveredCatId(null)}
-                        className="group bg-white rounded-xl border border-mlborder-light hover:border-primary/40 hover:shadow-md transition-all duration-150 p-4 flex flex-col items-center gap-3 text-center"
-                      >
-                        <div className="w-14 h-14 flex items-center justify-center group-hover:scale-105 transition-transform duration-150">
-                          {image ? (
-                            <img src={image} alt="" className="w-full h-full object-contain" loading="lazy" />
-                          ) : (
-                            <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke={style.color} strokeWidth="1.5"><path d={style.icon} /></svg>
-                          )}
+                {/* No results */}
+                {q && displayCategories.length === 0 && (
+                  <div className="text-center py-10 mb-6">
+                    <p className="text-sm text-mltext-light">Žádná kategorie neodpovídá &quot;{catGridSearch}&quot;</p>
+                    <button onClick={() => setCatGridSearch("")} className="text-sm text-primary hover:text-primary-dark font-bold mt-2">Zobrazit vše</button>
+                  </div>
+                )}
+
+                {/* GAFA-style large cards for root level */}
+                {isRootLevel && displayCategories.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+                    {displayCategories.map((cat) => {
+                      const image = getCategoryImage(cat.name);
+                      const style = getCategoryStyle(cat.name);
+                      const subs = subcatsMap[cat.nodeId] || [];
+                      const MAX_SUBS = 6;
+                      const visibleSubs = subs.slice(0, MAX_SUBS);
+                      const hasMoreSubs = subs.length > MAX_SUBS;
+
+                      return (
+                        <div
+                          key={cat.nodeId}
+                          className="group bg-white rounded-xl border border-mlborder-light hover:border-primary/30 hover:shadow-lg transition-all duration-200 overflow-hidden"
+                        >
+                          {/* Card header — category name + arrow */}
+                          <button
+                            onClick={() => handleCategoryClick(cat)}
+                            onMouseEnter={() => setHoveredCatId(cat.nodeId)}
+                            onMouseLeave={() => setHoveredCatId(null)}
+                            className="w-full flex items-start justify-between p-4 pb-2"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: style.color }} />
+                              <h3 className="text-[15px] font-bold text-mltext-dark group-hover:text-primary transition-colors text-left leading-snug">
+                                {cat.name}
+                              </h3>
+                            </div>
+                            <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 text-mltext-light group-hover:text-primary transition-colors mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
+                          </button>
+
+                          {/* Card body — subcategory list + image */}
+                          <div className="flex items-stretch">
+                            {/* Subcategory list */}
+                            <div className="flex-1 px-4 pb-4 min-w-0">
+                              {visibleSubs.length > 0 ? (
+                                <ul className="space-y-0.5">
+                                  {visibleSubs.map((sub) => (
+                                    <li key={sub.nodeId}>
+                                      <button
+                                        onClick={() => {
+                                          const path = `${cat.nodeId}:${cat.name}~${sub.nodeId}:${sub.name}`;
+                                          if (sub.isEndNode) router.push(vehicleUrl({ cat: "", catPath: path, leaf: sub.nodeId }));
+                                          else router.push(vehicleUrl({ cat: sub.nodeId, catPath: path, leaf: "" }));
+                                        }}
+                                        className="text-[12.5px] text-mltext hover:text-primary transition-colors py-0.5 text-left flex items-center gap-2 w-full"
+                                      >
+                                        <span className="text-mltext-light/40 text-[10px]">›</span>
+                                        <span className="truncate">{sub.name}</span>
+                                      </button>
+                                    </li>
+                                  ))}
+                                  {hasMoreSubs && (
+                                    <li>
+                                      <button
+                                        onClick={() => handleCategoryClick(cat)}
+                                        className="text-[11px] text-primary hover:text-primary-dark font-bold py-0.5 flex items-center gap-1"
+                                      >
+                                        + dalších {subs.length - MAX_SUBS} kategorií
+                                      </button>
+                                    </li>
+                                  )}
+                                </ul>
+                              ) : (
+                                <p className="text-[11px] text-mltext-light py-1">
+                                  {cat.isEndNode ? "Zobrazit díly →" : "Zobrazit podkategorie →"}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Category image */}
+                            <div className="w-[110px] shrink-0 flex items-center justify-center p-3 pr-4">
+                              {image ? (
+                                <img src={image} alt="" className="w-full h-auto max-h-[90px] object-contain opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200" loading="lazy" />
+                              ) : (
+                                <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-30 group-hover:opacity-50 transition-opacity" fill="none" stroke={style.color} strokeWidth="1.5"><path d={style.icon} /></svg>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <span className="text-[13px] font-medium text-mltext-dark group-hover:text-primary leading-tight transition-colors">
-                          {cat.name}
-                        </span>
-                        <span className="text-[11px] text-mltext-light group-hover:text-primary/70 transition-colors">
-                          {cat.isEndNode ? "Zobrazit díly →" : "Podkategorie →"}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* Sub-level — compact grid */
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+                    {displayCategories.map((cat) => {
+                      const image = getCategoryImage(cat.name);
+                      const style = getCategoryStyle(cat.name);
+                      return (
+                        <button
+                          key={cat.nodeId}
+                          onClick={() => handleCategoryClick(cat)}
+                          onMouseEnter={() => setHoveredCatId(cat.nodeId)}
+                          onMouseLeave={() => setHoveredCatId(null)}
+                          className="group bg-white rounded-xl border border-mlborder-light hover:border-primary/40 hover:shadow-md transition-all duration-150 p-4 flex flex-col items-center gap-3 text-center"
+                        >
+                          <div className="w-14 h-14 flex items-center justify-center group-hover:scale-105 transition-transform duration-150">
+                            {image ? (
+                              <img src={image} alt="" className="w-full h-full object-contain" loading="lazy" />
+                            ) : (
+                              <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke={style.color} strokeWidth="1.5"><path d={style.icon} /></svg>
+                            )}
+                          </div>
+                          <span className="text-[13px] font-medium text-mltext-dark group-hover:text-primary leading-tight transition-colors">
+                            {cat.name}
+                          </span>
+                          <span className="text-[11px] text-mltext-light group-hover:text-primary/70 transition-colors">
+                            {cat.isEndNode ? "Zobrazit díly →" : "Podkategorie →"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Schematic below grid */}
                 {showRightSchematic && (
@@ -937,9 +1185,14 @@ export default function VehiclePartsPage() {
                 );
               })()}
 
-              {/* ── Product list ── */}
+              {/* ── Product list (paginated — filters work on ALL products) ── */}
+              {(() => {
+                const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+                const safePage = Math.min(productPage, totalPages || 1);
+                const pagedProducts = filteredProducts.slice((safePage - 1) * PRODUCTS_PER_PAGE, safePage * PRODUCTS_PER_PAGE);
+                return (<>
               <div className={productView === "grid" ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" : "space-y-2"}>
-                {filteredProducts.map((item, i) => {
+                {pagedProducts.map((item, i) => {
                   const montovanaStrana = item.criteria?.find((c) => c.key.toLowerCase().includes("montovaná strana") || c.key.toLowerCase().includes("provedení nápravy"));
                   const detailUrl = item.product?.id ? `/product/${item.product.id}` : `/search?q=${encodeURIComponent(item.tecdocCode)}`;
                   const inStock = (item.nextisQty || 0) > 0;
@@ -952,7 +1205,7 @@ export default function VehiclePartsPage() {
                   if (productView === "grid") return (
                     <div key={i} className="group bg-white rounded-2xl border border-mlborder-light overflow-hidden transition-all hover:shadow-xl hover:-translate-y-0.5 flex flex-col">
                       <a href={detailUrl} className="block aspect-[4/3] bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-4 relative overflow-hidden">
-                        <ProductThumb imageUrl={item.product?.image_url as string} productId={item.product?.id as string} productCode={item.tecdocCode} brand={item.tecdocBrand} />
+                        <ProductThumb imageUrl={item.imageUrl || item.product?.image_url as string} productId={item.product?.id as string} productCode={item.tecdocCode} brand={item.tecdocBrand} />
                         <div className="absolute top-2 left-2 flex flex-col gap-1">
                           {inStock && (
                             <span className="text-[9px] font-bold text-white bg-mlgreen px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
@@ -1006,7 +1259,7 @@ export default function VehiclePartsPage() {
                     <div className="flex items-stretch">
                       {/* Image */}
                       <a href={detailUrl} className="w-[180px] shrink-0 bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-3 relative border-r border-mlborder-light">
-                        <ProductThumb imageUrl={item.product?.image_url as string} productId={item.product?.id as string} productCode={item.tecdocCode} brand={item.tecdocBrand} />
+                        <ProductThumb imageUrl={item.imageUrl || item.product?.image_url as string} productId={item.product?.id as string} productCode={item.tecdocCode} brand={item.tecdocBrand} />
                         <div className="absolute top-2 left-2 flex flex-col gap-1">
                           {montovanaStrana && (
                             <span className="text-[9px] font-bold text-blue-700 bg-blue-50/90 border border-blue-200 px-2 py-0.5 rounded-full">{montovanaStrana.value}</span>
@@ -1083,6 +1336,47 @@ export default function VehiclePartsPage() {
                 })}
               </div>
 
+              {/* ── Pagination ── */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-6">
+                  <button
+                    onClick={() => { setProductPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    disabled={safePage <= 1}
+                    className="px-3 py-2 rounded-lg border border-mlborder-light text-[12px] font-bold text-mltext hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    ← Předchozí
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - safePage) <= 2)
+                    .reduce<(number | "...")[]>((acc, p, idx, arr) => {
+                      if (idx > 0 && p - (arr[idx - 1]) > 1) acc.push("...");
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((p, idx) =>
+                      p === "..." ? (
+                        <span key={`dot-${idx}`} className="text-mltext-light text-[12px] px-1">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => { setProductPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                          className={`w-9 h-9 rounded-lg text-[12px] font-bold transition-all ${safePage === p ? "bg-primary text-white shadow-sm" : "border border-mlborder-light text-mltext hover:bg-gray-50"}`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )
+                  }
+                  <button
+                    onClick={() => { setProductPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    disabled={safePage >= totalPages}
+                    className="px-3 py-2 rounded-lg border border-mlborder-light text-[12px] font-bold text-mltext hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    Další →
+                  </button>
+                </div>
+              )}
+
               {/* No results after filtering */}
               {filteredProducts.length === 0 && hasActiveFilters && (
                 <div className="text-center py-12 bg-white rounded-2xl border border-mlborder-light">
@@ -1090,6 +1384,7 @@ export default function VehiclePartsPage() {
                   <button onClick={() => setActiveFilters({})} className="mt-2 text-primary hover:text-primary-dark text-sm font-bold">Zrušit filtry</button>
                 </div>
               )}
+              </>); })()}
             </>
           );
           })()}
@@ -1104,38 +1399,10 @@ export default function VehiclePartsPage() {
   );
 }
 
-/** Lazy-loads product image: Typesense → TecDoc API by productId → TecDoc API by code */
-function ProductThumb({ imageUrl, productId, productCode, brand }: { imageUrl?: string; productId?: string; productCode?: string; brand: string }) {
-  const [src, setSrc] = useState(imageUrl || "");
-  const [tried, setTried] = useState(false);
-
-  useEffect(() => {
-    if (src || tried) return;
-    setTried(true);
-
-    // Try Typesense product first (has cached image)
-    if (productId) {
-      fetch(`/api/product-image?id=${productId}`)
-        .then((r) => r.json())
-        .then((d) => { if (d.imageUrl) { setSrc(d.imageUrl); return; } throw new Error("no image"); })
-        .catch(() => {
-          // Fallback: TecDoc getArticles by code
-          if (productCode) fetchByCode(productCode);
-        });
-    } else if (productCode) {
-      fetchByCode(productCode);
-    }
-  }, [src, tried, productId, productCode]);
-
-  function fetchByCode(code: string) {
-    fetch(`/api/product-image?code=${encodeURIComponent(code)}`)
-      .then((r) => r.json())
-      .then((d) => { if (d.imageUrl) setSrc(d.imageUrl); })
-      .catch(() => {});
-  }
-
-  if (src) {
-    return <img src={src} alt="" className="w-full h-full object-contain p-1.5" loading="lazy" />;
+/** Product image — shows imageUrl from API/enrichment, no individual fetches */
+function ProductThumb({ imageUrl, brand }: { imageUrl?: string; productId?: string; productCode?: string; brand: string }) {
+  if (imageUrl) {
+    return <img src={imageUrl} alt="" className="w-full h-full object-contain p-1.5" loading="lazy" />;
   }
   if (hasManufacturerLogo(brand)) {
     return <img src={getManufacturerLogoUrl(brand)} alt="" className="h-7 w-auto object-contain opacity-30" loading="lazy" />;
